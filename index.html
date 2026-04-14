@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Éditeur Visuel 3 Panneaux</title>
+    <title>Éditeur WYSIWYG 3 Panneaux</title>
     
     <style>
-        /* === Variables de l'interface (Statiques) === */
+        /* === Variables de l'interface === */
         :root {
             --bg-color: #f8f9fa;
             --panel-bg: #ffffff;
@@ -30,7 +30,7 @@
             overflow: hidden;
         }
 
-        /* === En-tête (Barre d'outils) === */
+        /* === En-tête Global === */
         header {
             background-color: var(--header-bg);
             padding: 10px 20px;
@@ -60,9 +60,31 @@
         }
 
         button:hover { background-color: var(--btn-hover); }
-        
         .btn-secondary { background-color: #6c757d; }
         .btn-secondary:hover { background-color: #5c636a; }
+
+        /* === Barre de formatage texte (Panneau 1) === */
+        .text-format-toolbar {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+            background-color: var(--header-bg);
+            padding: 5px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .text-format-toolbar button {
+            background-color: #ffffff;
+            color: #333;
+            border: 1px solid #ccc;
+            padding: 4px 8px;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+
+        .text-format-toolbar button:hover {
+            background-color: #e2e6ea;
+        }
 
         /* === Les 3 Panneaux === */
         main {
@@ -102,7 +124,6 @@
             box-sizing: border-box;
         }
 
-        /* Éditeur Visuel (contenteditable) */
         #visual-editor {
             width: 100%;
             height: 100%;
@@ -115,7 +136,6 @@
             color: #888;
         }
 
-        /* Code HTML readonly */
         textarea {
             width: 100%;
             height: 100%;
@@ -131,12 +151,12 @@
         .preview-container {
             display: flex;
             justify-content: center;
-            background-color: #555; /* Fond sombre pour faire ressortir l'écran virtuel */
+            background-color: #555;
             padding: 10px;
         }
 
         #preview-output {
-            width: 100%; /* Desktop par défaut */
+            width: 100%; 
             height: 100%;
             transition: width 0.3s ease, background-color 0.3s, color 0.3s;
             box-shadow: 0 4px 8px rgba(0,0,0,0.4);
@@ -145,22 +165,14 @@
             box-sizing: border-box;
         }
 
-        /* Classes de taille */
         #preview-output.mobile-view { width: 375px; }
         #preview-output.tablet-view { width: 768px; }
         #preview-output.desktop-view { width: 100%; }
 
-        /* Classes de thème EXCLUSIVES au panneau 3 */
-        #preview-output.theme-light {
-            background-color: #ffffff;
-            color: #000000;
-        }
-        #preview-output.theme-dark {
-            background-color: #121212;
-            color: #f0f0f0;
-        }
+        #preview-output.theme-light { background-color: #ffffff; color: #000000; }
+        #preview-output.theme-dark { background-color: #121212; color: #f0f0f0; }
 
-        /* === Modales (Pop-ups) === */
+        /* === Modales === */
         dialog {
             background-color: var(--modal-bg);
             color: var(--text-color);
@@ -174,25 +186,9 @@
 
         dialog::backdrop { background: rgba(0, 0, 0, 0.6); }
 
-        .form-group {
-            margin-bottom: 15px;
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
-
-        .form-group input {
-            padding: 8px;
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
-        }
-
-        .dialog-buttons {
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-            margin-top: 20px;
-        }
+        .form-group { margin-bottom: 15px; display: flex; flex-direction: column; gap: 5px; }
+        .form-group input { padding: 8px; border: 1px solid var(--border-color); border-radius: 4px; }
+        .dialog-buttons { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
     </style>
 </head>
 <body>
@@ -205,17 +201,34 @@
         
         <div class="toolbar-group">
             <span>Rendu :</span>
-            <button class="btn-secondary" onclick="setDeviceView('mobile-view')" aria-label="Vue Mobile">📱</button>
-            <button class="btn-secondary" onclick="setDeviceView('tablet-view')" aria-label="Vue Tablette">💻</button>
-            <button class="btn-secondary" onclick="setDeviceView('desktop-view')" aria-label="Vue Bureau">🖥️</button>
-            <button id="theme-toggle" class="btn-secondary" aria-label="Basculer le thème du rendu">🌓 Thème Rendu</button>
+            <button class="btn-secondary" onclick="setDeviceView('mobile-view')" title="Mobile">📱</button>
+            <button class="btn-secondary" onclick="setDeviceView('tablet-view')" title="Tablette">💻</button>
+            <button class="btn-secondary" onclick="setDeviceView('desktop-view')" title="Bureau">🖥️</button>
+            <button id="theme-toggle" class="btn-secondary" title="Thème">🌓 Thème Rendu</button>
         </div>
     </header>
 
     <main>
         <section class="panel">
             <div class="panel-header">1. Éditeur Visuel</div>
-            <div class="panel-content">
+            
+            <div class="text-format-toolbar">
+                <button onmousedown="event.preventDefault(); formatText('bold');" title="Gras"><b>G</b></button>
+                <button onmousedown="event.preventDefault(); formatText('italic');" title="Italique"><i>I</i></button>
+                <button onmousedown="event.preventDefault(); formatText('hiliteColor', 'yellow');" title="Surligner" style="background-color: yellow;">Surligner</button>
+                <span style="border-left: 1px solid #ccc; margin: 0 4px;"></span>
+                <button onmousedown="event.preventDefault(); formatText('formatBlock', 'H1');">H1</button>
+                <button onmousedown="event.preventDefault(); formatText('formatBlock', 'H2');">H2</button>
+                <button onmousedown="event.preventDefault(); formatText('formatBlock', 'H3');">H3</button>
+                <button onmousedown="event.preventDefault(); formatText('formatBlock', 'H4');">H4</button>
+                <button onmousedown="event.preventDefault(); formatText('formatBlock', 'P');" title="Paragraphe normal">P</button>
+                <span style="border-left: 1px solid #ccc; margin: 0 4px;"></span>
+                <button onmousedown="event.preventDefault(); formatText('insertUnorderedList');" title="Liste à puces">Liste</button>
+                <button onmousedown="event.preventDefault(); formatText('indent');" title="Créer une sous-liste (Indenter)">➡️ Sous-liste</button>
+                <button onmousedown="event.preventDefault(); formatText('outdent');" title="Annuler la sous-liste (Désindenter)">⬅️ Retour</button>
+            </div>
+
+            <div class="panel-content" style="padding-top: 5px;">
                 <div id="visual-editor" contenteditable="true" data-placeholder="Tapez votre texte ici..."></div>
             </div>
         </section>
@@ -240,26 +253,11 @@
 
     <dialog id="image-modal">
         <h3>Insérer une Image</h3>
-        <div class="form-group">
-            <label>URL de l'image :</label>
-            <input type="text" id="img-url" placeholder="https://...">
-        </div>
-        <div class="form-group">
-            <label>Texte alternatif (Alt) :</label>
-            <input type="text" id="img-alt" placeholder="Description...">
-        </div>
-        <div class="form-group">
-            <label>Sous-texte (Légende) :</label>
-            <input type="text" id="img-caption" placeholder="Légende...">
-        </div>
-        <div class="form-group">
-            <label>Taille (ex: 100%, 300px) :</label>
-            <input type="text" id="img-size" value="100%">
-        </div>
-        <div class="form-group">
-            <label>Arrondi (Radius, ex: 8px) :</label>
-            <input type="text" id="img-radius" value="8px">
-        </div>
+        <div class="form-group"><label>URL :</label><input type="text" id="img-url" placeholder="https://..."></div>
+        <div class="form-group"><label>Alt :</label><input type="text" id="img-alt" placeholder="Description..."></div>
+        <div class="form-group"><label>Légende :</label><input type="text" id="img-caption" placeholder="Légende..."></div>
+        <div class="form-group"><label>Taille :</label><input type="text" id="img-size" value="100%"></div>
+        <div class="form-group"><label>Arrondi :</label><input type="text" id="img-radius" value="8px"></div>
         <div class="dialog-buttons">
             <button class="btn-secondary" onclick="closeModal('image-modal')">Annuler</button>
             <button onclick="insertMedia('image')">Valider</button>
@@ -268,26 +266,11 @@
 
     <dialog id="video-modal">
         <h3>Insérer une Vidéo</h3>
-        <div class="form-group">
-            <label>Lien (YouTube ou .mp4) :</label>
-            <input type="text" id="vid-url" placeholder="https://...">
-        </div>
-        <div class="form-group">
-            <label>Titre (Alt) :</label>
-            <input type="text" id="vid-alt" placeholder="Titre...">
-        </div>
-        <div class="form-group">
-            <label>Sous-texte (Légende) :</label>
-            <input type="text" id="vid-caption" placeholder="Légende...">
-        </div>
-        <div class="form-group">
-            <label>Taille (ex: 100%, 500px) :</label>
-            <input type="text" id="vid-size" value="100%">
-        </div>
-        <div class="form-group">
-            <label>Arrondi (Radius, ex: 8px) :</label>
-            <input type="text" id="vid-radius" value="8px">
-        </div>
+        <div class="form-group"><label>Lien :</label><input type="text" id="vid-url" placeholder="https://..."></div>
+        <div class="form-group"><label>Alt :</label><input type="text" id="vid-alt" placeholder="Titre..."></div>
+        <div class="form-group"><label>Légende :</label><input type="text" id="vid-caption" placeholder="Légende..."></div>
+        <div class="form-group"><label>Taille :</label><input type="text" id="vid-size" value="100%"></div>
+        <div class="form-group"><label>Arrondi :</label><input type="text" id="vid-radius" value="8px"></div>
         <div class="dialog-buttons">
             <button class="btn-secondary" onclick="closeModal('video-modal')">Annuler</button>
             <button onclick="insertMedia('video')">Valider</button>
@@ -299,35 +282,39 @@
         const htmlOutput = document.getElementById('html-output');
         const previewOutput = document.getElementById('preview-output');
 
+        // === Fonction de Formatage de Texte ===
+        function formatText(command, value = null) {
+            // Exécute la commande sur la zone actuellement sélectionnée
+            document.execCommand(command, false, value);
+            
+            // On s'assure que l'éditeur garde le focus
+            visualEditor.focus();
+            
+            // On met à jour les autres panneaux
+            updatePanels();
+        }
+
         // === Synchronisation : Éditeur Visuel -> HTML -> Rendu ===
         function updatePanels() {
             const currentHTML = visualEditor.innerHTML;
-            
-            // Met à jour la zone de texte HTML brute
             htmlOutput.value = currentHTML;
-            // Met à jour l'écran de rendu
             previewOutput.innerHTML = currentHTML;
         }
 
-        // Écoute les modifications dans l'éditeur visuel (frappe clavier, etc.)
         visualEditor.addEventListener('input', updatePanels);
 
-        // === Copier le code HTML ===
         function copyHtml() {
             htmlOutput.select();
             navigator.clipboard.writeText(htmlOutput.value)
                 .then(() => alert("Code HTML copié dans le presse-papier !"));
         }
 
-        // === Simulateur Responsive ===
         function setDeviceView(viewClass) {
-            // Conserve les classes de thème mais change la vue
             const isDark = previewOutput.classList.contains('theme-dark');
             previewOutput.className = isDark ? 'theme-dark' : 'theme-light';
             previewOutput.classList.add(viewClass);
         }
 
-        // === Thème ciblé (Panneau 3 uniquement) ===
         document.getElementById('theme-toggle').addEventListener('click', () => {
             if (previewOutput.classList.contains('theme-light')) {
                 previewOutput.classList.remove('theme-light');
@@ -338,35 +325,21 @@
             }
         });
 
-        // === Modales et Insertion de Médias de façon moderne ===
-        function closeModal(id) {
-            document.getElementById(id).close();
-        }
+        function closeModal(id) { document.getElementById(id).close(); }
 
-        // Fonction pour insérer du HTML propre à la position du curseur
         function insertHtmlAtCursor(htmlSnippet) {
             visualEditor.focus();
             const selection = window.getSelection();
-            
             if (selection.getRangeAt && selection.rangeCount > 0) {
                 let range = selection.getRangeAt(0);
-                
-                // Vérifie que le curseur est bien à l'intérieur de notre éditeur
                 if (visualEditor.contains(range.commonAncestorContainer)) {
                     range.deleteContents();
-                    
-                    // Création d'un fragment de document pour une insertion sécurisée
                     const el = document.createElement("div");
                     el.innerHTML = htmlSnippet;
                     const frag = document.createDocumentFragment();
                     let node, lastNode;
-                    
-                    while ((node = el.firstChild)) {
-                        lastNode = frag.appendChild(node);
-                    }
+                    while ((node = el.firstChild)) { lastNode = frag.appendChild(node); }
                     range.insertNode(frag);
-                    
-                    // Replacer le curseur après l'élément inséré
                     if (lastNode) {
                         range = range.cloneRange();
                         range.setStartAfter(lastNode);
@@ -375,7 +348,6 @@
                         selection.addRange(range);
                     }
                 } else {
-                    // Si le curseur est en dehors, on ajoute à la fin
                     visualEditor.insertAdjacentHTML('beforeend', htmlSnippet);
                 }
             } else {
@@ -385,48 +357,30 @@
 
         function insertMedia(type) {
             let snippet = "";
-
             if (type === 'image') {
                 const url = document.getElementById('img-url').value;
                 const alt = document.getElementById('img-alt').value;
                 const caption = document.getElementById('img-caption').value;
                 const size = document.getElementById('img-size').value;
                 const radius = document.getElementById('img-radius').value;
-
-                snippet = `
-<figure style="margin: 0; text-align: center;">
-    <img src="${url}" alt="${alt}" style="width: ${size}; border-radius: ${radius}; max-width: 100%;">
-    ${caption ? `<figcaption style="font-size: 0.9em; color: #666; margin-top: 5px;">${caption}</figcaption>` : ''}
-</figure><br>`; // <br> pour pouvoir continuer à écrire en dessous
+                snippet = `<figure style="margin: 0; text-align: center;"><img src="${url}" alt="${alt}" style="width: ${size}; border-radius: ${radius}; max-width: 100%;">${caption ? `<figcaption style="font-size: 0.9em; color: #666; margin-top: 5px;">${caption}</figcaption>` : ''}</figure><br>`;
                 closeModal('image-modal');
-            } 
-            else if (type === 'video') {
+            } else if (type === 'video') {
                 const url = document.getElementById('vid-url').value;
                 const alt = document.getElementById('vid-alt').value;
                 const caption = document.getElementById('vid-caption').value;
                 const size = document.getElementById('vid-size').value;
                 const radius = document.getElementById('vid-radius').value;
-
                 const ytMatch = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
 
                 if (ytMatch) {
                     const ytId = ytMatch[1];
-                    snippet = `
-<figure style="margin: 0; text-align: center;">
-    <iframe src="https://www.youtube.com/embed/${ytId}?autoplay=1&mute=1" title="${alt}" style="width: ${size}; aspect-ratio: 16/9; border: none; border-radius: ${radius}; max-width: 100%;" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-    ${caption ? `<figcaption style="font-size: 0.9em; color: #666; margin-top: 5px;">${caption}</figcaption>` : ''}
-</figure><br>`;
+                    snippet = `<figure style="margin: 0; text-align: center;"><iframe src="https://www.youtube.com/embed/${ytId}?autoplay=1&mute=1" title="${alt}" style="width: ${size}; aspect-ratio: 16/9; border: none; border-radius: ${radius}; max-width: 100%;" allow="autoplay; encrypted-media" allowfullscreen></iframe>${caption ? `<figcaption style="font-size: 0.9em; color: #666; margin-top: 5px;">${caption}</figcaption>` : ''}</figure><br>`;
                 } else {
-                    snippet = `
-<figure style="margin: 0; text-align: center;">
-    <video src="${url}" title="${alt}" style="width: ${size}; border-radius: ${radius}; max-width: 100%;" autoplay muted loop playsinline></video>
-    ${caption ? `<figcaption style="font-size: 0.9em; color: #666; margin-top: 5px;">${caption}</figcaption>` : ''}
-</figure><br>`;
+                    snippet = `<figure style="margin: 0; text-align: center;"><video src="${url}" title="${alt}" style="width: ${size}; border-radius: ${radius}; max-width: 100%;" autoplay muted loop playsinline></video>${caption ? `<figcaption style="font-size: 0.9em; color: #666; margin-top: 5px;">${caption}</figcaption>` : ''}</figure><br>`;
                 }
                 closeModal('video-modal');
             }
-
-            // Utilisation de la nouvelle fonction d'insertion moderne
             insertHtmlAtCursor(snippet);
             updatePanels();
         }
