@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Éditeur Sémantique Pro - Pur</title>
+    <title>Éditeur Sémantique Pro - Layouts Avancés</title>
     
     <style>
         :root {
@@ -148,11 +148,14 @@
 
         dialog {
             background-color: var(--modal-bg); color: var(--text-color); border: 1px solid var(--border-color);
-            border-radius: 8px; padding: 20px; width: 400px; max-width: 90%; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            border-radius: 8px; padding: 20px; width: 500px; max-width: 90%; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            max-height: 90vh; overflow-y: auto;
         }
         dialog::backdrop { background: rgba(0, 0, 0, 0.6); }
         .form-group { margin-bottom: 15px; display: flex; flex-direction: column; gap: 5px; }
-        .form-group input[type="text"] { padding: 8px; border: 1px solid var(--border-color); border-radius: 4px; }
+        .form-group input[type="text"], .form-group select, .form-group textarea { 
+            padding: 8px; border: 1px solid var(--border-color); border-radius: 4px; font-family: inherit;
+        }
         .checkbox-group { display: flex; flex-direction: row; align-items: center; gap: 10px; cursor: pointer; }
         .dialog-buttons { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
         
@@ -222,9 +225,21 @@
 
     <dialog id="image-modal">
         <h3>Insérer une Image</h3>
+        <div class="form-group">
+            <label>Alignement & Mise en page :</label>
+            <select id="img-align" onchange="document.getElementById('img-size').value = this.value === 'center' ? '100%' : '50%';">
+                <option value="center">Centré (Défaut)</option>
+                <option value="left">Média à Gauche, Texte à Droite</option>
+                <option value="right">Média à Droite, Texte à Gauche</option>
+            </select>
+        </div>
         <div class="form-group"><label>URL :</label><input type="text" id="img-url" placeholder="https://..."></div>
-        <div class="form-group"><label>Alt :</label><input type="text" id="img-alt" placeholder="Description..."></div>
-        <div class="form-group"><label>Légende :</label><input type="text" id="img-caption" placeholder="Légende..."></div>
+        <div class="form-group">
+            <label>Texte descriptif (Optionnel, justifié) :</label>
+            <textarea id="img-text" rows="4" placeholder="Tapez le texte qui accompagnera votre média..."></textarea>
+        </div>
+        <div class="form-group"><label>Alt (Accessibilité) :</label><input type="text" id="img-alt" placeholder="Description courte..."></div>
+        <div class="form-group"><label>Légende (Sous le média) :</label><input type="text" id="img-caption" placeholder="Légende..."></div>
         <div class="form-group"><label>Taille :</label><input type="text" id="img-size" value="100%"></div>
         <div class="form-group"><label>Arrondi :</label><input type="text" id="img-radius" value="8px"></div>
         <div class="dialog-buttons">
@@ -235,9 +250,21 @@
 
     <dialog id="video-modal">
         <h3>Insérer une Vidéo</h3>
+        <div class="form-group">
+            <label>Alignement & Mise en page :</label>
+            <select id="vid-align" onchange="document.getElementById('vid-size').value = this.value === 'center' ? '100%' : '50%';">
+                <option value="center">Centré (Défaut)</option>
+                <option value="left">Média à Gauche, Texte à Droite</option>
+                <option value="right">Média à Droite, Texte à Gauche</option>
+            </select>
+        </div>
         <div class="form-group"><label>Lien (YouTube ou .mp4) :</label><input type="text" id="vid-url" placeholder="https://..."></div>
+        <div class="form-group">
+            <label>Texte descriptif (Optionnel, justifié) :</label>
+            <textarea id="vid-text" rows="4" placeholder="Tapez le texte qui accompagnera votre média..."></textarea>
+        </div>
         <div class="form-group"><label>Titre (Alt) :</label><input type="text" id="vid-alt" placeholder="Titre..."></div>
-        <div class="form-group"><label>Légende :</label><input type="text" id="vid-caption" placeholder="Légende..."></div>
+        <div class="form-group"><label>Légende (Sous le média) :</label><input type="text" id="vid-caption" placeholder="Légende..."></div>
         <div class="form-group"><label>Taille :</label><input type="text" id="vid-size" value="100%"></div>
         <div class="form-group"><label>Arrondi :</label><input type="text" id="vid-radius" value="8px"></div>
         
@@ -270,7 +297,7 @@
 
         function resetEditor() {
             if (confirm("Êtes-vous sûr de vouloir tout effacer ? Cette action est irréversible.")) {
-                visualEditor.innerHTML = ""; // Démarre 100% vide
+                visualEditor.innerHTML = "";
                 localStorage.removeItem('editor_saved_data');
                 updateFromVisual();
             }
@@ -280,21 +307,17 @@
             const parser = new DOMParser();
             const doc = parser.parseFromString(html, 'text/html');
 
-            // 1. Destruction de toutes les balises <br>
             doc.querySelectorAll('br').forEach(br => {
                 const spaceNode = doc.createTextNode('\u00A0');
                 br.replaceWith(spaceNode);
             });
 
-            // 2. Nettoyage extrême des paragraphes vides
             doc.querySelectorAll('p').forEach(p => {
-                // Si le paragraphe ne contient que du vide ou des espaces invisibles, on le supprime
                 if (p.innerHTML.replace(/&nbsp;/g, '').replace(/\u00A0/g, '').trim() === '') {
                     p.remove();
                 }
             });
 
-            // Remplacement des vieilles balises
             doc.querySelectorAll('b').forEach(el => { const strong = doc.createElement('strong'); strong.innerHTML = el.innerHTML; el.replaceWith(strong); });
             doc.querySelectorAll('i').forEach(el => { const em = doc.createElement('em'); em.innerHTML = el.innerHTML; el.replaceWith(em); });
             doc.querySelectorAll('u').forEach(el => { const span = doc.createElement('span'); span.style.textDecoration = 'underline'; span.innerHTML = el.innerHTML; el.replaceWith(span); });
@@ -302,7 +325,6 @@
             doc.querySelectorAll('center').forEach(el => { const div = doc.createElement('div'); div.style.textAlign = 'center'; div.innerHTML = el.innerHTML; el.replaceWith(div); });
             doc.querySelectorAll('font').forEach(el => { const span = doc.createElement('span'); if (el.getAttribute('color')) span.style.color = el.getAttribute('color'); span.innerHTML = el.innerHTML; el.replaceWith(span); });
 
-            // Correction de l'ordre des sous-listes
             doc.querySelectorAll('ul > ul, ol > ol, ul > ol, ol > ul').forEach(nestedList => {
                 const prevLi = nestedList.previousElementSibling;
                 if (prevLi && prevLi.tagName === 'LI') {
@@ -316,8 +338,6 @@
             });
 
             let cleanHtml = doc.body.innerHTML;
-
-            // Sécurité anti-<br>
             cleanHtml = cleanHtml.replace(/<br\s*\/?>/gi, '');
 
             let formatted = cleanHtml.replace(/>\s+</g, '><');
@@ -335,9 +355,7 @@
         function updateFromVisual() {
             const rawHTML = visualEditor.innerHTML;
             const cleanedHTML = cleanAndFormatHTML(rawHTML);
-            
             const safeHTML = cleanedHTML.replace(/&amp;mute=1/g, '&mute=1').replace(/&amp;rel=0/g, '&rel=0');
-
             htmlOutput.value = safeHTML;
             previewOutput.innerHTML = safeHTML;
             saveToLocalStorage(safeHTML);
@@ -385,51 +403,87 @@
             updateFromVisual();
         }
 
+        // === LOGIQUE DE MISE EN PAGE ET D'INSERTION ===
         function insertMedia(type) {
-            let snippet = "";
+            const prefix = type === 'image' ? 'img' : 'vid';
+            
+            const align = document.getElementById(`${prefix}-align`).value;
+            const url = document.getElementById(`${prefix}-url`).value;
+            const rawText = document.getElementById(`${prefix}-text`).value;
+            const alt = document.getElementById(`${prefix}-alt`).value;
+            const caption = document.getElementById(`${prefix}-caption`).value;
+            const size = document.getElementById(`${prefix}-size`).value;
+            const radius = document.getElementById(`${prefix}-radius`).value;
+
+            // 1. Formatage du texte associé (paragraphes justifiés)
+            let textHtml = '';
+            if (rawText.trim() !== '') {
+                // Sépare le texte par les sauts de ligne pour créer de vrais paragraphes
+                const paragraphs = rawText.split('\n').filter(p => p.trim() !== '');
+                textHtml = paragraphs.map(p => `<p style="text-align: justify; margin-top: 0;">${p}</p>`).join('\n');
+            }
+
+            // 2. Détermination des styles CSS selon l'alignement
+            let figureStyle = "";
+            let containerStart = "";
+            let containerEnd = "";
+            let mediaStyle = `width: 100%; border-radius: ${radius}; display: block;`;
+
+            // Utilisation de overflow: hidden pour créer un contexte de formatage qui englobe les éléments flottants
+            if (align === 'left') {
+                figureStyle = `float: left; margin: 0 15px 15px 0; width: ${size}; max-width: 100%;`;
+                containerStart = `<div style="overflow: hidden;">\n`;
+                containerEnd = `\n</div>`;
+            } else if (align === 'right') {
+                figureStyle = `float: right; margin: 0 0 15px 15px; width: ${size}; max-width: 100%;`;
+                containerStart = `<div style="overflow: hidden;">\n`;
+                containerEnd = `\n</div>`;
+            } else { // center (défaut)
+                figureStyle = `margin: 0 auto 15px auto; text-align: center; width: ${size}; max-width: 100%;`;
+                // Si on a du texte, on enveloppe le tout pour que le texte justifié reste propre en dessous
+                containerStart = textHtml ? `<div style="overflow: hidden;">\n` : ``;
+                containerEnd = textHtml ? `\n</div>` : ``;
+            }
+
+            // 3. Construction de la balise Média
+            let mediaHtml = "";
+            let captionHtml = caption ? `\n<figcaption style="font-size: 0.9em; color: #666; margin-top: 5px; text-align: center;">${caption}</figcaption>` : '';
+
             if (type === 'image') {
-                const url = document.getElementById('img-url').value;
-                const alt = document.getElementById('img-alt').value;
-                const caption = document.getElementById('img-caption').value;
-                const size = document.getElementById('img-size').value;
-                const radius = document.getElementById('img-radius').value;
-                
-                // Retrait total du <p> final
-                snippet = `<figure style="margin: 0; text-align: center;">\n<img src="${url}" alt="${alt}" style="width: ${size}; border-radius: ${radius}; max-width: 100%;">\n${caption ? `<figcaption style="font-size: 0.9em; color: #666; margin-top: 5px;">${caption}</figcaption>\n` : ''}</figure>`;
-                closeModal('image-modal');
-                
-            } else if (type === 'video') {
-                const url = document.getElementById('vid-url').value;
-                const alt = document.getElementById('vid-alt').value;
-                const caption = document.getElementById('vid-caption').value;
-                const size = document.getElementById('vid-size').value;
-                const radius = document.getElementById('vid-radius').value;
-                
+                mediaHtml = `<img src="${url}" alt="${alt}" style="${mediaStyle}">`;
+            } else {
                 const isAutoplay = document.getElementById('vid-autoplay').checked;
                 const ytAutoParam = isAutoplay ? "?autoplay=1&mute=1&rel=0" : "?rel=0";
                 const html5AutoParam = isAutoplay ? "autoplay muted loop playsinline" : "controls";
-
                 const ytMatch = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
 
                 if (ytMatch) {
                     const ytId = ytMatch[1];
-                    // Retrait total du <p> final
-                    snippet = `<figure style="margin: 0; text-align: center;">\n<iframe width="100%" height="315" src="https://www.youtube-nocookie.com/embed/${ytId}${ytAutoParam}" title="${alt}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen style="border-radius: ${radius}; max-width: 100%;"></iframe>\n${caption ? `<figcaption style="font-size: 0.9em; color: #666; margin-top: 5px;">${caption}</figcaption>\n` : ''}</figure>`;
+                    mediaHtml = `<iframe height="315" src="https://www.youtube-nocookie.com/embed/${ytId}${ytAutoParam}" title="${alt}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen style="${mediaStyle}"></iframe>`;
                 } else {
-                    snippet = `<figure style="margin: 0; text-align: center;">\n<video src="${url}" title="${alt}" style="width: ${size}; min-height: 315px; border-radius: ${radius}; max-width: 100%;" ${html5AutoParam}></video>\n${caption ? `<figcaption style="font-size: 0.9em; color: #666; margin-top: 5px;">${caption}</figcaption>\n` : ''}</figure>`;
+                    mediaHtml = `<video src="${url}" title="${alt}" style="${mediaStyle} min-height: 250px;" ${html5AutoParam}></video>`;
                 }
-                closeModal('video-modal');
             }
+
+            // 4. Assemblage final et insertion (Aucun <p> vide généré)
+            const snippet = `${containerStart}<figure style="${figureStyle}">\n${mediaHtml}${captionHtml}\n</figure>\n${textHtml}${containerEnd}`;
+            
+            closeModal(`${type}-modal`);
+            
+            // On vide les champs texte des modales pour les prochaines utilisations
+            document.getElementById(`${prefix}-url`).value = '';
+            document.getElementById(`${prefix}-text`).value = '';
+            document.getElementById(`${prefix}-caption`).value = '';
+            
             insertHtmlAtCursor(snippet);
         }
 
-        // === INITIALISATION ===
         window.onload = () => {
             const savedData = localStorage.getItem('editor_saved_data');
             if (savedData && savedData.trim() !== '') {
                 visualEditor.innerHTML = savedData;
             } else {
-                visualEditor.innerHTML = ""; // Initialisation 100% vide
+                visualEditor.innerHTML = "";
             }
             updateFromVisual();
         };
