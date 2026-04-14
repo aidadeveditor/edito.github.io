@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Éditeur Sémantique Pro - V2</title>
+    <title>Éditeur Sémantique Pro - V3</title>
     
     <style>
         :root {
@@ -31,6 +31,7 @@
             overflow: hidden;
         }
 
+        /* === En-tête Principal === */
         header {
             background-color: var(--header-bg);
             padding: 10px 20px;
@@ -66,26 +67,33 @@
         .btn-danger { background-color: var(--btn-danger); }
         .btn-danger:hover { background-color: var(--btn-danger-hover); }
 
+        /* === Panneau de contrôle du texte (Pleine largeur) === */
         .text-format-toolbar {
             display: flex;
             gap: 4px;
             flex-wrap: wrap;
-            background-color: var(--header-bg);
-            padding: 5px;
+            background-color: #ffffff;
+            padding: 8px 20px;
             border-bottom: 1px solid var(--border-color);
+            width: 100%;
+            box-sizing: border-box;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            z-index: 10; /* Le place visuellement au-dessus des panneaux */
         }
 
         .text-format-toolbar button {
-            background-color: #ffffff;
+            background-color: #f1f3f5;
             color: #333;
-            border: 1px solid #ccc;
-            padding: 4px 8px;
+            border: 1px solid #ced4da;
+            padding: 5px 10px;
             font-size: 0.85rem;
             font-weight: bold;
+            border-radius: 3px;
         }
 
         .text-format-toolbar button:hover { background-color: #e2e6ea; }
 
+        /* === Les 3 Panneaux === */
         main {
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
@@ -93,6 +101,7 @@
             gap: 10px;
             padding: 10px;
             overflow: hidden;
+            /* Le main prend toute la place restante */
         }
 
         .panel {
@@ -185,15 +194,7 @@
         dialog::backdrop { background: rgba(0, 0, 0, 0.6); }
         .form-group { margin-bottom: 15px; display: flex; flex-direction: column; gap: 5px; }
         .form-group input[type="text"] { padding: 8px; border: 1px solid var(--border-color); border-radius: 4px; }
-        
-        .checkbox-group {
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            gap: 10px;
-            cursor: pointer;
-        }
-
+        .checkbox-group { display: flex; flex-direction: row; align-items: center; gap: 10px; cursor: pointer; }
         .dialog-buttons { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
     </style>
 </head>
@@ -215,25 +216,26 @@
         </div>
     </header>
 
+    <div class="text-format-toolbar">
+        <button onmousedown="event.preventDefault(); formatText('bold');" title="Gras"><b>G</b></button>
+        <button onmousedown="event.preventDefault(); formatText('italic');" title="Italique"><i>I</i></button>
+        <button onmousedown="event.preventDefault(); formatText('underline');" title="Souligné"><u>U</u></button>
+        <span style="border-left: 1px solid #ccc; margin: 0 8px;"></span>
+        <button onmousedown="event.preventDefault(); formatText('formatBlock', 'H1');">H1</button>
+        <button onmousedown="event.preventDefault(); formatText('formatBlock', 'H2');">H2</button>
+        <button onmousedown="event.preventDefault(); formatText('formatBlock', 'H3');">H3</button>
+        <button onmousedown="event.preventDefault(); formatText('formatBlock', 'H4');">H4</button>
+        <button onmousedown="event.preventDefault(); formatText('formatBlock', 'P');" title="Paragraphe normal">P</button>
+        <span style="border-left: 1px solid #ccc; margin: 0 8px;"></span>
+        <button onmousedown="event.preventDefault(); formatText('insertUnorderedList');" title="Liste à puces">Liste</button>
+        <button onmousedown="event.preventDefault(); formatText('indent');" title="Créer une sous-liste (Indenter)">➡️ Sous-liste</button>
+        <button onmousedown="event.preventDefault(); formatText('outdent');" title="Annuler la sous-liste (Désindenter)">⬅️ Retour</button>
+    </div>
+
     <main>
         <section class="panel">
             <div class="panel-header">1. Éditeur Visuel</div>
-            <div class="text-format-toolbar">
-                <button onmousedown="event.preventDefault(); formatText('bold');" title="Gras"><b>G</b></button>
-                <button onmousedown="event.preventDefault(); formatText('italic');" title="Italique"><i>I</i></button>
-                <button onmousedown="event.preventDefault(); formatText('underline');" title="Souligné"><u>U</u></button>
-                <span style="border-left: 1px solid #ccc; margin: 0 4px;"></span>
-                <button onmousedown="event.preventDefault(); formatText('formatBlock', 'H1');">H1</button>
-                <button onmousedown="event.preventDefault(); formatText('formatBlock', 'H2');">H2</button>
-                <button onmousedown="event.preventDefault(); formatText('formatBlock', 'H3');">H3</button>
-                <button onmousedown="event.preventDefault(); formatText('formatBlock', 'H4');">H4</button>
-                <button onmousedown="event.preventDefault(); formatText('formatBlock', 'P');" title="Paragraphe normal">P</button>
-                <span style="border-left: 1px solid #ccc; margin: 0 4px;"></span>
-                <button onmousedown="event.preventDefault(); formatText('insertUnorderedList');" title="Liste à puces">Liste</button>
-                <button onmousedown="event.preventDefault(); formatText('indent');" title="Créer une sous-liste (Indenter)">➡️ Sous-liste</button>
-                <button onmousedown="event.preventDefault(); formatText('outdent');" title="Annuler la sous-liste (Désindenter)">⬅️ Retour</button>
-            </div>
-            <div class="panel-content" style="padding-top: 5px;">
+            <div class="panel-content">
                 <div id="visual-editor" contenteditable="true" data-placeholder="Tapez votre texte ici..."></div>
             </div>
         </section>
@@ -295,35 +297,30 @@
 
         document.execCommand('defaultParagraphSeparator', false, 'p');
 
-        // === NOUVEAU : Fonction de Reset ===
         function resetEditor() {
-            // Demande de confirmation avant de tout supprimer
             if (confirm("Êtes-vous sûr de vouloir tout effacer ? Cette action est irréversible.")) {
-                visualEditor.innerHTML = "<p><br></p>"; // Réinitialise avec un paragraphe vide
-                updateFromVisual(); // Met à jour les deux autres panneaux
+                visualEditor.innerHTML = "<p>&nbsp;</p>";
+                updateFromVisual();
             }
         }
 
-        // === LE NETTOYEUR SÉMANTIQUE AMÉLIORÉ ===
+        // === LE NETTOYEUR SÉMANTIQUE ===
         function cleanAndFormatHTML(html) {
             const parser = new DOMParser();
             const doc = parser.parseFromString(html, 'text/html');
 
-            // 1. Remplacement de <b> par <strong>
             doc.querySelectorAll('b').forEach(el => {
                 const strong = doc.createElement('strong');
                 strong.innerHTML = el.innerHTML;
                 el.replaceWith(strong);
             });
             
-            // 2. Remplacement de <i> par <em>
             doc.querySelectorAll('i').forEach(el => {
                 const em = doc.createElement('em');
                 em.innerHTML = el.innerHTML;
                 el.replaceWith(em);
             });
 
-            // 3. Remplacement de <u> par <span>
             doc.querySelectorAll('u').forEach(el => {
                 const span = doc.createElement('span');
                 span.style.textDecoration = 'underline';
@@ -331,14 +328,12 @@
                 el.replaceWith(span);
             });
 
-            // 4. NOUVEAU : Remplacement des balises barrées obsolètes (<strike> et <s>) par <del>
             doc.querySelectorAll('strike, s').forEach(el => {
                 const del = doc.createElement('del');
                 del.innerHTML = el.innerHTML;
                 el.replaceWith(del);
             });
 
-            // 5. NOUVEAU : Remplacement de <center> par <div> aligné
             doc.querySelectorAll('center').forEach(el => {
                 const div = doc.createElement('div');
                 div.style.textAlign = 'center';
@@ -346,16 +341,19 @@
                 el.replaceWith(div);
             });
 
-            // 6. NOUVEAU : Nettoyage de la vieille balise <font>
             doc.querySelectorAll('font').forEach(el => {
                 const span = doc.createElement('span');
-                // Conserve la couleur si elle existait
                 if (el.getAttribute('color')) span.style.color = el.getAttribute('color');
                 span.innerHTML = el.innerHTML;
                 el.replaceWith(span);
             });
 
-            // 7. Correction de l'ordre des sous-listes
+            // Nettoyage des <br> inutiles (ex: dans les paragraphes vides)
+            doc.querySelectorAll('p > br:only-child').forEach(el => {
+                el.replaceWith('\u00A0'); // Remplace par un espace insécable (&nbsp;)
+            });
+
+            // Correction de l'ordre des sous-listes
             doc.querySelectorAll('ul > ul, ol > ol, ul > ol, ol > ul').forEach(nestedList => {
                 const prevLi = nestedList.previousElementSibling;
                 if (prevLi && prevLi.tagName === 'LI') {
@@ -370,7 +368,6 @@
 
             let cleanHtml = doc.body.innerHTML;
 
-            // Ajout de sauts de ligne pour la lisibilité
             const blockTags = ['p', 'div', 'h1', 'h2', 'h3', 'h4', 'ul', 'ol', 'li', 'figure', 'iframe', 'video', 'strong', 'em', 'span', 'del'];
             let formatted = cleanHtml.replace(/\n/g, '').replace(/\s+/g, ' '); 
             
@@ -383,7 +380,6 @@
             return formatted.replace(/\n\s*\n/g, '\n').trim();
         }
 
-        // === Synchronisation depuis le Visuel ===
         function updateFromVisual() {
             const rawHTML = visualEditor.innerHTML;
             const cleanedHTML = cleanAndFormatHTML(rawHTML);
@@ -392,7 +388,6 @@
             previewOutput.innerHTML = cleanedHTML;
         }
 
-        // === Synchronisation depuis le HTML Brut ===
         function updateFromHtml() {
             const manualHTML = htmlOutput.value;
             visualEditor.innerHTML = manualHTML;
@@ -464,7 +459,8 @@
                 const caption = document.getElementById('img-caption').value;
                 const size = document.getElementById('img-size').value;
                 const radius = document.getElementById('img-radius').value;
-                snippet = `<figure style="margin: 0; text-align: center;"><img src="${url}" alt="${alt}" style="width: ${size}; border-radius: ${radius}; max-width: 100%;">${caption ? `<figcaption style="font-size: 0.9em; color: #666; margin-top: 5px;">${caption}</figcaption>` : ''}</figure><p><br></p>`;
+                // Utilisation de &nbsp; au lieu de <br> pour rester propre
+                snippet = `<figure style="margin: 0; text-align: center;"><img src="${url}" alt="${alt}" style="width: ${size}; border-radius: ${radius}; max-width: 100%;">${caption ? `<figcaption style="font-size: 0.9em; color: #666; margin-top: 5px;">${caption}</figcaption>` : ''}</figure><p>&nbsp;</p>`;
                 closeModal('image-modal');
             } else if (type === 'video') {
                 const url = document.getElementById('vid-url').value;
@@ -481,9 +477,10 @@
 
                 if (ytMatch) {
                     const ytId = ytMatch[1];
-                    snippet = `<figure style="margin: 0; text-align: center;"><iframe src="https://www.youtube.com/embed/${ytId}${ytAutoParam}" title="${alt}" style="width: ${size}; aspect-ratio: 16/9; border: none; border-radius: ${radius}; max-width: 100%;" allow="autoplay; encrypted-media" allowfullscreen></iframe>${caption ? `<figcaption style="font-size: 0.9em; color: #666; margin-top: 5px;">${caption}</figcaption>` : ''}</figure><p><br></p>`;
+                    // Intégration de youtube-nocookie.com
+                    snippet = `<figure style="margin: 0; text-align: center;"><iframe src="https://www.youtube-nocookie.com/embed/${ytId}${ytAutoParam}" title="${alt}" style="width: ${size}; aspect-ratio: 16/9; border: none; border-radius: ${radius}; max-width: 100%;" allow="autoplay; encrypted-media" allowfullscreen></iframe>${caption ? `<figcaption style="font-size: 0.9em; color: #666; margin-top: 5px;">${caption}</figcaption>` : ''}</figure><p>&nbsp;</p>`;
                 } else {
-                    snippet = `<figure style="margin: 0; text-align: center;"><video src="${url}" title="${alt}" style="width: ${size}; border-radius: ${radius}; max-width: 100%;" ${html5AutoParam}></video>${caption ? `<figcaption style="font-size: 0.9em; color: #666; margin-top: 5px;">${caption}</figcaption>` : ''}</figure><p><br></p>`;
+                    snippet = `<figure style="margin: 0; text-align: center;"><video src="${url}" title="${alt}" style="width: ${size}; border-radius: ${radius}; max-width: 100%;" ${html5AutoParam}></video>${caption ? `<figcaption style="font-size: 0.9em; color: #666; margin-top: 5px;">${caption}</figcaption>` : ''}</figure><p>&nbsp;</p>`;
                 }
                 closeModal('video-modal');
             }
@@ -492,7 +489,7 @@
         }
 
         // Initialisation
-        visualEditor.innerHTML = "<p><br></p>";
+        visualEditor.innerHTML = "<p>&nbsp;</p>";
         updateFromVisual();
     </script>
 </body>
