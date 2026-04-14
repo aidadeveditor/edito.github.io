@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Éditeur Markdown Moderne</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    
+    <style>
+        /* === Variables CSS pour la gestion des thèmes === */
+        :root {
+            --bg-color: #ffffff;
+            --text-color: #333333;
+            --border-color: #cccccc;
+            --header-bg: #f5f5f5;
+            --btn-bg: #007bff;
+            --btn-text: #ffffff;
+            --btn-hover: #0056b3;
+            --focus-ring: 2px solid #007bff;
+        }
+
+        /* Variables pour le thème sombre */
+        [data-theme="dark"] {
+            --bg-color: #1a1a1a;
+            --text-color: #f0f0f0;
+            --border-color: #444444;
+            --header-bg: #2a2a2a;
+            --btn-bg: #375a7f;
+            --btn-text: #ffffff;
+            --btn-hover: #2b4764;
+            --focus-ring: 2px solid #5bc0de;
+        }
+
+        /* Adaptation automatique aux préférences du système */
+        @media (prefers-color-scheme: dark) {
+            :root:not([data-theme="light"]) {
+                --bg-color: #1a1a1a;
+                --text-color: #f0f0f0;
+                --border-color: #444444;
+                --header-bg: #2a2a2a;
+            }
+        }
+
+        /* === Styles de base === */
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        /* === En-tête et Boutons === */
+        header {
+            background-color: var(--header-bg);
+            padding: 1rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .toolbar {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        button {
+            background-color: var(--btn-bg);
+            color: var(--btn-text);
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background-color: var(--btn-hover);
+        }
+
+        button:focus-visible {
+            outline: var(--focus-ring);
+            outline-offset: 2px;
+        }
+
+        /* === Conteneur Principal (Responsive Grid) === */
+        main {
+            display: grid;
+            grid-template-columns: 1fr; /* Une seule colonne sur mobile */
+            flex-grow: 1;
+            gap: 1rem;
+            padding: 1rem;
+            overflow: hidden;
+        }
+
+        @media (min-width: 768px) {
+            main {
+                grid-template-columns: 1fr 1fr; /* Deux colonnes sur grand écran */
+            }
+        }
+
+        /* === Zone de saisie et d'aperçu === */
+        .editor-pane, .preview-pane {
+            display: flex;
+            flex-direction: column;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .pane-header {
+            background-color: var(--header-bg);
+            padding: 0.5rem;
+            font-weight: bold;
+            text-align: center;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        textarea {
+            width: 100%;
+            flex-grow: 1;
+            box-sizing: border-box;
+            border: none;
+            padding: 1rem;
+            resize: none;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1rem;
+        }
+
+        textarea:focus {
+            outline: none; /* Remplacé par une indication visuelle sur le conteneur si besoin */
+        }
+
+        .preview-content {
+            padding: 1rem;
+            overflow-y: auto;
+            flex-grow: 1;
+            line-height: 1.6;
+        }
+
+        /* Rend les images et vidéos responsive dans l'aperçu */
+        .preview-content img, .preview-content video {
+            max-width: 100%;
+            height: auto;
+            border-radius: 4px;
+        }
+        
+        /* Accessibilité : masquer visuellement les labels tout en les gardant pour les lecteurs d'écran */
+        .visually-hidden {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            border: 0;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div>
+            <h2>Éditeur Dynamique</h2>
+        </div>
+        <div class="toolbar" aria-label="Outils d'insertion">
+            <button onclick="insertTemplate('image')" aria-label="Insérer un modèle d'image">🖼️ Image</button>
+            <button onclick="insertTemplate('video')" aria-label="Insérer un modèle de vidéo">🎥 Vidéo</button>
+            <button onclick="insertTemplate('list')" aria-label="Insérer une liste avec sous-liste">📋 Liste</button>
+        </div>
+        <div>
+            <button id="theme-toggle" aria-label="Basculer entre le mode clair et sombre">🌓 Changer de Thème</button>
+        </div>
+    </header>
+
+    <main>
+        <section class="editor-pane">
+            <div class="pane-header">Markdown</div>
+            <label for="markdown-input" class="visually-hidden">Zone de saisie Markdown</label>
+            <textarea id="markdown-input" placeholder="Commencez à écrire votre Markdown ici..."></textarea>
+        </section>
+
+        <section class="preview-pane">
+            <div class="pane-header">Aperçu direct</div>
+            <div id="preview-output" class="preview-content" aria-live="polite"></div>
+        </section>
+    </main>
+
+    <script>
+        // === 1. Ciblage des éléments du DOM ===
+        const markdownInput = document.getElementById('markdown-input');
+        const previewOutput = document.getElementById('preview-output');
+        const themeToggleBtn = document.getElementById('theme-toggle');
+        const htmlRoot = document.documentElement;
+
+        // === 2. Configuration de Marked.js ===
+        // On s'assure que les retours à la ligne simples créent de nouvelles lignes en HTML (<br>)
+        marked.setOptions({
+            breaks: true, 
+            gfm: true // GitHub Flavored Markdown (supporte mieux les listes complexes)
+        });
+
+        // === 3. Fonction de conversion Temps Réel ===
+        function updatePreview() {
+            const markdownText = markdownInput.value;
+            // Conversion du Markdown en HTML et injection sécurisée dans la div d'aperçu
+            previewOutput.innerHTML = marked.parse(markdownText);
+        }
+
+        // Écouteur d'événement : à chaque fois que l'utilisateur tape, on met à jour
+        markdownInput.addEventListener('input', updatePreview);
+
+        // === 4. Fonctionnalité de changement de Thème (Clair/Sombre) ===
+        themeToggleBtn.addEventListener('click', () => {
+            // Vérifie le thème actuel
+            const currentTheme = htmlRoot.getAttribute('data-theme');
+            
+            // Si c'est sombre, on passe en clair, sinon on passe en sombre
+            if (currentTheme === 'dark') {
+                htmlRoot.setAttribute('data-theme', 'light');
+            } else {
+                htmlRoot.setAttribute('data-theme', 'dark');
+            }
+        });
+
+        // === 5. Fonction d'insertion des Templates de texte ===
+        function insertTemplate(type) {
+            let templateText = "";
+
+            // Définition des templates selon le choix
+            switch (type) {
+                case 'image':
+                    templateText = "\n![Description de l'image](https://via.placeholder.com/300 \"Titre facultatif\")\n";
+                    break;
+                case 'video':
+                    // Le Markdown natif ne gère pas les vidéos, on utilise donc la balise HTML5 standard
+                    templateText = '\n<video controls width="100%">\n  <source src="votre-video.mp4" type="video/mp4">\n  Votre navigateur ne supporte pas la lecture de vidéos.\n</video>\n';
+                    break;
+                case 'list':
+                    templateText = "\n- Élément principal 1\n  - Sous-élément A\n  - Sous-élément B\n- Élément principal 2\n";
+                    break;
+            }
+
+            // Insertion au niveau du curseur dans le textarea
+            const startPos = markdownInput.selectionStart;
+            const endPos = markdownInput.selectionEnd;
+            const textBefore = markdownInput.value.substring(0, startPos);
+            const textAfter = markdownInput.value.substring(endPos, markdownInput.value.length);
+
+            markdownInput.value = textBefore + templateText + textAfter;
+
+            // Replacer le curseur après le texte inséré
+            markdownInput.selectionStart = startPos + templateText.length;
+            markdownInput.selectionEnd = startPos + templateText.length;
+
+            // Redonner le focus à la zone de texte et mettre à jour l'aperçu
+            markdownInput.focus();
+            updatePreview();
+        }
+
+        // Initialisation de l'aperçu au chargement de la page
+        updatePreview();
+    </script>
+</body>
+</html>
