@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Éditeur Sémantique Pro</title>
+    <title>Éditeur Sémantique Pro - V2</title>
     
     <style>
         :root {
@@ -15,6 +15,8 @@
             --btn-bg: #0d6efd;
             --btn-text: #ffffff;
             --btn-hover: #0b5ed7;
+            --btn-danger: #dc3545;
+            --btn-danger-hover: #c82333;
             --modal-bg: #ffffff;
         }
 
@@ -60,6 +62,9 @@
         button:hover { background-color: var(--btn-hover); }
         .btn-secondary { background-color: #6c757d; }
         .btn-secondary:hover { background-color: #5c636a; }
+        
+        .btn-danger { background-color: var(--btn-danger); }
+        .btn-danger:hover { background-color: var(--btn-danger-hover); }
 
         .text-format-toolbar {
             display: flex;
@@ -198,6 +203,7 @@
         <div class="toolbar-group">
             <button onclick="document.getElementById('image-modal').showModal()">🖼️ Ajouter Image</button>
             <button onclick="document.getElementById('video-modal').showModal()">🎥 Ajouter Vidéo</button>
+            <button onclick="resetEditor()" class="btn-danger" title="Tout effacer et recommencer">🗑️ Reset</button>
         </div>
         
         <div class="toolbar-group">
@@ -287,28 +293,37 @@
         const htmlOutput = document.getElementById('html-output');
         const previewOutput = document.getElementById('preview-output');
 
-        // Force l'éditeur à utiliser <p>
         document.execCommand('defaultParagraphSeparator', false, 'p');
 
-        // === LE NETTOYEUR SÉMANTIQUE (DOM Parser) ===
+        // === NOUVEAU : Fonction de Reset ===
+        function resetEditor() {
+            // Demande de confirmation avant de tout supprimer
+            if (confirm("Êtes-vous sûr de vouloir tout effacer ? Cette action est irréversible.")) {
+                visualEditor.innerHTML = "<p><br></p>"; // Réinitialise avec un paragraphe vide
+                updateFromVisual(); // Met à jour les deux autres panneaux
+            }
+        }
+
+        // === LE NETTOYEUR SÉMANTIQUE AMÉLIORÉ ===
         function cleanAndFormatHTML(html) {
-            // 1. Analyse du HTML généré par le navigateur
             const parser = new DOMParser();
             const doc = parser.parseFromString(html, 'text/html');
 
-            // 2. Remplacement des balises obsolètes par des balises sémantiques
+            // 1. Remplacement de <b> par <strong>
             doc.querySelectorAll('b').forEach(el => {
                 const strong = doc.createElement('strong');
                 strong.innerHTML = el.innerHTML;
                 el.replaceWith(strong);
             });
             
+            // 2. Remplacement de <i> par <em>
             doc.querySelectorAll('i').forEach(el => {
                 const em = doc.createElement('em');
                 em.innerHTML = el.innerHTML;
                 el.replaceWith(em);
             });
 
+            // 3. Remplacement de <u> par <span>
             doc.querySelectorAll('u').forEach(el => {
                 const span = doc.createElement('span');
                 span.style.textDecoration = 'underline';
@@ -316,29 +331,47 @@
                 el.replaceWith(span);
             });
 
-            // 3. Correction de la structure des Listes (ul direct dans un ul est interdit)
-            // Sélectionne tous les uls/ols qui sont enfants directs d'un autre ul/ol
+            // 4. NOUVEAU : Remplacement des balises barrées obsolètes (<strike> et <s>) par <del>
+            doc.querySelectorAll('strike, s').forEach(el => {
+                const del = doc.createElement('del');
+                del.innerHTML = el.innerHTML;
+                el.replaceWith(del);
+            });
+
+            // 5. NOUVEAU : Remplacement de <center> par <div> aligné
+            doc.querySelectorAll('center').forEach(el => {
+                const div = doc.createElement('div');
+                div.style.textAlign = 'center';
+                div.innerHTML = el.innerHTML;
+                el.replaceWith(div);
+            });
+
+            // 6. NOUVEAU : Nettoyage de la vieille balise <font>
+            doc.querySelectorAll('font').forEach(el => {
+                const span = doc.createElement('span');
+                // Conserve la couleur si elle existait
+                if (el.getAttribute('color')) span.style.color = el.getAttribute('color');
+                span.innerHTML = el.innerHTML;
+                el.replaceWith(span);
+            });
+
+            // 7. Correction de l'ordre des sous-listes
             doc.querySelectorAll('ul > ul, ol > ol, ul > ol, ol > ul').forEach(nestedList => {
-                // Cherche le <li> juste au-dessus
                 const prevLi = nestedList.previousElementSibling;
-                
                 if (prevLi && prevLi.tagName === 'LI') {
-                    // Place la sous-liste DANS le <li> précédent
                     prevLi.appendChild(nestedList);
                 } else {
-                    // S'il n'y a pas de <li>, on en crée un
                     const li = doc.createElement('li');
-                    li.style.listStyle = 'none'; // Cache la puce de ce <li> de structure
+                    li.style.listStyle = 'none';
                     nestedList.parentNode.insertBefore(li, nestedList);
                     li.appendChild(nestedList);
                 }
             });
 
-            // On récupère le code propre
             let cleanHtml = doc.body.innerHTML;
 
-            // 4. Ajout de sauts de ligne pour rendre le code beau et lisible dans le panneau 2
-            const blockTags = ['p', 'div', 'h1', 'h2', 'h3', 'h4', 'ul', 'ol', 'li', 'figure', 'iframe', 'video', 'strong', 'em', 'span'];
+            // Ajout de sauts de ligne pour la lisibilité
+            const blockTags = ['p', 'div', 'h1', 'h2', 'h3', 'h4', 'ul', 'ol', 'li', 'figure', 'iframe', 'video', 'strong', 'em', 'span', 'del'];
             let formatted = cleanHtml.replace(/\n/g, '').replace(/\s+/g, ' '); 
             
             blockTags.forEach(tag => {
@@ -347,7 +380,6 @@
                 formatted = formatted.replace(regexOpen, `\n$1`).replace(regexClose, `$1\n`);
             });
 
-            // Supprime les sauts de lignes en trop
             return formatted.replace(/\n\s*\n/g, '\n').trim();
         }
 
@@ -356,7 +388,6 @@
             const rawHTML = visualEditor.innerHTML;
             const cleanedHTML = cleanAndFormatHTML(rawHTML);
             
-            // Le panneau HTML et le Rendu reçoivent la version nettoyée !
             htmlOutput.value = cleanedHTML;
             previewOutput.innerHTML = cleanedHTML;
         }
@@ -442,7 +473,6 @@
                 const size = document.getElementById('vid-size').value;
                 const radius = document.getElementById('vid-radius').value;
                 
-                // Récupération du choix d'autoplay
                 const isAutoplay = document.getElementById('vid-autoplay').checked;
                 const ytAutoParam = isAutoplay ? "?autoplay=1&mute=1" : "?rel=0";
                 const html5AutoParam = isAutoplay ? "autoplay muted loop playsinline" : "controls";
