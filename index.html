@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Éditeur Sémantique Pro - Ultime</title>
+    <title>Éditeur Sémantique Pro - Pur</title>
     
     <style>
         :root {
@@ -126,7 +126,6 @@
         #visual-editor { width: 100%; height: 100%; outline: none; line-height: 1.5; }
         #visual-editor:empty:before { content: attr(data-placeholder); color: #888; }
         
-        /* ASTUCE PRO : Empêche la vidéo d'absorber le clic dans le panneau d'édition */
         #visual-editor iframe, #visual-editor video { pointer-events: none; }
 
         textarea {
@@ -271,27 +270,27 @@
 
         function resetEditor() {
             if (confirm("Êtes-vous sûr de vouloir tout effacer ? Cette action est irréversible.")) {
-                visualEditor.innerHTML = "<p>&nbsp;</p>";
+                visualEditor.innerHTML = ""; // Démarre 100% vide
                 localStorage.removeItem('editor_saved_data');
                 updateFromVisual();
             }
         }
 
-        // === LE NETTOYEUR SÉMANTIQUE : ÉRADICATION DES <BR> ===
         function cleanAndFormatHTML(html) {
             const parser = new DOMParser();
             const doc = parser.parseFromString(html, 'text/html');
 
-            // 1. Destruction pure et simple de toutes les balises <br>
+            // 1. Destruction de toutes les balises <br>
             doc.querySelectorAll('br').forEach(br => {
-                const spaceNode = doc.createTextNode('\u00A0'); // Espace insécable
+                const spaceNode = doc.createTextNode('\u00A0');
                 br.replaceWith(spaceNode);
             });
 
-            // 2. Nettoyage des noeuds de texte vides
-            Array.from(doc.body.childNodes).forEach(node => {
-                if (node.nodeType === Node.TEXT_NODE && node.textContent.trim() === '') {
-                    node.remove();
+            // 2. Nettoyage extrême des paragraphes vides
+            doc.querySelectorAll('p').forEach(p => {
+                // Si le paragraphe ne contient que du vide ou des espaces invisibles, on le supprime
+                if (p.innerHTML.replace(/&nbsp;/g, '').replace(/\u00A0/g, '').trim() === '') {
+                    p.remove();
                 }
             });
 
@@ -318,7 +317,7 @@
 
             let cleanHtml = doc.body.innerHTML;
 
-            // Sécurité additionnelle : regex pour supprimer tout éventuel <br> résiduel passé au travers
+            // Sécurité anti-<br>
             cleanHtml = cleanHtml.replace(/<br\s*\/?>/gi, '');
 
             let formatted = cleanHtml.replace(/>\s+</g, '><');
@@ -330,7 +329,6 @@
                 formatted = formatted.replace(regexOpen, `\n$1`).replace(regexClose, `$1\n`);
             });
 
-            // Supprime les sauts de lignes multiples et le code sale généré autour des figures
             return formatted.replace(/\n\s*\n/g, '\n').trim();
         }
 
@@ -338,7 +336,6 @@
             const rawHTML = visualEditor.innerHTML;
             const cleanedHTML = cleanAndFormatHTML(rawHTML);
             
-            // Correction pour éviter que YouTube buggue avec &amp; dans l'URL du HTML brut
             const safeHTML = cleanedHTML.replace(/&amp;mute=1/g, '&mute=1').replace(/&amp;rel=0/g, '&rel=0');
 
             htmlOutput.value = safeHTML;
@@ -397,8 +394,8 @@
                 const size = document.getElementById('img-size').value;
                 const radius = document.getElementById('img-radius').value;
                 
-                // Insertion stricte : pas de <br>
-                snippet = `<figure style="margin: 0; text-align: center;">\n<img src="${url}" alt="${alt}" style="width: ${size}; border-radius: ${radius}; max-width: 100%;">\n${caption ? `<figcaption style="font-size: 0.9em; color: #666; margin-top: 5px;">${caption}</figcaption>\n` : ''}</figure>\n<p>&nbsp;</p>`;
+                // Retrait total du <p> final
+                snippet = `<figure style="margin: 0; text-align: center;">\n<img src="${url}" alt="${alt}" style="width: ${size}; border-radius: ${radius}; max-width: 100%;">\n${caption ? `<figcaption style="font-size: 0.9em; color: #666; margin-top: 5px;">${caption}</figcaption>\n` : ''}</figure>`;
                 closeModal('image-modal');
                 
             } else if (type === 'video') {
@@ -409,7 +406,6 @@
                 const radius = document.getElementById('vid-radius').value;
                 
                 const isAutoplay = document.getElementById('vid-autoplay').checked;
-                // Utilisation de & au lieu de &amp; (sera nettoyé par notre script final)
                 const ytAutoParam = isAutoplay ? "?autoplay=1&mute=1&rel=0" : "?rel=0";
                 const html5AutoParam = isAutoplay ? "autoplay muted loop playsinline" : "controls";
 
@@ -417,10 +413,10 @@
 
                 if (ytMatch) {
                     const ytId = ytMatch[1];
-                    // RETRAIT DE referrerpolicy pour éviter l'Erreur 153 en local
-                    snippet = `<figure style="margin: 0; text-align: center;">\n<iframe width="100%" height="315" src="https://www.youtube-nocookie.com/embed/${ytId}${ytAutoParam}" title="${alt}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen style="border-radius: ${radius}; max-width: 100%;"></iframe>\n${caption ? `<figcaption style="font-size: 0.9em; color: #666; margin-top: 5px;">${caption}</figcaption>\n` : ''}</figure>\n<p>&nbsp;</p>`;
+                    // Retrait total du <p> final
+                    snippet = `<figure style="margin: 0; text-align: center;">\n<iframe width="100%" height="315" src="https://www.youtube-nocookie.com/embed/${ytId}${ytAutoParam}" title="${alt}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen style="border-radius: ${radius}; max-width: 100%;"></iframe>\n${caption ? `<figcaption style="font-size: 0.9em; color: #666; margin-top: 5px;">${caption}</figcaption>\n` : ''}</figure>`;
                 } else {
-                    snippet = `<figure style="margin: 0; text-align: center;">\n<video src="${url}" title="${alt}" style="width: ${size}; min-height: 315px; border-radius: ${radius}; max-width: 100%;" ${html5AutoParam}></video>\n${caption ? `<figcaption style="font-size: 0.9em; color: #666; margin-top: 5px;">${caption}</figcaption>\n` : ''}</figure>\n<p>&nbsp;</p>`;
+                    snippet = `<figure style="margin: 0; text-align: center;">\n<video src="${url}" title="${alt}" style="width: ${size}; min-height: 315px; border-radius: ${radius}; max-width: 100%;" ${html5AutoParam}></video>\n${caption ? `<figcaption style="font-size: 0.9em; color: #666; margin-top: 5px;">${caption}</figcaption>\n` : ''}</figure>`;
                 }
                 closeModal('video-modal');
             }
@@ -433,7 +429,7 @@
             if (savedData && savedData.trim() !== '') {
                 visualEditor.innerHTML = savedData;
             } else {
-                visualEditor.innerHTML = "<p>&nbsp;</p>";
+                visualEditor.innerHTML = ""; // Initialisation 100% vide
             }
             updateFromVisual();
         };
