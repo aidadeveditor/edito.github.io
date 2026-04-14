@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Éditeur Sémantique Pro - Correctifs</title>
+    <title>Éditeur Sémantique Pro - Markdown Fix</title>
     
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
@@ -231,9 +231,9 @@
 
     <dialog id="markdown-modal">
         <h3>Importer du Markdown</h3>
-        <p style="font-size: 0.9em; color: #666; margin-top: 0;">Collez votre code Markdown ci-dessous. Il sera converti et inséré à l'emplacement de votre curseur.</p>
+        <p style="font-size: 0.9em; color: #666; margin-top: 0;">Collez votre code Markdown ci-dessous. N'oubliez pas les espaces après les titres (ex: <code>## Mon Titre</code>).</p>
         <div class="form-group">
-            <textarea id="md-input" rows="10" placeholder="# Titre\n\n- Élément 1\n- Élément 2\n\n**Texte en gras**" style="font-family: monospace;"></textarea>
+            <textarea id="md-input" rows="10" placeholder="## Titre\n\n- Élément 1\n- Élément 2\n\n**Texte en gras**" style="font-family: monospace;"></textarea>
         </div>
         <div class="dialog-buttons">
             <button class="btn-secondary" onclick="closeModal('markdown-modal')">Annuler</button>
@@ -253,8 +253,8 @@
         </div>
         <div class="form-group"><label>URL :</label><input type="text" id="img-url" placeholder="https://..."></div>
         <div class="form-group">
-            <label>Texte descriptif (Optionnel, justifié, centré verticalement) :</label>
-            <textarea id="img-text" rows="4" placeholder="Tapez le texte qui accompagnera votre média..."></textarea>
+            <label>Texte descriptif (Optionnel) :</label>
+            <textarea id="img-text" rows="4"></textarea>
         </div>
         <div class="form-group"><label>Alt (Accessibilité) :</label><input type="text" id="img-alt" placeholder="Description courte..."></div>
         <div class="form-group"><label>Légende (Sous le média) :</label><input type="text" id="img-caption" placeholder="Légende..."></div>
@@ -278,8 +278,8 @@
         </div>
         <div class="form-group"><label>Lien (YouTube ou .mp4) :</label><input type="text" id="vid-url" placeholder="https://..."></div>
         <div class="form-group">
-            <label>Texte descriptif (Optionnel, justifié, centré verticalement) :</label>
-            <textarea id="vid-text" rows="4" placeholder="Tapez le texte qui accompagnera votre média..."></textarea>
+            <label>Texte descriptif (Optionnel) :</label>
+            <textarea id="vid-text" rows="4"></textarea>
         </div>
         <div class="form-group"><label>Titre (Alt) :</label><input type="text" id="vid-alt" placeholder="Titre..."></div>
         <div class="form-group"><label>Légende (Sous le média) :</label><input type="text" id="vid-caption" placeholder="Légende..."></div>
@@ -304,7 +304,6 @@
         const saveStatus = document.getElementById('save-status');
         let saveTimeout;
 
-        // Force le navigateur à utiliser des balises <p> natifs pour les sauts de ligne
         document.execCommand('defaultParagraphSeparator', false, 'p');
 
         function saveToLocalStorage(content) {
@@ -322,20 +321,18 @@
             }
         }
 
-        // === FONCTION D'EXPORTATION EN FICHIER TEXTE (.txt) ===
         function exportHtml() {
             const htmlContent = htmlOutput.value;
             if (!htmlContent.trim()) {
                 alert("Il n'y a rien à exporter !");
                 return;
             }
-            // Changement ici : 'text/plain' génère un fichier texte brut
             const blob = new Blob([htmlContent], { type: 'text/plain' });
             const url = URL.createObjectURL(blob);
             
             const a = document.createElement('a');
             a.href = url;
-            a.download = 'mon_code_html.txt'; // Extension modifiée
+            a.download = 'mon_code_html.txt';
             document.body.appendChild(a);
             a.click();
             
@@ -343,22 +340,26 @@
             URL.revokeObjectURL(url);
         }
 
-        // === FONCTION D'IMPORTATION MARKDOWN CORRIGÉE ===
+        // === CORRECTION DE L'IMPORTATION MARKDOWN ===
         function importMarkdown() {
             const mdText = document.getElementById('md-input').value;
-            if (!mdText.trim()) return closeModal('markdown-modal');
+            if (!mdText.trim()) {
+                closeModal('markdown-modal');
+                return;
+            }
 
-            // Utilisation de la syntaxe correcte pour les nouvelles versions de Marked.js
+            // Conversion
             const rawHtml = marked.parse(mdText, { 
                 breaks: true, 
                 gfm: true 
             });
 
-            // Conversion forcée en chaîne de caractères (String) pour éviter les erreurs d'insertion
-            insertHtmlAtCursor(String(rawHtml));
-            
+            // 1. Il est CRUCIAL de fermer la fenêtre D'ABORD pour rendre le focus à l'éditeur
             closeModal('markdown-modal');
             document.getElementById('md-input').value = '';
+
+            // 2. Ensuite on insère le contenu généré
+            insertHtmlAtCursor(String(rawHtml));
         }
 
         function cleanAndFormatHTML(html) {
@@ -455,9 +456,15 @@
 
         function closeModal(id) { document.getElementById(id).close(); }
 
+        // === INSERTION SÉCURISÉE ===
         function insertHtmlAtCursor(htmlSnippet) {
             visualEditor.focus();
-            document.execCommand('insertHTML', false, htmlSnippet);
+            const success = document.execCommand('insertHTML', false, htmlSnippet);
+            
+            // Sécurité : si l'éditeur avait complètement perdu le curseur, on ajoute à la fin
+            if (!success) {
+                visualEditor.insertAdjacentHTML('beforeend', htmlSnippet);
+            }
             updateFromVisual();
         }
 
@@ -520,12 +527,14 @@
 
             const snippet = `${containerStart}<figure style="${figureStyle}">\n${mediaHtml}${captionHtml}\n</figure>\n${textHtml}${containerEnd}`;
             
+            // 1. Fermer d'abord la pop-up
             closeModal(`${type}-modal`);
             
             document.getElementById(`${prefix}-url`).value = '';
             document.getElementById(`${prefix}-text`).value = '';
             document.getElementById(`${prefix}-caption`).value = '';
             
+            // 2. Insérer ensuite
             insertHtmlAtCursor(snippet);
         }
 
