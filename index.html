@@ -3,12 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Éditeur 3 Panneaux Pro</title>
-    
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <title>Éditeur Visuel 3 Panneaux</title>
     
     <style>
-        /* === Variables et Thèmes === */
+        /* === Variables de l'interface (Statiques) === */
         :root {
             --bg-color: #f8f9fa;
             --panel-bg: #ffffff;
@@ -19,18 +17,6 @@
             --btn-text: #ffffff;
             --btn-hover: #0b5ed7;
             --modal-bg: #ffffff;
-        }
-
-        [data-theme="dark"] {
-            --bg-color: #121212;
-            --panel-bg: #1e1e1e;
-            --text-color: #e0e0e0;
-            --border-color: #333333;
-            --header-bg: #2d2d2d;
-            --btn-bg: #0d6efd;
-            --btn-text: #ffffff;
-            --btn-hover: #0b5ed7;
-            --modal-bg: #2d2d2d;
         }
 
         body {
@@ -75,9 +61,7 @@
 
         button:hover { background-color: var(--btn-hover); }
         
-        .btn-secondary {
-            background-color: #6c757d;
-        }
+        .btn-secondary { background-color: #6c757d; }
         .btn-secondary:hover { background-color: #5c636a; }
 
         /* === Les 3 Panneaux === */
@@ -118,6 +102,20 @@
             box-sizing: border-box;
         }
 
+        /* Éditeur Visuel (contenteditable) */
+        #visual-editor {
+            width: 100%;
+            height: 100%;
+            outline: none;
+            line-height: 1.5;
+        }
+        
+        #visual-editor:empty:before {
+            content: attr(data-placeholder);
+            color: #888;
+        }
+
+        /* Code HTML readonly */
         textarea {
             width: 100%;
             height: 100%;
@@ -129,29 +127,38 @@
             outline: none;
         }
 
-        /* === Simulateur Responsive === */
+        /* === Simulateur Responsive & Thème === */
         .preview-container {
             display: flex;
             justify-content: center;
-            background-color: #888; /* Fond sombre pour contraster l'écran virtuel */
+            background-color: #555; /* Fond sombre pour faire ressortir l'écran virtuel */
             padding: 10px;
         }
 
         #preview-output {
-            background-color: #fff; /* Le rendu est toujours sur fond blanc par défaut comme un vrai site */
-            color: #000;
             width: 100%; /* Desktop par défaut */
             height: 100%;
-            transition: width 0.3s ease;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            transition: width 0.3s ease, background-color 0.3s, color 0.3s;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.4);
             overflow-y: auto;
             padding: 20px;
             box-sizing: border-box;
         }
 
+        /* Classes de taille */
         #preview-output.mobile-view { width: 375px; }
         #preview-output.tablet-view { width: 768px; }
         #preview-output.desktop-view { width: 100%; }
+
+        /* Classes de thème EXCLUSIVES au panneau 3 */
+        #preview-output.theme-light {
+            background-color: #ffffff;
+            color: #000000;
+        }
+        #preview-output.theme-dark {
+            background-color: #121212;
+            color: #f0f0f0;
+        }
 
         /* === Modales (Pop-ups) === */
         dialog {
@@ -165,9 +172,7 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
-        dialog::backdrop {
-            background: rgba(0, 0, 0, 0.6);
-        }
+        dialog::backdrop { background: rgba(0, 0, 0, 0.6); }
 
         .form-group {
             margin-bottom: 15px;
@@ -180,8 +185,6 @@
             padding: 8px;
             border: 1px solid var(--border-color);
             border-radius: 4px;
-            background-color: var(--bg-color);
-            color: var(--text-color);
         }
 
         .dialog-buttons {
@@ -201,37 +204,36 @@
         </div>
         
         <div class="toolbar-group">
-            <span>Format rendu :</span>
+            <span>Rendu :</span>
             <button class="btn-secondary" onclick="setDeviceView('mobile-view')" aria-label="Vue Mobile">📱</button>
             <button class="btn-secondary" onclick="setDeviceView('tablet-view')" aria-label="Vue Tablette">💻</button>
             <button class="btn-secondary" onclick="setDeviceView('desktop-view')" aria-label="Vue Bureau">🖥️</button>
+            <button id="theme-toggle" class="btn-secondary" aria-label="Basculer le thème du rendu">🌓 Thème Rendu</button>
         </div>
-
-        <button id="theme-toggle">🌓 Thème</button>
     </header>
 
     <main>
         <section class="panel">
+            <div class="panel-header">1. Éditeur Visuel</div>
+            <div class="panel-content">
+                <div id="visual-editor" contenteditable="true" data-placeholder="Tapez votre texte ici..."></div>
+            </div>
+        </section>
+
+        <section class="panel">
             <div class="panel-header">
-                1. Code HTML (Résultat)
+                2. Code HTML
                 <button onclick="copyHtml()" class="btn-secondary" style="padding: 2px 8px; font-size: 0.8rem;">📋 Copier</button>
             </div>
             <div class="panel-content">
-                <textarea id="html-output" readonly placeholder="Le code HTML apparaîtra ici..."></textarea>
+                <textarea id="html-output" readonly placeholder="Le code HTML se générera ici..."></textarea>
             </div>
         </section>
 
         <section class="panel">
-            <div class="panel-header">2. Éditeur (Markdown / HTML)</div>
-            <div class="panel-content">
-                <textarea id="markdown-input" placeholder="Tapez votre texte, Markdown ou HTML ici..."></textarea>
-            </div>
-        </section>
-
-        <section class="panel">
-            <div class="panel-header">3. Rendu Web</div>
+            <div class="panel-header">3. Aperçu Rendu (Appareil)</div>
             <div class="panel-content preview-container">
-                <div id="preview-output" class="desktop-view"></div>
+                <div id="preview-output" class="desktop-view theme-light"></div>
             </div>
         </section>
     </main>
@@ -243,19 +245,19 @@
             <input type="text" id="img-url" placeholder="https://...">
         </div>
         <div class="form-group">
-            <label>Texte alternatif (Alt - Accessibilité) :</label>
-            <input type="text" id="img-alt" placeholder="Description courte...">
+            <label>Texte alternatif (Alt) :</label>
+            <input type="text" id="img-alt" placeholder="Description...">
         </div>
         <div class="form-group">
             <label>Sous-texte (Légende) :</label>
-            <input type="text" id="img-caption" placeholder="Légende affichée sous l'image...">
+            <input type="text" id="img-caption" placeholder="Légende...">
         </div>
         <div class="form-group">
             <label>Taille (ex: 100%, 300px) :</label>
             <input type="text" id="img-size" value="100%">
         </div>
         <div class="form-group">
-            <label>Arrondi des bords (Radius, ex: 8px) :</label>
+            <label>Arrondi (Radius, ex: 8px) :</label>
             <input type="text" id="img-radius" value="8px">
         </div>
         <div class="dialog-buttons">
@@ -267,23 +269,23 @@
     <dialog id="video-modal">
         <h3>Insérer une Vidéo</h3>
         <div class="form-group">
-            <label>Lien (YouTube ou fichier .mp4) :</label>
+            <label>Lien (YouTube ou .mp4) :</label>
             <input type="text" id="vid-url" placeholder="https://...">
         </div>
         <div class="form-group">
-            <label>Titre (Alt - Accessibilité) :</label>
-            <input type="text" id="vid-alt" placeholder="Titre de la vidéo...">
+            <label>Titre (Alt) :</label>
+            <input type="text" id="vid-alt" placeholder="Titre...">
         </div>
         <div class="form-group">
             <label>Sous-texte (Légende) :</label>
-            <input type="text" id="vid-caption" placeholder="Légende affichée sous la vidéo...">
+            <input type="text" id="vid-caption" placeholder="Légende...">
         </div>
         <div class="form-group">
             <label>Taille (ex: 100%, 500px) :</label>
             <input type="text" id="vid-size" value="100%">
         </div>
         <div class="form-group">
-            <label>Arrondi des bords (Radius, ex: 8px) :</label>
+            <label>Arrondi (Radius, ex: 8px) :</label>
             <input type="text" id="vid-radius" value="8px">
         </div>
         <div class="dialog-buttons">
@@ -293,21 +295,22 @@
     </dialog>
 
     <script>
-        const markdownInput = document.getElementById('markdown-input');
+        const visualEditor = document.getElementById('visual-editor');
         const htmlOutput = document.getElementById('html-output');
         const previewOutput = document.getElementById('preview-output');
 
-        // === Mise à jour Temps Réel ===
+        // === Synchronisation : Éditeur Visuel -> HTML -> Rendu ===
         function updatePanels() {
-            const rawText = markdownInput.value;
-            const htmlContent = marked.parse(rawText); // Convertit en HTML
+            const currentHTML = visualEditor.innerHTML;
             
-            // Mise à jour du panneau 1 (Code) et 3 (Rendu)
-            htmlOutput.value = htmlContent;
-            previewOutput.innerHTML = htmlContent;
+            // Met à jour la zone de texte HTML brute
+            htmlOutput.value = currentHTML;
+            // Met à jour l'écran de rendu
+            previewOutput.innerHTML = currentHTML;
         }
 
-        markdownInput.addEventListener('input', updatePanels);
+        // Écoute les modifications dans l'éditeur visuel (frappe clavier, etc.)
+        visualEditor.addEventListener('input', updatePanels);
 
         // === Copier le code HTML ===
         function copyHtml() {
@@ -318,19 +321,66 @@
 
         // === Simulateur Responsive ===
         function setDeviceView(viewClass) {
-            previewOutput.className = ''; // Réinitialise les classes
+            // Conserve les classes de thème mais change la vue
+            const isDark = previewOutput.classList.contains('theme-dark');
+            previewOutput.className = isDark ? 'theme-dark' : 'theme-light';
             previewOutput.classList.add(viewClass);
         }
 
-        // === Thème ===
+        // === Thème ciblé (Panneau 3 uniquement) ===
         document.getElementById('theme-toggle').addEventListener('click', () => {
-            const currentTheme = document.documentElement.getAttribute('data-theme');
-            document.documentElement.setAttribute('data-theme', currentTheme === 'dark' ? 'light' : 'dark');
+            if (previewOutput.classList.contains('theme-light')) {
+                previewOutput.classList.remove('theme-light');
+                previewOutput.classList.add('theme-dark');
+            } else {
+                previewOutput.classList.remove('theme-dark');
+                previewOutput.classList.add('theme-light');
+            }
         });
 
-        // === Gestion des Modales et Insertion Médias ===
+        // === Modales et Insertion de Médias de façon moderne ===
         function closeModal(id) {
             document.getElementById(id).close();
+        }
+
+        // Fonction pour insérer du HTML propre à la position du curseur
+        function insertHtmlAtCursor(htmlSnippet) {
+            visualEditor.focus();
+            const selection = window.getSelection();
+            
+            if (selection.getRangeAt && selection.rangeCount > 0) {
+                let range = selection.getRangeAt(0);
+                
+                // Vérifie que le curseur est bien à l'intérieur de notre éditeur
+                if (visualEditor.contains(range.commonAncestorContainer)) {
+                    range.deleteContents();
+                    
+                    // Création d'un fragment de document pour une insertion sécurisée
+                    const el = document.createElement("div");
+                    el.innerHTML = htmlSnippet;
+                    const frag = document.createDocumentFragment();
+                    let node, lastNode;
+                    
+                    while ((node = el.firstChild)) {
+                        lastNode = frag.appendChild(node);
+                    }
+                    range.insertNode(frag);
+                    
+                    // Replacer le curseur après l'élément inséré
+                    if (lastNode) {
+                        range = range.cloneRange();
+                        range.setStartAfter(lastNode);
+                        range.collapse(true);
+                        selection.removeAllRanges();
+                        selection.addRange(range);
+                    }
+                } else {
+                    // Si le curseur est en dehors, on ajoute à la fin
+                    visualEditor.insertAdjacentHTML('beforeend', htmlSnippet);
+                }
+            } else {
+                visualEditor.insertAdjacentHTML('beforeend', htmlSnippet);
+            }
         }
 
         function insertMedia(type) {
@@ -347,11 +397,9 @@
 <figure style="margin: 0; text-align: center;">
     <img src="${url}" alt="${alt}" style="width: ${size}; border-radius: ${radius}; max-width: 100%;">
     ${caption ? `<figcaption style="font-size: 0.9em; color: #666; margin-top: 5px;">${caption}</figcaption>` : ''}
-</figure>
-`;
+</figure><br>`; // <br> pour pouvoir continuer à écrire en dessous
                 closeModal('image-modal');
             } 
-            
             else if (type === 'video') {
                 const url = document.getElementById('vid-url').value;
                 const alt = document.getElementById('vid-alt').value;
@@ -359,42 +407,27 @@
                 const size = document.getElementById('vid-size').value;
                 const radius = document.getElementById('vid-radius').value;
 
-                // Détection de lien YouTube via une expression régulière
                 const ytMatch = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
 
                 if (ytMatch) {
-                    // C'est un lien YouTube (ajout de autoplay=1 et mute=1)
                     const ytId = ytMatch[1];
                     snippet = `
 <figure style="margin: 0; text-align: center;">
     <iframe src="https://www.youtube.com/embed/${ytId}?autoplay=1&mute=1" title="${alt}" style="width: ${size}; aspect-ratio: 16/9; border: none; border-radius: ${radius}; max-width: 100%;" allow="autoplay; encrypted-media" allowfullscreen></iframe>
     ${caption ? `<figcaption style="font-size: 0.9em; color: #666; margin-top: 5px;">${caption}</figcaption>` : ''}
-</figure>
-`;
+</figure><br>`;
                 } else {
-                    // Fichier vidéo classique (lancement auto sans son)
                     snippet = `
 <figure style="margin: 0; text-align: center;">
     <video src="${url}" title="${alt}" style="width: ${size}; border-radius: ${radius}; max-width: 100%;" autoplay muted loop playsinline></video>
     ${caption ? `<figcaption style="font-size: 0.9em; color: #666; margin-top: 5px;">${caption}</figcaption>` : ''}
-</figure>
-`;
+</figure><br>`;
                 }
                 closeModal('video-modal');
             }
 
-            // Insertion du snippet là où se trouve le curseur dans l'éditeur
-            const startPos = markdownInput.selectionStart;
-            const textBefore = markdownInput.value.substring(0, startPos);
-            const textAfter = markdownInput.value.substring(markdownInput.selectionEnd);
-
-            markdownInput.value = textBefore + snippet + textAfter;
-            
-            // Replacer le curseur et mettre à jour
-            markdownInput.focus();
-            markdownInput.selectionStart = startPos + snippet.length;
-            markdownInput.selectionEnd = startPos + snippet.length;
-            
+            // Utilisation de la nouvelle fonction d'insertion moderne
+            insertHtmlAtCursor(snippet);
             updatePanels();
         }
 
