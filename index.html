@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Éditeur Sémantique Pro - V3</title>
+    <title>Éditeur Sémantique Pro - V4</title>
     
     <style>
         :root {
@@ -78,7 +78,7 @@
             width: 100%;
             box-sizing: border-box;
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            z-index: 10; /* Le place visuellement au-dessus des panneaux */
+            z-index: 10;
         }
 
         .text-format-toolbar button {
@@ -101,7 +101,6 @@
             gap: 10px;
             padding: 10px;
             overflow: hidden;
-            /* Le main prend toute la place restante */
         }
 
         .panel {
@@ -196,6 +195,15 @@
         .form-group input[type="text"] { padding: 8px; border: 1px solid var(--border-color); border-radius: 4px; }
         .checkbox-group { display: flex; flex-direction: row; align-items: center; gap: 10px; cursor: pointer; }
         .dialog-buttons { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+        
+        /* Indicateur de sauvegarde */
+        #save-status {
+            font-size: 0.8rem;
+            color: #28a745;
+            margin-left: 10px;
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
     </style>
 </head>
 <body>
@@ -205,6 +213,7 @@
             <button onclick="document.getElementById('image-modal').showModal()">🖼️ Ajouter Image</button>
             <button onclick="document.getElementById('video-modal').showModal()">🎥 Ajouter Vidéo</button>
             <button onclick="resetEditor()" class="btn-danger" title="Tout effacer et recommencer">🗑️ Reset</button>
+            <span id="save-status">✓ Sauvegardé</span>
         </div>
         
         <div class="toolbar-group">
@@ -242,7 +251,7 @@
 
         <section class="panel">
             <div class="panel-header">
-                2. Code HTML (Sémantique & Propre)
+                2. Code HTML
                 <button onclick="copyHtml()" class="btn-secondary" style="padding: 2px 8px; font-size: 0.8rem;">📋 Copier</button>
             </div>
             <div class="panel-content">
@@ -294,12 +303,25 @@
         const visualEditor = document.getElementById('visual-editor');
         const htmlOutput = document.getElementById('html-output');
         const previewOutput = document.getElementById('preview-output');
+        const saveStatus = document.getElementById('save-status');
+        let saveTimeout;
 
         document.execCommand('defaultParagraphSeparator', false, 'p');
 
+        // === GESTION DE LA SAUVEGARDE LOCALE ===
+        function saveToLocalStorage(content) {
+            localStorage.setItem('editor_saved_data', content);
+            
+            // Animation du petit texte "✓ Sauvegardé"
+            saveStatus.style.opacity = '1';
+            clearTimeout(saveTimeout);
+            saveTimeout = setTimeout(() => { saveStatus.style.opacity = '0'; }, 2000);
+        }
+
         function resetEditor() {
             if (confirm("Êtes-vous sûr de vouloir tout effacer ? Cette action est irréversible.")) {
-                visualEditor.innerHTML = "<p>&nbsp;</p>";
+                visualEditor.innerHTML = "<p><br></p>";
+                localStorage.removeItem('editor_saved_data'); // Supprime la sauvegarde
                 updateFromVisual();
             }
         }
@@ -309,48 +331,19 @@
             const parser = new DOMParser();
             const doc = parser.parseFromString(html, 'text/html');
 
-            doc.querySelectorAll('b').forEach(el => {
-                const strong = doc.createElement('strong');
-                strong.innerHTML = el.innerHTML;
-                el.replaceWith(strong);
-            });
-            
-            doc.querySelectorAll('i').forEach(el => {
-                const em = doc.createElement('em');
-                em.innerHTML = el.innerHTML;
-                el.replaceWith(em);
-            });
+            // Remplacement des vieilles balises
+            doc.querySelectorAll('b').forEach(el => { const strong = doc.createElement('strong'); strong.innerHTML = el.innerHTML; el.replaceWith(strong); });
+            doc.querySelectorAll('i').forEach(el => { const em = doc.createElement('em'); em.innerHTML = el.innerHTML; el.replaceWith(em); });
+            doc.querySelectorAll('u').forEach(el => { const span = doc.createElement('span'); span.style.textDecoration = 'underline'; span.innerHTML = el.innerHTML; el.replaceWith(span); });
+            doc.querySelectorAll('strike, s').forEach(el => { const del = doc.createElement('del'); del.innerHTML = el.innerHTML; el.replaceWith(del); });
+            doc.querySelectorAll('center').forEach(el => { const div = doc.createElement('div'); div.style.textAlign = 'center'; div.innerHTML = el.innerHTML; el.replaceWith(div); });
+            doc.querySelectorAll('font').forEach(el => { const span = doc.createElement('span'); if (el.getAttribute('color')) span.style.color = el.getAttribute('color'); span.innerHTML = el.innerHTML; el.replaceWith(span); });
 
-            doc.querySelectorAll('u').forEach(el => {
-                const span = doc.createElement('span');
-                span.style.textDecoration = 'underline';
-                span.innerHTML = el.innerHTML;
-                el.replaceWith(span);
-            });
-
-            doc.querySelectorAll('strike, s').forEach(el => {
-                const del = doc.createElement('del');
-                del.innerHTML = el.innerHTML;
-                el.replaceWith(del);
-            });
-
-            doc.querySelectorAll('center').forEach(el => {
-                const div = doc.createElement('div');
-                div.style.textAlign = 'center';
-                div.innerHTML = el.innerHTML;
-                el.replaceWith(div);
-            });
-
-            doc.querySelectorAll('font').forEach(el => {
-                const span = doc.createElement('span');
-                if (el.getAttribute('color')) span.style.color = el.getAttribute('color');
-                span.innerHTML = el.innerHTML;
-                el.replaceWith(span);
-            });
-
-            // Nettoyage des <br> inutiles (ex: dans les paragraphes vides)
-            doc.querySelectorAll('p > br:only-child').forEach(el => {
-                el.replaceWith('\u00A0'); // Remplace par un espace insécable (&nbsp;)
+            // Suppression totale des paragraphes vides indésirables causés par les sauts
+            doc.querySelectorAll('p').forEach(p => {
+                if (p.innerHTML.trim() === '') {
+                    p.remove();
+                }
             });
 
             // Correction de l'ordre des sous-listes
@@ -386,12 +379,14 @@
             
             htmlOutput.value = cleanedHTML;
             previewOutput.innerHTML = cleanedHTML;
+            saveToLocalStorage(cleanedHTML); // Sauvegarde automatique
         }
 
         function updateFromHtml() {
             const manualHTML = htmlOutput.value;
             visualEditor.innerHTML = manualHTML;
             previewOutput.innerHTML = manualHTML;
+            saveToLocalStorage(manualHTML); // Sauvegarde automatique
         }
 
         function formatText(command, value = null) {
@@ -423,32 +418,11 @@
 
         function closeModal(id) { document.getElementById(id).close(); }
 
+        // Nouvelle méthode d'insertion propre native
         function insertHtmlAtCursor(htmlSnippet) {
             visualEditor.focus();
-            const selection = window.getSelection();
-            if (selection.getRangeAt && selection.rangeCount > 0) {
-                let range = selection.getRangeAt(0);
-                if (visualEditor.contains(range.commonAncestorContainer)) {
-                    range.deleteContents();
-                    const el = document.createElement("div");
-                    el.innerHTML = htmlSnippet;
-                    const frag = document.createDocumentFragment();
-                    let node, lastNode;
-                    while ((node = el.firstChild)) { lastNode = frag.appendChild(node); }
-                    range.insertNode(frag);
-                    if (lastNode) {
-                        range = range.cloneRange();
-                        range.setStartAfter(lastNode);
-                        range.collapse(true);
-                        selection.removeAllRanges();
-                        selection.addRange(range);
-                    }
-                } else {
-                    visualEditor.insertAdjacentHTML('beforeend', htmlSnippet);
-                }
-            } else {
-                visualEditor.insertAdjacentHTML('beforeend', htmlSnippet);
-            }
+            document.execCommand('insertHTML', false, htmlSnippet);
+            updateFromVisual();
         }
 
         function insertMedia(type) {
@@ -459,9 +433,10 @@
                 const caption = document.getElementById('img-caption').value;
                 const size = document.getElementById('img-size').value;
                 const radius = document.getElementById('img-radius').value;
-                // Utilisation de &nbsp; au lieu de <br> pour rester propre
-                snippet = `<figure style="margin: 0; text-align: center;"><img src="${url}" alt="${alt}" style="width: ${size}; border-radius: ${radius}; max-width: 100%;">${caption ? `<figcaption style="font-size: 0.9em; color: #666; margin-top: 5px;">${caption}</figcaption>` : ''}</figure><p>&nbsp;</p>`;
+                
+                snippet = `<figure style="margin: 0; text-align: center;"><img src="${url}" alt="${alt}" style="width: ${size}; border-radius: ${radius}; max-width: 100%;">${caption ? `<figcaption style="font-size: 0.9em; color: #666; margin-top: 5px;">${caption}</figcaption>` : ''}</figure><p><br></p>`;
                 closeModal('image-modal');
+                
             } else if (type === 'video') {
                 const url = document.getElementById('vid-url').value;
                 const alt = document.getElementById('vid-alt').value;
@@ -477,20 +452,26 @@
 
                 if (ytMatch) {
                     const ytId = ytMatch[1];
-                    // Intégration de youtube-nocookie.com
-                    snippet = `<figure style="margin: 0; text-align: center;"><iframe src="https://www.youtube-nocookie.com/embed/${ytId}${ytAutoParam}" title="${alt}" style="width: ${size}; aspect-ratio: 16/9; border: none; border-radius: ${radius}; max-width: 100%;" allow="autoplay; encrypted-media" allowfullscreen></iframe>${caption ? `<figcaption style="font-size: 0.9em; color: #666; margin-top: 5px;">${caption}</figcaption>` : ''}</figure><p>&nbsp;</p>`;
+                    // Ajout d'une hauteur minimale (min-height) pour forcer l'affichage dans l'éditeur
+                    snippet = `<figure style="margin: 0; text-align: center;"><iframe src="https://www.youtube-nocookie.com/embed/${ytId}${ytAutoParam}" title="${alt}" style="width: ${size}; min-height: 315px; aspect-ratio: 16/9; border: none; border-radius: ${radius}; max-width: 100%;" allow="autoplay; encrypted-media" allowfullscreen></iframe>${caption ? `<figcaption style="font-size: 0.9em; color: #666; margin-top: 5px;">${caption}</figcaption>` : ''}</figure><p><br></p>`;
                 } else {
-                    snippet = `<figure style="margin: 0; text-align: center;"><video src="${url}" title="${alt}" style="width: ${size}; border-radius: ${radius}; max-width: 100%;" ${html5AutoParam}></video>${caption ? `<figcaption style="font-size: 0.9em; color: #666; margin-top: 5px;">${caption}</figcaption>` : ''}</figure><p>&nbsp;</p>`;
+                    snippet = `<figure style="margin: 0; text-align: center;"><video src="${url}" title="${alt}" style="width: ${size}; min-height: 315px; border-radius: ${radius}; max-width: 100%;" ${html5AutoParam}></video>${caption ? `<figcaption style="font-size: 0.9em; color: #666; margin-top: 5px;">${caption}</figcaption>` : ''}</figure><p><br></p>`;
                 }
                 closeModal('video-modal');
             }
             insertHtmlAtCursor(snippet);
-            updateFromVisual();
         }
 
-        // Initialisation
-        visualEditor.innerHTML = "<p>&nbsp;</p>";
-        updateFromVisual();
+        // === INITIALISATION AU CHARGEMENT ===
+        window.onload = () => {
+            const savedData = localStorage.getItem('editor_saved_data');
+            if (savedData && savedData.trim() !== '') {
+                visualEditor.innerHTML = savedData;
+            } else {
+                visualEditor.innerHTML = "<p><br></p>";
+            }
+            updateFromVisual();
+        };
     </script>
 </body>
 </html>
