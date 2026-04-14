@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Éditeur WYSIWYG 3 Panneaux</title>
+    <title>Éditeur WYSIWYG 3 Panneaux Bidirectionnel</title>
     
     <style>
-        /* === Variables de l'interface === */
         :root {
             --bg-color: #f8f9fa;
             --panel-bg: #ffffff;
@@ -30,7 +29,6 @@
             overflow: hidden;
         }
 
-        /* === En-tête Global === */
         header {
             background-color: var(--header-bg);
             padding: 10px 20px;
@@ -63,7 +61,6 @@
         .btn-secondary { background-color: #6c757d; }
         .btn-secondary:hover { background-color: #5c636a; }
 
-        /* === Barre de formatage texte (Panneau 1) === */
         .text-format-toolbar {
             display: flex;
             gap: 4px;
@@ -82,11 +79,8 @@
             font-weight: bold;
         }
 
-        .text-format-toolbar button:hover {
-            background-color: #e2e6ea;
-        }
+        .text-format-toolbar button:hover { background-color: #e2e6ea; }
 
-        /* === Les 3 Panneaux === */
         main {
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
@@ -145,9 +139,9 @@
             color: inherit;
             font-family: 'Courier New', monospace;
             outline: none;
+            line-height: 1.4;
         }
 
-        /* === Simulateur Responsive & Thème === */
         .preview-container {
             display: flex;
             justify-content: center;
@@ -172,7 +166,6 @@
         #preview-output.theme-light { background-color: #ffffff; color: #000000; }
         #preview-output.theme-dark { background-color: #121212; color: #f0f0f0; }
 
-        /* === Modales === */
         dialog {
             background-color: var(--modal-bg);
             color: var(--text-color);
@@ -185,7 +178,6 @@
         }
 
         dialog::backdrop { background: rgba(0, 0, 0, 0.6); }
-
         .form-group { margin-bottom: 15px; display: flex; flex-direction: column; gap: 5px; }
         .form-group input { padding: 8px; border: 1px solid var(--border-color); border-radius: 4px; }
         .dialog-buttons { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
@@ -211,11 +203,10 @@
     <main>
         <section class="panel">
             <div class="panel-header">1. Éditeur Visuel</div>
-            
             <div class="text-format-toolbar">
                 <button onmousedown="event.preventDefault(); formatText('bold');" title="Gras"><b>G</b></button>
                 <button onmousedown="event.preventDefault(); formatText('italic');" title="Italique"><i>I</i></button>
-                <button onmousedown="event.preventDefault(); formatText('hiliteColor', 'yellow');" title="Surligner" style="background-color: yellow;">Surligner</button>
+                <button onmousedown="event.preventDefault(); formatText('underline');" title="Souligné"><u>U</u></button>
                 <span style="border-left: 1px solid #ccc; margin: 0 4px;"></span>
                 <button onmousedown="event.preventDefault(); formatText('formatBlock', 'H1');">H1</button>
                 <button onmousedown="event.preventDefault(); formatText('formatBlock', 'H2');">H2</button>
@@ -227,7 +218,6 @@
                 <button onmousedown="event.preventDefault(); formatText('indent');" title="Créer une sous-liste (Indenter)">➡️ Sous-liste</button>
                 <button onmousedown="event.preventDefault(); formatText('outdent');" title="Annuler la sous-liste (Désindenter)">⬅️ Retour</button>
             </div>
-
             <div class="panel-content" style="padding-top: 5px;">
                 <div id="visual-editor" contenteditable="true" data-placeholder="Tapez votre texte ici..."></div>
             </div>
@@ -235,11 +225,11 @@
 
         <section class="panel">
             <div class="panel-header">
-                2. Code HTML
+                2. Code HTML (Modifiable)
                 <button onclick="copyHtml()" class="btn-secondary" style="padding: 2px 8px; font-size: 0.8rem;">📋 Copier</button>
             </div>
             <div class="panel-content">
-                <textarea id="html-output" readonly placeholder="Le code HTML se générera ici..."></textarea>
+                <textarea id="html-output" placeholder="Le code HTML se générera ici..."></textarea>
             </div>
         </section>
 
@@ -282,26 +272,53 @@
         const htmlOutput = document.getElementById('html-output');
         const previewOutput = document.getElementById('preview-output');
 
-        // === Fonction de Formatage de Texte ===
-        function formatText(command, value = null) {
-            // Exécute la commande sur la zone actuellement sélectionnée
-            document.execCommand(command, false, value);
+        // === Configuration Initiale ===
+        // Force l'éditeur à utiliser des balises <p> lors des sauts de ligne
+        document.execCommand('defaultParagraphSeparator', false, 'p');
+
+        // === Fonction de Formatage HTML pour la lisibilité ===
+        function formatHTML(html) {
+            // Liste des balises qui doivent commencer sur une nouvelle ligne
+            const blockTags = ['p', 'div', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li', 'figure', 'iframe', 'video'];
+            let formatted = html.replace(/\n/g, '').replace(/\s+/g, ' '); // Nettoie le code brut
             
-            // On s'assure que l'éditeur garde le focus
-            visualEditor.focus();
-            
-            // On met à jour les autres panneaux
-            updatePanels();
+            blockTags.forEach(tag => {
+                const regexOpen = new RegExp(`(<${tag}(?:\\s[^>]*)?>)`, 'gi');
+                const regexClose = new RegExp(`(</${tag}>)`, 'gi');
+                formatted = formatted.replace(regexOpen, `\n$1`).replace(regexClose, `$1\n`);
+            });
+
+            // Supprime les multiples sauts de lignes vides
+            return formatted.replace(/\n\s*\n/g, '\n').trim();
         }
 
-        // === Synchronisation : Éditeur Visuel -> HTML -> Rendu ===
-        function updatePanels() {
+        // === Fonction de Formatage de Texte ===
+        function formatText(command, value = null) {
+            document.execCommand(command, false, value);
+            visualEditor.focus();
+            updateFromVisual();
+        }
+
+        // === Synchronisation : Sens 1 (Éditeur Visuel -> HTML & Rendu) ===
+        function updateFromVisual() {
             const currentHTML = visualEditor.innerHTML;
-            htmlOutput.value = currentHTML;
+            
+            // Applique le formatage pour que le panneau 2 soit lisible
+            htmlOutput.value = formatHTML(currentHTML); 
             previewOutput.innerHTML = currentHTML;
         }
 
-        visualEditor.addEventListener('input', updatePanels);
+        // === Synchronisation : Sens 2 (HTML Brut -> Éditeur Visuel & Rendu) ===
+        function updateFromHtml() {
+            const manualHTML = htmlOutput.value;
+            
+            visualEditor.innerHTML = manualHTML;
+            previewOutput.innerHTML = manualHTML;
+        }
+
+        // Écouteurs d'événements pour la liaison bidirectionnelle
+        visualEditor.addEventListener('input', updateFromVisual);
+        htmlOutput.addEventListener('input', updateFromHtml);
 
         function copyHtml() {
             htmlOutput.select();
@@ -363,7 +380,7 @@
                 const caption = document.getElementById('img-caption').value;
                 const size = document.getElementById('img-size').value;
                 const radius = document.getElementById('img-radius').value;
-                snippet = `<figure style="margin: 0; text-align: center;"><img src="${url}" alt="${alt}" style="width: ${size}; border-radius: ${radius}; max-width: 100%;">${caption ? `<figcaption style="font-size: 0.9em; color: #666; margin-top: 5px;">${caption}</figcaption>` : ''}</figure><br>`;
+                snippet = `<figure style="margin: 0; text-align: center;"><img src="${url}" alt="${alt}" style="width: ${size}; border-radius: ${radius}; max-width: 100%;">${caption ? `<figcaption style="font-size: 0.9em; color: #666; margin-top: 5px;">${caption}</figcaption>` : ''}</figure><p><br></p>`;
                 closeModal('image-modal');
             } else if (type === 'video') {
                 const url = document.getElementById('vid-url').value;
@@ -375,18 +392,20 @@
 
                 if (ytMatch) {
                     const ytId = ytMatch[1];
-                    snippet = `<figure style="margin: 0; text-align: center;"><iframe src="https://www.youtube.com/embed/${ytId}?autoplay=1&mute=1" title="${alt}" style="width: ${size}; aspect-ratio: 16/9; border: none; border-radius: ${radius}; max-width: 100%;" allow="autoplay; encrypted-media" allowfullscreen></iframe>${caption ? `<figcaption style="font-size: 0.9em; color: #666; margin-top: 5px;">${caption}</figcaption>` : ''}</figure><br>`;
+                    snippet = `<figure style="margin: 0; text-align: center;"><iframe src="https://www.youtube.com/embed/${ytId}?autoplay=1&mute=1" title="${alt}" style="width: ${size}; aspect-ratio: 16/9; border: none; border-radius: ${radius}; max-width: 100%;" allow="autoplay; encrypted-media" allowfullscreen></iframe>${caption ? `<figcaption style="font-size: 0.9em; color: #666; margin-top: 5px;">${caption}</figcaption>` : ''}</figure><p><br></p>`;
                 } else {
-                    snippet = `<figure style="margin: 0; text-align: center;"><video src="${url}" title="${alt}" style="width: ${size}; border-radius: ${radius}; max-width: 100%;" autoplay muted loop playsinline></video>${caption ? `<figcaption style="font-size: 0.9em; color: #666; margin-top: 5px;">${caption}</figcaption>` : ''}</figure><br>`;
+                    snippet = `<figure style="margin: 0; text-align: center;"><video src="${url}" title="${alt}" style="width: ${size}; border-radius: ${radius}; max-width: 100%;" autoplay muted loop playsinline></video>${caption ? `<figcaption style="font-size: 0.9em; color: #666; margin-top: 5px;">${caption}</figcaption>` : ''}</figure><p><br></p>`;
                 }
                 closeModal('video-modal');
             }
             insertHtmlAtCursor(snippet);
-            updatePanels();
+            updateFromVisual(); // Utilise la nouvelle fonction de sync
         }
 
         // Init
-        updatePanels();
+        // Ajout d'un <p> vide au démarrage pour forcer la structure
+        visualEditor.innerHTML = "<p><br></p>";
+        updateFromVisual();
     </script>
 </body>
 </html>
