@@ -3,9 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Éditeur Sémantique Pro - Responsive Parfait</title>
+    <title>Éditeur Sémantique Pro - Avec Modèles Externes</title>
     
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <script src="templates.js"></script>
 
     <style>
         :root {
@@ -148,7 +150,6 @@
         #preview-output.theme-light { background-color: #ffffff; color: #000000; }
         #preview-output.theme-dark { background-color: #121212; color: #f0f0f0; }
 
-        /* Modales */
         dialog {
             background-color: var(--modal-bg); color: var(--text-color); border: 1px solid var(--border-color);
             border-radius: 8px; padding: 20px; width: 500px; max-width: 90%; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
@@ -164,26 +165,21 @@
         
         #save-status { font-size: 0.8rem; color: #28a745; margin-left: 10px; opacity: 0; transition: opacity 0.5s; }
 
-        /* Zone d'aperçu dans la modale */
         .modal-media-preview {
-            margin-top: 15px;
-            padding: 10px;
-            background-color: var(--header-bg);
-            border: 1px dashed var(--border-color);
-            border-radius: 6px;
-            min-height: 100px;
-            display: block; 
-            overflow: hidden;
-            color: #888;
-            font-size: 0.9rem;
+            margin-top: 15px; padding: 10px; background-color: var(--header-bg); border: 1px dashed var(--border-color);
+            border-radius: 6px; min-height: 100px; display: block; overflow: hidden; color: #888; font-size: 0.9rem;
         }
+        .modal-media-preview:has(div.preview-placeholder) { display: flex; align-items: center; justify-content: center; text-align: center; }
 
-        .modal-media-preview:has(div.preview-placeholder) {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-        }
+        /* Styles intégrés pour les modèles (FAQ, Menu, etc.) */
+        .template-faq { border-left: 4px solid var(--btn-bg); padding-left: 15px; margin-bottom: 20px; }
+        .template-faq h3 { margin-bottom: 5px; color: var(--btn-bg); }
+        .template-faq p { margin-top: 0; color: #555; }
+        
+        .template-menu { border: 1px solid var(--border-color); padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+        .template-menu h3 { text-align: center; border-bottom: 2px dashed var(--border-color); padding-bottom: 10px; margin-top: 0;}
+        .template-menu-item { display: flex; justify-content: space-between; margin-bottom: 10px; border-bottom: 1px dotted #eee; }
+        .template-menu-item span:first-child { font-weight: bold; }
     </style>
 </head>
 <body>
@@ -192,7 +188,10 @@
         <div class="toolbar-group">
             <button onclick="document.getElementById('image-modal').showModal()">🖼️ Ajouter Image</button>
             <button onclick="document.getElementById('video-modal').showModal()">🎥 Ajouter Vidéo</button>
-            <button onclick="document.getElementById('markdown-modal').showModal()" class="btn-secondary">📝 Importer Markdown</button>
+            
+            <button onclick="openTemplateModal()" class="btn-secondary" style="background-color: #6f42c1;">📋 Modèles</button>
+            
+            <button onclick="document.getElementById('markdown-modal').showModal()" class="btn-secondary">📝 Import MD</button>
             <button onclick="resetEditor()" class="btn-danger" title="Tout effacer">🗑️ Reset</button>
             <span id="save-status">✓ Sauvegardé</span>
         </div>
@@ -251,6 +250,20 @@
         </section>
     </main>
 
+    <dialog id="template-modal">
+        <h3>Insérer un Modèle</h3>
+        <p style="font-size: 0.9em; color: #666; margin-top: 0;">Choisissez un modèle pré-construit. Il s'insérera là où se trouve votre curseur.</p>
+        <div class="form-group">
+            <label>Sélectionnez un modèle :</label>
+            <select id="template-select">
+                </select>
+        </div>
+        <div class="dialog-buttons">
+            <button class="btn-secondary" onclick="closeModal('template-modal')">Annuler</button>
+            <button onclick="insertTemplate()">Insérer ce modèle</button>
+        </div>
+    </dialog>
+
     <dialog id="markdown-modal">
         <h3>Importer du Markdown</h3>
         <p style="font-size: 0.9em; color: #666; margin-top: 0;">Collez votre code Markdown ci-dessous. N'oubliez pas les espaces après les titres (ex: <code>## Mon Titre</code>).</p>
@@ -275,16 +288,14 @@
         </div>
         <div class="form-group"><label>URL :</label><input type="text" id="img-url" placeholder="https://..." oninput="updateModalPreview('image')"></div>
         <div class="form-group">
-            <label>Texte descriptif (Optionnel, justifié) :</label>
-            <textarea id="img-text" rows="4" placeholder="Tapez le texte..." oninput="updateModalPreview('image')"></textarea>
+            <label>Texte descriptif (Optionnel) :</label>
+            <textarea id="img-text" rows="4" oninput="updateModalPreview('image')"></textarea>
         </div>
         <div class="form-group"><label>Alt (Accessibilité) :</label><input type="text" id="img-alt" placeholder="Description courte..."></div>
-        <div class="form-group"><label>Légende (Sous le média) :</label><input type="text" id="img-caption" placeholder="Légende..."></div>
+        <div class="form-group"><label>Légende :</label><input type="text" id="img-caption" placeholder="Légende..."></div>
         <div class="form-group"><label>Taille :</label><input type="text" id="img-size" value="100%" oninput="updateModalPreview('image')"></div>
         <div class="form-group"><label>Arrondi :</label><input type="text" id="img-radius" value="8px" oninput="updateModalPreview('image')"></div>
-        
         <div id="img-modal-preview" class="modal-media-preview"><div class="preview-placeholder">Aperçu intégral (Entrez une URL)</div></div>
-
         <div class="dialog-buttons">
             <button class="btn-secondary" onclick="closeModal('image-modal')">Annuler</button>
             <button onclick="insertMedia('image')">Valider</button>
@@ -303,21 +314,18 @@
         </div>
         <div class="form-group"><label>Lien (YouTube ou .mp4) :</label><input type="text" id="vid-url" placeholder="https://..." oninput="updateModalPreview('video')"></div>
         <div class="form-group">
-            <label>Texte descriptif (Optionnel, justifié) :</label>
-            <textarea id="vid-text" rows="4" placeholder="Tapez le texte..." oninput="updateModalPreview('video')"></textarea>
+            <label>Texte descriptif (Optionnel) :</label>
+            <textarea id="vid-text" rows="4" oninput="updateModalPreview('video')"></textarea>
         </div>
         <div class="form-group"><label>Titre (Alt) :</label><input type="text" id="vid-alt" placeholder="Titre..."></div>
-        <div class="form-group"><label>Légende (Sous le média) :</label><input type="text" id="vid-caption" placeholder="Légende..."></div>
+        <div class="form-group"><label>Légende :</label><input type="text" id="vid-caption" placeholder="Légende..."></div>
         <div class="form-group"><label>Taille :</label><input type="text" id="vid-size" value="100%" oninput="updateModalPreview('video')"></div>
         <div class="form-group"><label>Arrondi :</label><input type="text" id="vid-radius" value="8px" oninput="updateModalPreview('video')"></div>
-        
         <div class="form-group checkbox-group">
             <input type="checkbox" id="vid-autoplay">
             <label for="vid-autoplay">Lancer automatiquement (sans le son)</label>
         </div>
-
         <div id="vid-modal-preview" class="modal-media-preview"><div class="preview-placeholder">Aperçu intégral (Entrez une URL)</div></div>
-
         <div class="dialog-buttons">
             <button class="btn-secondary" onclick="closeModal('video-modal')">Annuler</button>
             <button onclick="insertMedia('video')">Valider</button>
@@ -332,6 +340,51 @@
         let saveTimeout;
 
         document.execCommand('defaultParagraphSeparator', false, 'p');
+
+        // === GESTION DES MODÈLES (TEMPLATES) ===
+
+        // Modèles de démonstration (utilisés si le fichier externe templates.js n'existe pas)
+        const demoTemplates = [
+            {
+                id: 'faq-demo',
+                name: 'FAQ - Question / Réponse',
+                content: `<div class="template-faq">\n<h3>Question fréquente ?</h3>\n<p>Remplacez ce texte par votre réponse détaillée. Cette structure est conçue pour être dupliquée facilement.</p>\n</div>\n<p>&nbsp;</p>`
+            },
+            {
+                id: 'menu-demo',
+                name: 'Menu de Restaurant (Catégorie)',
+                content: `<div class="template-menu">\n<h3>Nom de la Catégorie (ex: Entrées)</h3>\n<div class="template-menu-item"><span>Salade César</span><span>12 €</span></div>\n<div class="template-menu-item"><span>Soupe à l'oignon</span><span>9 €</span></div>\n<div class="template-menu-item"><span>Carpaccio de bœuf</span><span>14 €</span></div>\n</div>\n<p>&nbsp;</p>`
+            },
+            {
+                id: 'alert-info',
+                name: 'Boîte d\'information (Alerte)',
+                content: `<div style="background-color: #e7f3fe; border-left: 5px solid #0d6efd; padding: 15px; border-radius: 4px; margin-bottom: 20px;">\n<strong style="color: #0d6efd;">Information :</strong>\n<p style="margin: 5px 0 0 0;">Tapez votre message d'information ici.</p>\n</div>\n<p>&nbsp;</p>`
+            }
+        ];
+
+        // Ouvre la fenêtre des modèles et génère la liste déroulante
+        function openTemplateModal() {
+            // Cherche 'mesModelesExternes' (qui proviendra de templates.js). S'il n'existe pas, utilise 'demoTemplates'
+            const activeTemplates = window.mesModelesExternes || demoTemplates;
+            const select = document.getElementById('template-select');
+            
+            select.innerHTML = activeTemplates.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
+            document.getElementById('template-modal').showModal();
+        }
+
+        // Insère le modèle choisi
+        function insertTemplate() {
+            const activeTemplates = window.mesModelesExternes || demoTemplates;
+            const selectedId = document.getElementById('template-select').value;
+            const template = activeTemplates.find(t => t.id === selectedId);
+            
+            if (template) {
+                closeModal('template-modal');
+                insertHtmlAtCursor(template.content);
+            }
+        }
+
+        // ============================================
 
         function saveToLocalStorage(content) {
             localStorage.setItem('editor_saved_data', content);
@@ -356,23 +409,18 @@
             }
             const blob = new Blob([htmlContent], { type: 'text/plain' });
             const url = URL.createObjectURL(blob);
-            
             const a = document.createElement('a');
             a.href = url;
             a.download = 'mon_code_html.txt';
             document.body.appendChild(a);
             a.click();
-            
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
         }
 
         function importMarkdown() {
             const mdText = document.getElementById('md-input').value;
-            if (!mdText.trim()) {
-                closeModal('markdown-modal');
-                return;
-            }
+            if (!mdText.trim()) { closeModal('markdown-modal'); return; }
             const rawHtml = marked.parse(mdText, { breaks: true, gfm: true });
             closeModal('markdown-modal');
             document.getElementById('md-input').value = '';
@@ -388,10 +436,7 @@
             const align = document.getElementById(`${prefix}-align`).value;
             const previewBox = document.getElementById(`${prefix}-modal-preview`);
 
-            if (!url) {
-                previewBox.innerHTML = `<div class="preview-placeholder">Aperçu intégral (Entrez une URL)</div>`;
-                return;
-            }
+            if (!url) { previewBox.innerHTML = `<div class="preview-placeholder">Aperçu intégral (Entrez une URL)</div>`; return; }
 
             let mediaStyle = `width: 100%; border-radius: ${radius}; display: block; object-fit: contain;`;
             let mediaHtml = "";
@@ -415,7 +460,6 @@
                 textHtml = '<p style="font-style: italic; color: #999; margin:0;">(Votre texte descriptif s\'affichera ici...)</p>';
             }
 
-            // AJOUT DU FLEX-WRAP DANS L'APERÇU
             let figureStyle = `margin: 0; flex: 1 1 ${size}; min-width: 200px; max-width: 100%;`;
             let textContainerStyle = `flex: 1 1 200px; min-width: 0; text-align: justify;`;
 
@@ -424,16 +468,14 @@
                 previewBox.innerHTML = `<div style="margin-bottom: 20px;">\n<figure style="${figureStyle}">\n${mediaHtml}\n</figure>\n<div style="text-align: center; margin-top: 15px;">${textHtml}</div>\n</div>`;
             } else {
                 let containerFlexStyle = "display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 20px; margin-bottom: 20px;";
-                if (align === 'right') {
-                    containerFlexStyle += " flex-direction: row-reverse;";
-                }
-                
+                if (align === 'right') containerFlexStyle += " flex-direction: row-reverse;";
                 previewBox.innerHTML = `<div style="${containerFlexStyle}">\n<figure style="${figureStyle}">\n${mediaHtml}\n</figure>\n<div style="${textContainerStyle}">${textHtml}</div>\n</div>`;
             }
         }
 
         function closeModal(id) { 
             document.getElementById(id).close(); 
+            if (id === 'template-modal') return;
             if (id === 'image-modal') document.getElementById('img-modal-preview').innerHTML = `<div class="preview-placeholder">Aperçu intégral (Entrez une URL)</div>`;
             if (id === 'video-modal') document.getElementById('vid-modal-preview').innerHTML = `<div class="preview-placeholder">Aperçu intégral (Entrez une URL)</div>`;
         }
@@ -442,17 +484,8 @@
             const parser = new DOMParser();
             const doc = parser.parseFromString(html, 'text/html');
 
-            doc.querySelectorAll('br').forEach(br => {
-                const spaceNode = doc.createTextNode('\u00A0');
-                br.replaceWith(spaceNode);
-            });
-
-            doc.querySelectorAll('p').forEach(p => {
-                if (p.innerHTML.replace(/&nbsp;/g, '').replace(/\u00A0/g, '').trim() === '') {
-                    p.remove();
-                }
-            });
-
+            doc.querySelectorAll('br').forEach(br => { const spaceNode = doc.createTextNode('\u00A0'); br.replaceWith(spaceNode); });
+            doc.querySelectorAll('p').forEach(p => { if (p.innerHTML.replace(/&nbsp;/g, '').replace(/\u00A0/g, '').trim() === '') p.remove(); });
             doc.querySelectorAll('b').forEach(el => { const strong = doc.createElement('strong'); strong.innerHTML = el.innerHTML; el.replaceWith(strong); });
             doc.querySelectorAll('i').forEach(el => { const em = doc.createElement('em'); em.innerHTML = el.innerHTML; el.replaceWith(em); });
             doc.querySelectorAll('u').forEach(el => { const span = doc.createElement('span'); span.style.textDecoration = 'underline'; span.innerHTML = el.innerHTML; el.replaceWith(span); });
@@ -462,14 +495,8 @@
 
             doc.querySelectorAll('ul > ul, ol > ol, ul > ol, ol > ul').forEach(nestedList => {
                 const prevLi = nestedList.previousElementSibling;
-                if (prevLi && prevLi.tagName === 'LI') {
-                    prevLi.appendChild(nestedList);
-                } else {
-                    const li = doc.createElement('li');
-                    li.style.listStyle = 'none';
-                    nestedList.parentNode.insertBefore(li, nestedList);
-                    li.appendChild(nestedList);
-                }
+                if (prevLi && prevLi.tagName === 'LI') { prevLi.appendChild(nestedList); } 
+                else { const li = doc.createElement('li'); li.style.listStyle = 'none'; nestedList.parentNode.insertBefore(li, nestedList); li.appendChild(nestedList); }
             });
 
             let cleanHtml = doc.body.innerHTML;
@@ -477,7 +504,6 @@
 
             let formatted = cleanHtml.replace(/>\s+</g, '><');
             const blockTags = ['p', 'div', 'h1', 'h2', 'h3', 'h4', 'ul', 'ol', 'li', 'figure', 'figcaption', 'iframe', 'video'];
-            
             blockTags.forEach(tag => {
                 const regexOpen = new RegExp(`(<${tag}(?:\\s[^>]*)?>)`, 'gi');
                 const regexClose = new RegExp(`(</${tag}>)`, 'gi');
@@ -503,20 +529,12 @@
             saveToLocalStorage(manualHTML);
         }
 
-        function formatText(command, value = null) {
-            document.execCommand(command, false, value);
-            visualEditor.focus();
-            updateFromVisual();
-        }
+        function formatText(command, value = null) { document.execCommand(command, false, value); visualEditor.focus(); updateFromVisual(); }
 
         visualEditor.addEventListener('input', updateFromVisual);
         htmlOutput.addEventListener('input', updateFromHtml);
 
-        function copyHtml() {
-            htmlOutput.select();
-            navigator.clipboard.writeText(htmlOutput.value)
-                .then(() => alert("Code HTML copié dans le presse-papier !"));
-        }
+        function copyHtml() { htmlOutput.select(); navigator.clipboard.writeText(htmlOutput.value).then(() => alert("Code HTML copié dans le presse-papier !")); }
 
         function setDeviceView(viewClass) {
             const isDark = previewOutput.classList.contains('theme-dark');
@@ -533,15 +551,12 @@
         function insertHtmlAtCursor(htmlSnippet) {
             visualEditor.focus();
             const success = document.execCommand('insertHTML', false, htmlSnippet);
-            if (!success) {
-                visualEditor.insertAdjacentHTML('beforeend', htmlSnippet);
-            }
+            if (!success) { visualEditor.insertAdjacentHTML('beforeend', htmlSnippet); }
             updateFromVisual();
         }
 
         function insertMedia(type) {
             const prefix = type === 'image' ? 'img' : 'vid';
-            
             const align = document.getElementById(`${prefix}-align`).value;
             const url = document.getElementById(`${prefix}-url`).value;
             const rawText = document.getElementById(`${prefix}-text`).value;
@@ -553,18 +568,12 @@
             let textHtml = '';
             if (rawText.trim() !== '') {
                 const paragraphs = rawText.split('\n').filter(p => p.trim() !== '');
-                // AJOUT DU FLEX: 1 1 200px (Base flexible)
-                textHtml = `\n<div style="flex: 1 1 200px; min-width: 0; text-align: justify;">\n` + 
-                           paragraphs.map(p => `<p>${p}</p>`).join('\n') + 
-                           `\n</div>`;
+                textHtml = `\n<div style="flex: 1 1 200px; min-width: 0; text-align: justify;">\n` + paragraphs.map(p => `<p>${p}</p>`).join('\n') + `\n</div>`;
             }
 
-            let figureStyle = "";
-            let containerStart = "";
-            let containerEnd = "";
+            let figureStyle = ""; let containerStart = ""; let containerEnd = "";
             let mediaStyle = `width: 100%; border-radius: ${radius}; display: block;`;
 
-            // AJOUT DU FLEX-WRAP ET DU FLEX-BASIS POUR LE RESPONSIVE
             if (align === 'left') {
                 figureStyle = `margin: 0; flex: 1 1 ${size}; min-width: 200px; max-width: 100%;`;
                 containerStart = `<div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 20px; margin-bottom: 20px;">\n`;
@@ -582,40 +591,28 @@
             let mediaHtml = "";
             let captionHtml = caption ? `\n<figcaption style="font-size: 0.9em; color: #666; margin-top: 5px; text-align: center;">${caption}</figcaption>` : '';
 
-            if (type === 'image') {
-                mediaHtml = `<img src="${url}" alt="${alt}" style="${mediaStyle}">`;
-            } else {
+            if (type === 'image') { mediaHtml = `<img src="${url}" alt="${alt}" style="${mediaStyle}">`; } 
+            else {
                 const isAutoplay = document.getElementById('vid-autoplay').checked;
                 const ytAutoParam = isAutoplay ? "?autoplay=1&mute=1&rel=0" : "?rel=0";
                 const html5AutoParam = isAutoplay ? "autoplay muted loop playsinline" : "controls";
                 const ytMatch = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
 
-                if (ytMatch) {
-                    const ytId = ytMatch[1];
-                    mediaHtml = `<iframe height="315" src="https://www.youtube-nocookie.com/embed/${ytId}${ytAutoParam}" title="${alt}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen style="${mediaStyle}"></iframe>`;
-                } else {
-                    mediaHtml = `<video src="${url}" title="${alt}" style="${mediaStyle} min-height: 250px;" ${html5AutoParam}></video>`;
-                }
+                if (ytMatch) { mediaHtml = `<iframe height="315" src="https://www.youtube-nocookie.com/embed/${ytMatch[1]}${ytAutoParam}" title="${alt}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen style="${mediaStyle}"></iframe>`; } 
+                else { mediaHtml = `<video src="${url}" title="${alt}" style="${mediaStyle} min-height: 250px;" ${html5AutoParam}></video>`; }
             }
 
             const snippet = `${containerStart}<figure style="${figureStyle}">\n${mediaHtml}${captionHtml}\n</figure>\n${textHtml}${containerEnd}`;
-            
             closeModal(`${type}-modal`);
             
-            document.getElementById(`${prefix}-url`).value = '';
-            document.getElementById(`${prefix}-text`).value = '';
-            document.getElementById(`${prefix}-caption`).value = '';
-            
+            document.getElementById(`${prefix}-url`).value = ''; document.getElementById(`${prefix}-text`).value = ''; document.getElementById(`${prefix}-caption`).value = '';
             insertHtmlAtCursor(snippet);
         }
 
         window.onload = () => {
             const savedData = localStorage.getItem('editor_saved_data');
-            if (savedData && savedData.trim() !== '') {
-                visualEditor.innerHTML = savedData;
-            } else {
-                visualEditor.innerHTML = "";
-            }
+            if (savedData && savedData.trim() !== '') { visualEditor.innerHTML = savedData; } 
+            else { visualEditor.innerHTML = ""; }
             updateFromVisual();
         };
     </script>
