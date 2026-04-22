@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Éditeur Sémantique Pro - Markdown Fix</title>
+    <title>Éditeur Sémantique Pro - Live Preview Media</title>
     
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
@@ -148,6 +148,7 @@
         #preview-output.theme-light { background-color: #ffffff; color: #000000; }
         #preview-output.theme-dark { background-color: #121212; color: #f0f0f0; }
 
+        /* Modales */
         dialog {
             background-color: var(--modal-bg); color: var(--text-color); border: 1px solid var(--border-color);
             border-radius: 8px; padding: 20px; width: 500px; max-width: 90%; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
@@ -162,6 +163,23 @@
         .dialog-buttons { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
         
         #save-status { font-size: 0.8rem; color: #28a745; margin-left: 10px; opacity: 0; transition: opacity 0.5s; }
+
+        /* === NOUVEAU : Zone d'aperçu dans la modale === */
+        .modal-media-preview {
+            margin-top: 15px;
+            padding: 10px;
+            background-color: var(--header-bg);
+            border: 1px dashed var(--border-color);
+            border-radius: 6px;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            color: #888;
+            font-size: 0.9rem;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -245,21 +263,24 @@
         <h3>Insérer une Image</h3>
         <div class="form-group">
             <label>Alignement & Mise en page :</label>
-            <select id="img-align" onchange="document.getElementById('img-size').value = this.value === 'center' ? '100%' : '50%';">
+            <select id="img-align" onchange="document.getElementById('img-size').value = this.value === 'center' ? '100%' : '50%'; updateModalPreview('image');">
                 <option value="center">Centré (Défaut)</option>
                 <option value="left">Média à Gauche, Texte à Droite</option>
                 <option value="right">Média à Droite, Texte à Gauche</option>
             </select>
         </div>
-        <div class="form-group"><label>URL :</label><input type="text" id="img-url" placeholder="https://..."></div>
+        <div class="form-group"><label>URL :</label><input type="text" id="img-url" placeholder="https://..." oninput="updateModalPreview('image')"></div>
         <div class="form-group">
-            <label>Texte descriptif (Optionnel) :</label>
+            <label>Texte descriptif (Optionnel, justifié, centré verticalement) :</label>
             <textarea id="img-text" rows="4"></textarea>
         </div>
         <div class="form-group"><label>Alt (Accessibilité) :</label><input type="text" id="img-alt" placeholder="Description courte..."></div>
         <div class="form-group"><label>Légende (Sous le média) :</label><input type="text" id="img-caption" placeholder="Légende..."></div>
-        <div class="form-group"><label>Taille :</label><input type="text" id="img-size" value="100%"></div>
-        <div class="form-group"><label>Arrondi :</label><input type="text" id="img-radius" value="8px"></div>
+        <div class="form-group"><label>Taille :</label><input type="text" id="img-size" value="100%" oninput="updateModalPreview('image')"></div>
+        <div class="form-group"><label>Arrondi :</label><input type="text" id="img-radius" value="8px" oninput="updateModalPreview('image')"></div>
+        
+        <div id="img-modal-preview" class="modal-media-preview">Aperçu de l'image (Entrez une URL)</div>
+
         <div class="dialog-buttons">
             <button class="btn-secondary" onclick="closeModal('image-modal')">Annuler</button>
             <button onclick="insertMedia('image')">Valider</button>
@@ -270,26 +291,28 @@
         <h3>Insérer une Vidéo</h3>
         <div class="form-group">
             <label>Alignement & Mise en page :</label>
-            <select id="vid-align" onchange="document.getElementById('vid-size').value = this.value === 'center' ? '100%' : '50%';">
+            <select id="vid-align" onchange="document.getElementById('vid-size').value = this.value === 'center' ? '100%' : '50%'; updateModalPreview('video');">
                 <option value="center">Centré (Défaut)</option>
                 <option value="left">Média à Gauche, Texte à Droite</option>
                 <option value="right">Média à Droite, Texte à Gauche</option>
             </select>
         </div>
-        <div class="form-group"><label>Lien (YouTube ou .mp4) :</label><input type="text" id="vid-url" placeholder="https://..."></div>
+        <div class="form-group"><label>Lien (YouTube ou .mp4) :</label><input type="text" id="vid-url" placeholder="https://..." oninput="updateModalPreview('video')"></div>
         <div class="form-group">
-            <label>Texte descriptif (Optionnel) :</label>
+            <label>Texte descriptif (Optionnel, justifié, centré verticalement) :</label>
             <textarea id="vid-text" rows="4"></textarea>
         </div>
         <div class="form-group"><label>Titre (Alt) :</label><input type="text" id="vid-alt" placeholder="Titre..."></div>
         <div class="form-group"><label>Légende (Sous le média) :</label><input type="text" id="vid-caption" placeholder="Légende..."></div>
-        <div class="form-group"><label>Taille :</label><input type="text" id="vid-size" value="100%"></div>
-        <div class="form-group"><label>Arrondi :</label><input type="text" id="vid-radius" value="8px"></div>
+        <div class="form-group"><label>Taille :</label><input type="text" id="vid-size" value="100%" oninput="updateModalPreview('video')"></div>
+        <div class="form-group"><label>Arrondi :</label><input type="text" id="vid-radius" value="8px" oninput="updateModalPreview('video')"></div>
         
         <div class="form-group checkbox-group">
             <input type="checkbox" id="vid-autoplay">
             <label for="vid-autoplay">Lancer automatiquement (sans le son)</label>
         </div>
+
+        <div id="vid-modal-preview" class="modal-media-preview">Aperçu de la vidéo (Entrez une URL)</div>
 
         <div class="dialog-buttons">
             <button class="btn-secondary" onclick="closeModal('video-modal')">Annuler</button>
@@ -340,26 +363,65 @@
             URL.revokeObjectURL(url);
         }
 
-        // === CORRECTION DE L'IMPORTATION MARKDOWN ===
         function importMarkdown() {
             const mdText = document.getElementById('md-input').value;
             if (!mdText.trim()) {
                 closeModal('markdown-modal');
                 return;
             }
-
-            // Conversion
-            const rawHtml = marked.parse(mdText, { 
-                breaks: true, 
-                gfm: true 
-            });
-
-            // 1. Il est CRUCIAL de fermer la fenêtre D'ABORD pour rendre le focus à l'éditeur
+            const rawHtml = marked.parse(mdText, { breaks: true, gfm: true });
             closeModal('markdown-modal');
             document.getElementById('md-input').value = '';
-
-            // 2. Ensuite on insère le contenu généré
             insertHtmlAtCursor(String(rawHtml));
+        }
+
+        // === NOUVEAU : Fonction de Live Preview dans la modale ===
+        function updateModalPreview(type) {
+            const prefix = type === 'image' ? 'img' : 'vid';
+            const url = document.getElementById(`${prefix}-url`).value.trim();
+            const size = document.getElementById(`${prefix}-size`).value;
+            const radius = document.getElementById(`${prefix}-radius`).value;
+            const align = document.getElementById(`${prefix}-align`).value;
+            const previewBox = document.getElementById(`${prefix}-modal-preview`);
+
+            // Si aucune URL n'est saisie, on remet le texte par défaut
+            if (!url) {
+                previewBox.innerHTML = `Aperçu ${type === 'image' ? 'de l\'image' : 'de la vidéo'} (Entrez une URL)`;
+                return;
+            }
+
+            // Calcul du style pour l'aperçu
+            // Note : le "size" (ex: 50%) s'appliquera par rapport à la largeur de la boîte d'aperçu de la modale
+            let style = `width: ${size}; border-radius: ${radius}; max-width: 100%; object-fit: contain; display: block;`;
+            
+            // Simule l'alignement visuellement dans la boîte
+            if (align === 'left') {
+                style += ' margin-right: auto; margin-left: 0;';
+            } else if (align === 'right') {
+                style += ' margin-left: auto; margin-right: 0;';
+            } else {
+                style += ' margin: 0 auto;';
+            }
+
+            // Génération du contenu HTML selon Image ou Vidéo
+            if (type === 'image') {
+                previewBox.innerHTML = `<img src="${url}" style="${style}">`;
+            } else {
+                const ytMatch = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
+                if (ytMatch) {
+                    // Pour youtube, on force un petit ratio pour que ça rentre joliment dans la pop-up
+                    previewBox.innerHTML = `<iframe style="${style} aspect-ratio: 16/9; max-height: 250px;" src="https://www.youtube-nocookie.com/embed/${ytMatch[1]}?rel=0" frameborder="0"></iframe>`;
+                } else {
+                    previewBox.innerHTML = `<video src="${url}" style="${style} max-height: 250px;" controls></video>`;
+                }
+            }
+        }
+
+        // Réinitialise l'aperçu quand on ferme une modale (pour la prochaine fois)
+        function closeModal(id) { 
+            document.getElementById(id).close(); 
+            if (id === 'image-modal') document.getElementById('img-modal-preview').innerHTML = "Aperçu de l'image (Entrez une URL)";
+            if (id === 'video-modal') document.getElementById('vid-modal-preview').innerHTML = "Aperçu de la vidéo (Entrez une URL)";
         }
 
         function cleanAndFormatHTML(html) {
@@ -454,14 +516,9 @@
             previewOutput.classList.toggle('theme-dark', !isDark);
         });
 
-        function closeModal(id) { document.getElementById(id).close(); }
-
-        // === INSERTION SÉCURISÉE ===
         function insertHtmlAtCursor(htmlSnippet) {
             visualEditor.focus();
             const success = document.execCommand('insertHTML', false, htmlSnippet);
-            
-            // Sécurité : si l'éditeur avait complètement perdu le curseur, on ajoute à la fin
             if (!success) {
                 visualEditor.insertAdjacentHTML('beforeend', htmlSnippet);
             }
@@ -527,14 +584,12 @@
 
             const snippet = `${containerStart}<figure style="${figureStyle}">\n${mediaHtml}${captionHtml}\n</figure>\n${textHtml}${containerEnd}`;
             
-            // 1. Fermer d'abord la pop-up
             closeModal(`${type}-modal`);
             
             document.getElementById(`${prefix}-url`).value = '';
             document.getElementById(`${prefix}-text`).value = '';
             document.getElementById(`${prefix}-caption`).value = '';
             
-            // 2. Insérer ensuite
             insertHtmlAtCursor(snippet);
         }
 
