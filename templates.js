@@ -1,3 +1,11 @@
+// Fichier : templates.js
+
+window.mesModelesExternes = [
+    // --- MODÈLE 1 : TON MENU RESTAURANT ---
+    {
+        id: 'menu-toggle',
+        name: 'Menu Toggle (Carte de Restaurant)',
+        content: `
 <!-- TOGGLE Menu -->
 <div style="max-width:500px;margin:30px auto;border-radius:15px;padding:30px;box-shadow:0 6px 20px rgba(0,0,0,0.1);text-align:center;">
 
@@ -47,3 +55,88 @@
 
 </div>
 <!-- FIN TOGGLE Menu -->
+<p>&nbsp;</p>
+`
+    }, // <-- VIRGULE TRÈS IMPORTANTE ICI POUR SÉPARER LES MODÈLES
+
+    // --- MODÈLE 2 : UNE FAQ ---
+    {
+        id: 'faq-accordeon',
+        name: 'Question FAQ (Déroulante)',
+        content: `
+<details style="background-color: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 10px; border: 1px solid #ddd;">
+    <summary style="font-weight: bold; cursor: pointer; color: #333;">Cliquez ici pour lire la question ?</summary>
+    <div style="margin-top: 10px; padding-top: 10px; border-top: 1px dashed #ccc; color: #555;">
+        <p style="margin: 0; text-align: justify;">Voici la réponse détaillée à la question. Vous pouvez la modifier directement dans l'éditeur visuel.</p>
+    </div>
+</details>
+<p>&nbsp;</p>
+`
+    },  // --- MODÈLE  : Toggle - Liste des options avec détails  ---
+    {
+        id: 'toggle-liste-options-details',
+        name: 'Toggle - Liste des options avec détails',
+        content: `
+        <ul style="list-style-type: none;">
+  <li>
+    <details>
+      <summary><u>option</u></summary>
+      <ul style="list-style-type: disc;">
+        <li>détail</li>
+        <li>détail</li>
+        <li>détail</li>
+      </ul>
+    </details>
+  </li>
+  <li>
+    <details>
+      <summary><u>option</u></summary>
+      <ul style="list-style-type: disc;">
+        <li>détail</li>
+        <li>détail</li>
+        <li>détail</li>
+      </ul>
+    </details>
+  </li>
+  <li>
+    <details>
+      <summary><u>option</u></summary>
+      <ul style="list-style-type: disc;">
+        <li>détail</li>
+        <li>détail</li>
+        <li>détail</li>
+      </ul>
+    </details>
+  </li>
+</ul>
+
+<p>&nbsp;</p>
+`
+   },  // --- MODÈLE  :  ---
+    {
+        id: '',
+        name: '',
+        content: `
+
+<p>&nbsp;</p>
+`
+   },  // --- MODÈLE  :  ---
+    {
+        id: '',
+        name: '',
+        content: `
+
+<p>&nbsp;</p>
+`
+   },// --- MODÈLE 3 : UN BOUTON D'APPEL À L'ACTION ---
+    {
+        id: 'bouton-action',
+        name: 'Bouton (Appel à l\'action)',
+        content: `
+<div style="text-align: center; margin: 25px 0;">
+    <a href="#" style="background-color: #0d6efd; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold; font-family: sans-serif; display: inline-block;">CLIQUEZ ICI</a>
+</div>
+<p>&nbsp;</p>
+`
+    } // <-- PAS DE VIRGULE SUR LE DERNIER
+];
