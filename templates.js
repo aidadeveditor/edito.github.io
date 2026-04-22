@@ -1,17 +1,11 @@
-// Fichier : templates.js
-
-window.mesModelesExternes = [
-    {
-        id: 'menu-toggle',
-        name: 'Menu Toggle (Carte de Restaurant)',
-        content: `
+<!-- TOGGLE Menu -->
 <div style="max-width:500px;margin:30px auto;border-radius:15px;padding:30px;box-shadow:0 6px 20px rgba(0,0,0,0.1);text-align:center;">
 
 <img src="https://img.grouponcdn.com/editorial/2AfJKw1YvJz2ZXUdaaxTWJFfx4M2/local-menu-groupon-6000x3375" alt="Carte du menu" style="width:25%;display:block;margin:0 auto 10px;">
 
 <details>
 <summary style="cursor:pointer; font-size:14px; color:#888; margin:0 auto 10px; width:max-content;">
-    Voir / Masquer la carte
+      Voir / Masquer la carte
 </summary>
 
 <div style="margin-top:20px;text-align:center;">
@@ -52,8 +46,4 @@ window.mesModelesExternes = [
 </details>
 
 </div>
-<p>&nbsp;</p>
-`
-    }
-    // Tu pourras ajouter d'autres modèles ici, séparés par une virgule !
-];
+<!-- FIN TOGGLE Menu -->
