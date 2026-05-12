@@ -52,15 +52,12 @@
         .modal-media-preview:has(div.preview-placeholder) { display: flex; align-items: center; justify-content: center; text-align: center; }
         .img-section-sep { border: none; border-top: 1px dashed #ced4da; margin: 10px 0 12px; }
         .img-section-title { font-size: 0.78rem; font-weight: 700; color: #6c757d; text-transform: uppercase; letter-spacing: .06em; margin: 14px 0 6px; }
-        /* Champs conditionnels — masqués par défaut */
         .img-opt { display: none; }
         .img-opt.show { display: block; }
-        /* Galerie */
         .galerie-url-row { display: flex; gap: 6px; margin-bottom: 8px; }
         .galerie-url-row input { flex: 1; }
         .galerie-url-row button { padding: 4px 10px; font-size: 0.8rem; background: #dc3545; flex-shrink: 0; }
         #galerie-add-btn { font-size: 0.82rem; padding: 5px 10px; background: #198754; }
-        /* Display radio buttons */
         .display-group { display: flex; gap: 8px; margin-top: 4px; }
         .display-group label { display: flex; align-items: center; gap: 5px; font-size: 0.88rem; font-weight: normal; color: #333; cursor: pointer; padding: 5px 10px; border: 1px solid #ced4da; border-radius: 4px; background: #f8f9fa; transition: 0.15s; }
         .display-group label:has(input:checked) { background: #0d6efd; color: #fff; border-color: #0d6efd; }
@@ -139,7 +136,7 @@
     </div>
     <div class="dialog-buttons">
         <button class="btn-secondary" onclick="closeModal('markdown-modal')">Annuler</button>
-        <button onclick="importMarkdown()">Convertir & Insérer</button>
+        <button onclick="importMarkdown()">Convertir &amp; Insérer</button>
     </div>
 </dialog>
 
@@ -147,7 +144,6 @@
 <dialog id="image-modal">
     <h3 style="margin-bottom:14px;">Insérer une Image</h3>
 
-    <!-- ÉTAPE 1 : FORMAT -->
     <p class="img-section-title">1 · Format</p>
     <div class="form-group">
         <label>Format de l'image :</label>
@@ -207,18 +203,15 @@
         </select>
     </div>
 
-    <!-- URL image (masquée pour instagram & galerie) -->
     <div id="img-url-group" class="form-group">
         <label>URL de l'image :</label>
         <input type="text" id="img-url" placeholder="https://..." oninput="updateModalPreview('image')">
     </div>
 
     <hr class="img-section-sep">
-
-    <!-- ÉTAPE 2 : OPTIONS UNIVERSELLES + CONTEXTUELLES -->
     <p class="img-section-title">2 · Options</p>
 
-    <!-- Display (universel, masqué pour instagram/galerie) -->
+    <!-- Display : masqué pour instagram, galerie, float-left, float-right -->
     <div id="opt-display" class="img-opt">
         <div class="form-group">
             <label>Display :</label>
@@ -230,27 +223,22 @@
         </div>
     </div>
 
-    <!-- Alt (universel) -->
     <div id="opt-alt" class="img-opt">
         <div class="form-group"><label>Alt (accessibilité) :</label><input type="text" id="img-alt" placeholder="Description courte de l'image..."></div>
     </div>
 
-    <!-- Légende (universel) -->
     <div id="opt-caption" class="img-opt">
         <div class="form-group"><label>Légende :</label><input type="text" id="img-caption" placeholder="Légende sous l'image..." oninput="updateModalPreview('image')"></div>
     </div>
 
-    <!-- URL du lien (universel) -->
     <div id="opt-link" class="img-opt">
         <div class="form-group"><label>URL du lien (clic sur l'image) :</label><input type="text" id="img-link-url" placeholder="https://..." oninput="updateModalPreview('image')"></div>
     </div>
 
-    <!-- Taille (universel) -->
     <div id="opt-size" class="img-opt">
         <div class="form-group"><label>Taille (ex&nbsp;: 100%, 300px) :</label><input type="text" id="img-size" value="100%" oninput="updateModalPreview('image')"></div>
     </div>
 
-    <!-- Arrondi (universel) -->
     <div id="opt-radius" class="img-opt">
         <div class="form-group"><label>Arrondi (ex&nbsp;: 8px, 50%) :</label><input type="text" id="img-radius" value="8px" oninput="updateModalPreview('image')"></div>
     </div>
@@ -263,26 +251,22 @@
         </div>
     </div>
 
-    <!-- Hero fields -->
     <div id="opt-hero" class="img-opt">
         <div class="form-group"><label>Titre superposé :</label><input type="text" id="img-hero-title" placeholder="Titre principal" oninput="updateModalPreview('image')"></div>
         <div class="form-group"><label>Sous-titre :</label><input type="text" id="img-hero-subtitle" placeholder="Sous-titre · Détail · Lieu" oninput="updateModalPreview('image')"></div>
     </div>
 
-    <!-- Promo fields -->
     <div id="opt-promo" class="img-opt">
         <div class="form-group"><label>Texte promo (ex&nbsp;: -40%) :</label><input type="text" id="img-promo-value" placeholder="-40%" oninput="updateModalPreview('image')"></div>
         <div class="form-group"><label>Libellé au-dessus :</label><input type="text" id="img-promo-top" placeholder="Jusqu'à" oninput="updateModalPreview('image')"></div>
         <div class="form-group"><label>Libellé en-dessous :</label><input type="text" id="img-promo-bottom" placeholder="sur vos entrées" oninput="updateModalPreview('image')"></div>
     </div>
 
-    <!-- Instagram fields -->
     <div id="opt-instagram" class="img-opt">
         <div class="form-group"><label>URL Instagram du marchand :</label><input type="text" id="img-insta-url" placeholder="https://www.instagram.com/nommerchant" oninput="updateModalPreview('image')"></div>
         <div class="form-group"><label>Nom du marchand :</label><input type="text" id="img-insta-nom" placeholder="@NomMarchand" oninput="updateModalPreview('image')"></div>
     </div>
 
-    <!-- Galerie fields -->
     <div id="opt-galerie" class="img-opt">
         <div class="form-group">
             <label>URLs des images (min. 2, max. 12) :</label>
@@ -304,7 +288,6 @@
         <div class="form-group"><label>Arrondi des images :</label><input type="text" id="galerie-radius" value="6px"></div>
     </div>
 
-    <!-- Aperçu -->
     <div id="img-modal-preview" class="modal-media-preview"><div class="preview-placeholder">Aperçu (entrez une URL)</div></div>
 
     <div class="dialog-buttons">
@@ -317,7 +300,7 @@
 <dialog id="video-modal">
     <h3>Insérer une Vidéo</h3>
     <div class="form-group">
-        <label>Alignement & Mise en page :</label>
+        <label>Alignement &amp; Mise en page :</label>
         <select id="vid-align" onchange="document.getElementById('vid-size').value = this.value === 'center' ? '100%' : '50%'; updateModalPreview('video');">
             <option value="center">Centré (Défaut)</option>
             <option value="left">Média à Gauche, Texte à Droite</option>
@@ -343,16 +326,12 @@
 
 <script>
 // ============================================================
-// CONFIGURATION DES OPTIONS PAR FORMAT
-// Clés universelles (tous formats sauf instagram/galerie) :
-//   display | alt | caption | link | size | radius
-// Clés spécifiques : text | hero | promo | instagram | galerie
+// FORMATS SPECIAUX : pas d'options universelles
+// FORMATS SANS DISPLAY : ont leurs propres règles d'alignement
 // ============================================================
+const FORMATS_SPECIAUX    = new Set(['instagram', 'galerie']);
+const FORMATS_SANS_DISPLAY = new Set(['instagram', 'galerie', 'float-left', 'float-right']);
 
-// Formats qui n'utilisent PAS les options universelles
-const FORMATS_SPECIAUX = new Set(['instagram', 'galerie']);
-
-// Formats qui ont EN PLUS des options spécifiques
 const FORMAT_EXTRA = {
     'float-left':  { text:1 },
     'float-right': { text:1 },
@@ -362,38 +341,40 @@ const FORMAT_EXTRA = {
     'galerie':     { galerie:1 }
 };
 
-// IDs des options spécifiques uniquement (les universelles sont gérées séparément)
 const OPT_SPECIFIC_IDS = ['opt-text','opt-hero','opt-promo','opt-instagram','opt-galerie'];
 const OPT_SPECIFIC_MAP = { 'opt-text':'text','opt-hero':'hero','opt-promo':'promo','opt-instagram':'instagram','opt-galerie':'galerie' };
-
-// IDs des options universelles
-const OPT_UNIVERSAL_IDS = ['opt-display','opt-alt','opt-caption','opt-link','opt-size','opt-radius'];
+// Options universelles sauf display (géré séparément)
+const OPT_UNIVERSAL_IDS = ['opt-alt','opt-caption','opt-link','opt-size','opt-radius'];
 
 function getDisplayValue() {
     return document.querySelector('input[name="img-display"]:checked')?.value || 'center';
 }
 
 function onFormatChange() {
-    const fmt = document.getElementById('img-format').value;
+    const fmt       = document.getElementById('img-format').value;
     const isSpecial = FORMATS_SPECIAUX.has(fmt);
-    const extra = FORMAT_EXTRA[fmt] || {};
+    const noDisplay = FORMATS_SANS_DISPLAY.has(fmt);
+    const extra     = FORMAT_EXTRA[fmt] || {};
 
     // URL image : masquée pour instagram et galerie
     document.getElementById('img-url-group').style.display = isSpecial ? 'none' : 'block';
 
-    // Options universelles : visibles pour tous sauf formats spéciaux
+    // Display : masqué pour formats spéciaux ET float-left/float-right
+    document.getElementById('opt-display').classList.toggle('show', !noDisplay);
+
+    // Autres options universelles : masquées seulement pour les formats spéciaux
     OPT_UNIVERSAL_IDS.forEach(id => {
         document.getElementById(id).classList.toggle('show', !isSpecial);
     });
 
-    // Options spécifiques : uniquement si le format les déclare
+    // Options spécifiques
     OPT_SPECIFIC_IDS.forEach(id => {
         const key = OPT_SPECIFIC_MAP[id];
         document.getElementById(id).classList.toggle('show', !!extra[key]);
     });
 }
 
-// ── Galerie ──────────────────────────────────────────────────
+// ── Galerie
 function addGalerieRow() {
     const c = document.getElementById('galerie-urls-container');
     if (c.children.length >= 12) return;
@@ -409,7 +390,7 @@ function removeGalerieRow(btn) {
     btn.closest('.galerie-url-row').remove();
 }
 
-// ── Ouverture modale image ───────────────────────────────────
+// ── Ouverture modale image
 function openImageModal() {
     ['img-url','img-alt','img-caption','img-text','img-hero-title','img-hero-subtitle',
      'img-promo-value','img-promo-top','img-promo-bottom','img-link-url',
@@ -419,10 +400,8 @@ function openImageModal() {
     document.getElementById('img-size').value   = '100%';
     document.getElementById('img-radius').value = '8px';
     document.getElementById('img-format').value = 'center';
-    // Reset display radio
     const radioCenter = document.querySelector('input[name="img-display"][value="center"]');
     if (radioCenter) radioCenter.checked = true;
-    // Reset galerie
     const gc = document.getElementById('galerie-urls-container');
     gc.innerHTML = '';
     for (let i = 1; i <= 3; i++) {
@@ -439,13 +418,11 @@ function openImageModal() {
     document.getElementById('image-modal').showModal();
 }
 
-// ── Modèles ──────────────────────────────────────────────────
 function openTemplates() {
     if (typeof showTemplatesModal === 'function') showTemplatesModal();
     else alert('Le fichier templates.js n\'est pas chargé.');
 }
 
-// ── Utilitaires ──────────────────────────────────────────────
 function saveToLocalStorage(content) {
     try { localStorage.setItem('editor_saved_data', content); } catch(e) {}
     const s = document.getElementById('save-status');
@@ -533,7 +510,6 @@ function updateModalPreview(type) {
 
 // ============================================================
 // HELPER : applique le display (centre / gauche / droite)
-// sur n'importe quel bloc HTML déjà construit
 // ============================================================
 function applyDisplay(inner, display, size) {
     if (display === 'left') {
@@ -542,7 +518,6 @@ function applyDisplay(inner, display, size) {
     if (display === 'right') {
         return `<div style="float:right;width:${size};margin:0 0 12px 20px;">${inner}</div><div style="clear:both;"></div><p>&nbsp;</p>`;
     }
-    // center (défaut)
     return `<div style="text-align:center;margin-bottom:20px;">${inner}</div><p>&nbsp;</p>`;
 }
 
@@ -555,8 +530,9 @@ function buildImageSnippet(fmt, url) {
     const size    = document.getElementById('img-size')?.value    || '100%';
     const radius  = document.getElementById('img-radius')?.value  || '8px';
     const linkUrl = document.getElementById('img-link-url')?.value.trim() || '';
-    const display = getDisplayValue(); // 'center' | 'left' | 'right'
+    const display = getDisplayValue();
 
+    // figcaption stylisé
     const captFig = caption
         ? `<figcaption style="font-size:13px;color:#64748b;text-align:center;margin-top:6px;font-style:italic;">${caption}</figcaption>`
         : '';
@@ -568,11 +544,11 @@ function buildImageSnippet(fmt, url) {
         if (!linkUrl) return inner;
         return `<a href="${linkUrl}" target="_blank" rel="noopener noreferrer" style="display:block;line-height:0;">${inner}</a>`;
     }
-    // Construit un <figure> ou <div> avec légende puis applique le display
+    // Bloc image + légende + display universel
     function figBlock(imgStyle) {
-        const img  = imgTag(imgStyle);
+        const img    = imgTag(imgStyle);
         const linked = withLink(img);
-        const inner = captFig
+        const inner  = captFig
             ? `<figure style="margin:0;">${linked}${captFig}</figure>`
             : linked;
         return applyDisplay(inner, display, size);
@@ -580,36 +556,38 @@ function buildImageSnippet(fmt, url) {
 
     switch (fmt) {
 
-        // ─── MISE EN PAGE (comportements spécifiques) ───
+        // ─── MISE EN PAGE ───
         case 'center':
         case 'left':
-        case 'right': {
-            // Ces trois formats héritent maintenant du display universel
+        case 'right':
             return figBlock(`width:${size};border-radius:${radius};display:block;`);
-        }
 
+        // ─── FLOAT : la légende est DANS la figure flottante, le texte à côté est indépendant
         case 'float-left': {
             const rawText = document.getElementById('img-text').value;
             const txt = rawText.trim()
                 ? rawText.split('\n').filter(p=>p.trim()).map(p=>`<p style="margin:0 0 10px;">${p}</p>`).join('')
                 : '<p>Votre texte descriptif ici.</p>';
-            const figStyle = `float:left;width:${size};margin:0 20px 12px 0;`;
-            const imgHtml  = imgTag(`width:100%;border-radius:${radius};display:block;`);
-            const figHtml  = captFig
-                ? `<figure style="${figStyle}">${imgHtml}${captFig}</figure>`
-                : `<figure style="${figStyle}">${imgHtml}</figure>`;
+            const floatSide = 'left';
+            const floatStyle = `float:${floatSide};width:${size};margin:0 20px 12px 0;`;
+            const imgHtml = imgTag(`width:100%;border-radius:${radius};display:block;`);
+            // Légende intégrée dans la figure flottante
+            const figHtml = captFig
+                ? `<figure style="${floatStyle}margin-bottom:0;">${imgHtml}${captFig}</figure>`
+                : `<figure style="${floatStyle}">${imgHtml}</figure>`;
             return `<div style="overflow:hidden;margin-bottom:24px;">${figHtml}<div style="font-size:15px;line-height:1.7;color:#333;">${txt}</div></div><div style="clear:both;"></div><p>&nbsp;</p>`;
         }
+
         case 'float-right': {
             const rawText = document.getElementById('img-text').value;
             const txt = rawText.trim()
                 ? rawText.split('\n').filter(p=>p.trim()).map(p=>`<p style="margin:0 0 10px;">${p}</p>`).join('')
                 : '<p>Votre texte descriptif ici.</p>';
-            const figStyle = `float:right;width:${size};margin:0 0 12px 20px;`;
-            const imgHtml  = imgTag(`width:100%;border-radius:${radius};display:block;`);
-            const figHtml  = captFig
-                ? `<figure style="${figStyle}">${imgHtml}${captFig}</figure>`
-                : `<figure style="${figStyle}">${imgHtml}</figure>`;
+            const floatStyle = `float:right;width:${size};margin:0 0 12px 20px;`;
+            const imgHtml = imgTag(`width:100%;border-radius:${radius};display:block;`);
+            const figHtml = captFig
+                ? `<figure style="${floatStyle}margin-bottom:0;">${imgHtml}${captFig}</figure>`
+                : `<figure style="${floatStyle}">${imgHtml}</figure>`;
             return `<div style="overflow:hidden;margin-bottom:24px;">${figHtml}<div style="font-size:15px;line-height:1.7;color:#333;">${txt}</div></div><div style="clear:both;"></div><p>&nbsp;</p>`;
         }
 
@@ -730,7 +708,7 @@ function insertMedia(type) {
         insertHtmlAtCursor(snippet);
         return;
     }
-    // ── Vidéo ────────────────────────────────────────
+    // ── Vidéo
     const align   = document.getElementById('vid-align').value;
     const url     = document.getElementById('vid-url').value;
     const rawText = document.getElementById('vid-text').value;
@@ -839,7 +817,6 @@ window.onload = () => {
 };
 </script>
 
-<!-- Modèles externes -->
 <script src="templates.js" defer></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
