@@ -58,7 +58,7 @@
         .template-menu-item span:first-child { font-weight: bold; }
         .img-style-fields { display: none; }
         .img-style-fields.visible { display: block; }
-        /* Galerie responsive : champs URLs multiples */
+        /* Galerie responsive */
         .galerie-url-row { display: flex; gap: 6px; margin-bottom: 8px; }
         .galerie-url-row input { flex: 1; }
         .galerie-url-row button { padding: 4px 10px; font-size: 0.8rem; background: #dc3545; flex-shrink: 0; }
@@ -71,7 +71,8 @@
         <div class="toolbar-group">
             <button onclick="openImageModal()">🖼️ Image</button>
             <button onclick="document.getElementById('video-modal').showModal()">🎥 Vidéo</button>
-            <button onclick="document.getElementById('markdown-modal').showModal()" class="btn-secondary">📝 Import MD</button>
+            <button onclick="openTemplates()" class="btn-secondary">📄 Modèles</button>
+            <button onclick="document.getElementById('markdown-modal').showModal()" class="btn-secondary">📝 Markdown</button>
             <button onclick="resetEditor()" class="btn-danger" title="Tout effacer">🗑️ Reset</button>
             <span id="save-status">✓ Sauvegardé</span>
         </div>
@@ -155,6 +156,28 @@
                     <option value="lien">Image avec lien cliquable</option>
                     <option value="cliquable">Image cliquable (agrandissement)</option>
                 </optgroup>
+                <optgroup label="— Formes & Formats —">
+                    <option value="miniature">Miniature (250×250)</option>
+                    <option value="miniature-lien">Miniature avec lien (250×250)</option>
+                    <option value="img-simple">Image simple (sans style)</option>
+                    <option value="img-alt-only">Image alt uniquement (sans src)</option>
+                    <option value="img-center">Image centrée</option>
+                    <option value="img-left">Image alignée à gauche</option>
+                    <option value="img-right">Image alignée à droite</option>
+                    <option value="img-responsive">Image responsive (max-width 100%)</option>
+                    <option value="img-border">Image avec bordure</option>
+                    <option value="img-shadow">Image avec ombre portée</option>
+                    <option value="img-caption-below">Image + légende en dessous</option>
+                    <option value="img-caption-overlay">Image + légende superposée</option>
+                    <option value="img-link-blank">Image + lien nouvel onglet</option>
+                    <option value="img-zoom-hover">Image zoom au survol</option>
+                    <option value="img-grayscale">Image niveaux de gris</option>
+                    <option value="img-sepia">Image sépia</option>
+                    <option value="img-opaque">Image semi-transparente</option>
+                    <option value="img-full-width">Image pleine largeur (100vw)</option>
+                    <option value="img-fixed-height">Image hauteur fixe (object-fit)</option>
+                    <option value="img-thumbnail">Vignette cliquable (thumbnail)</option>
+                </optgroup>
                 <optgroup label="— Styles graphiques —">
                     <option value="hero">Hero (texte superposé en bas)</option>
                     <option value="polaroid">Polaroid</option>
@@ -172,7 +195,7 @@
             </select>
         </div>
 
-        <!-- Champs communs (masqués pour galerie-responsive et instagram) -->
+        <!-- Champs communs -->
         <div id="img-url-group" class="form-group">
             <label>URL de l'image :</label>
             <input type="text" id="img-url" placeholder="https://..." oninput="updateModalPreview('image')">
@@ -218,6 +241,16 @@
         <!-- Image avec lien -->
         <div id="img-lien-fields" class="img-style-fields">
             <div class="form-group"><label>URL du lien (destination du clic) :</label><input type="text" id="img-lien-url" placeholder="https://..." oninput="updateModalPreview('image')"></div>
+        </div>
+
+        <!-- Miniature avec lien -->
+        <div id="img-miniature-lien-fields" class="img-style-fields">
+            <div class="form-group"><label>URL de destination du lien :</label><input type="text" id="img-mini-lien-url" placeholder="https://..." oninput="updateModalPreview('image')"></div>
+        </div>
+
+        <!-- Image + lien nouvel onglet -->
+        <div id="img-link-blank-fields" class="img-style-fields">
+            <div class="form-group"><label>URL de destination (nouvel onglet) :</label><input type="text" id="img-link-blank-url" placeholder="https://..." oninput="updateModalPreview('image')"></div>
         </div>
 
         <!-- Instagram -->
@@ -324,19 +357,18 @@
             const style = document.getElementById('img-style').value;
             const isInsta    = style === 'instagram';
             const isGalerie  = style === 'galerie-responsive';
-            // Champ URL principale
+            const noUrl      = ['img-alt-only'].includes(style);
             document.getElementById('img-url-group').style.display    = (isInsta || isGalerie) ? 'none' : 'block';
-            // Champs alt / légende
             document.getElementById('img-common-group').style.display = isGalerie ? 'none' : 'block';
-            // Champs standard
             document.getElementById('img-standard-fields').style.display = style === 'standard' ? 'block' : 'none';
-            // Tous les champs spécifiques
             document.querySelectorAll('.img-style-fields').forEach(el => el.classList.remove('visible'));
             const map = {
                 'hero':              'img-hero-fields',
                 'promo':             'img-promo-fields',
                 'cliquable':         'img-cliquable-fields',
                 'lien':              'img-lien-fields',
+                'miniature-lien':    'img-miniature-lien-fields',
+                'img-link-blank':    'img-link-blank-fields',
                 'instagram':         'img-instagram-fields',
                 'galerie-responsive':'img-galerie-fields'
             };
@@ -347,14 +379,15 @@
         function openImageModal() {
             ['img-url','img-alt','img-caption','img-text','img-hero-title','img-hero-subtitle',
              'img-promo-value','img-promo-label-top','img-promo-label-bottom',
-             'img-click-url','img-lien-url','img-insta-url','img-insta-nom'].forEach(id => {
-                document.getElementById(id).value = '';
+             'img-click-url','img-lien-url','img-insta-url','img-insta-nom',
+             'img-mini-lien-url','img-link-blank-url'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.value = '';
             });
             document.getElementById('img-size').value   = '100%';
             document.getElementById('img-radius').value = '8px';
             document.getElementById('img-align').value  = 'center';
             document.getElementById('img-style').value  = 'standard';
-            // Reset galerie : 3 lignes vides
             const gc = document.getElementById('galerie-urls-container');
             gc.innerHTML = '';
             for (let i = 1; i <= 3; i++) {
@@ -369,6 +402,15 @@
             document.getElementById('img-modal-preview').innerHTML = '<div class="preview-placeholder">Aperçu (entrez une URL)</div>';
             onImgStyleChange();
             document.getElementById('image-modal').showModal();
+        }
+
+        // ── Modèles ───────────────────────────────────────────────────
+        function openTemplates() {
+            if (typeof showTemplatesModal === 'function') {
+                showTemplatesModal();
+            } else {
+                alert('Le fichier templates.js n\'est pas chargé.');
+            }
         }
 
         // ── Utilitaires ───────────────────────────────────────────────
@@ -414,7 +456,6 @@
         // ── Preview modale ────────────────────────────────────────────
         function updateModalPreview(type) {
             if (type !== 'image') {
-                // ── Vidéo ──
                 const url      = document.getElementById('vid-url').value.trim();
                 const rawText  = document.getElementById('vid-text').value;
                 const size     = document.getElementById('vid-size').value;
@@ -514,6 +555,76 @@
                     return `<figure style="text-align:center;margin:1em auto;"><a title="${label}" target="_blank" href="${clickUrl}" style="display:block;line-height:0;font-size:0;"><img loading="lazy" src="${url}" alt="${alt}" style="display:block;margin:0 auto;width:100%;max-width:400px;height:auto;"></a><span style="display:block;font-size:14px;color:#64748b;font-style:italic;margin-top:0.5em;">${label}</span></figure><p>&nbsp;</p>`;
                 }
 
+                // ── Formes issue #4 ────────────────────────────────────
+                case 'miniature':
+                    return `<img src="${url}" alt="${alt}" width="250" height="250"><p>&nbsp;</p>`;
+
+                case 'miniature-lien': {
+                    const miniUrl = document.getElementById('img-mini-lien-url').value.trim() || '#';
+                    return `<a href="${miniUrl}"><img src="${url}" alt="${alt}" width="250" height="250"></a><p>&nbsp;</p>`;
+                }
+
+                case 'img-simple':
+                    return `<img src="${url}" alt="${alt}"><p>&nbsp;</p>`;
+
+                case 'img-alt-only':
+                    return `<img alt="${alt}"><p>&nbsp;</p>`;
+
+                case 'img-center':
+                    return `<div style="text-align:center;"><img src="${url}" alt="${alt}" style="display:inline-block;max-width:100%;" loading="lazy"></div><p>&nbsp;</p>`;
+
+                case 'img-left':
+                    return `<img src="${url}" alt="${alt}" style="float:left;margin:0 16px 8px 0;max-width:50%;" loading="lazy"><div style="clear:both;"></div><p>&nbsp;</p>`;
+
+                case 'img-right':
+                    return `<img src="${url}" alt="${alt}" style="float:right;margin:0 0 8px 16px;max-width:50%;" loading="lazy"><div style="clear:both;"></div><p>&nbsp;</p>`;
+
+                case 'img-responsive':
+                    return `<img src="${url}" alt="${alt}" style="width:100%;max-width:100%;height:auto;display:block;" loading="lazy"><p>&nbsp;</p>`;
+
+                case 'img-border':
+                    return `<img src="${url}" alt="${alt}" style="border:2px solid #ccc;padding:4px;display:block;max-width:100%;" loading="lazy"><p>&nbsp;</p>`;
+
+                case 'img-shadow':
+                    return `<img src="${url}" alt="${alt}" style="box-shadow:0 4px 16px rgba(0,0,0,0.2);display:block;max-width:100%;border-radius:6px;" loading="lazy"><p>&nbsp;</p>`;
+
+                case 'img-caption-below':
+                    return `<figure style="margin:0 0 20px;"><img src="${url}" alt="${alt}" style="width:100%;display:block;border-radius:6px;" loading="lazy"><figcaption style="font-size:13px;color:#64748b;text-align:center;margin-top:6px;">${caption || alt}</figcaption></figure><p>&nbsp;</p>`;
+
+                case 'img-caption-overlay': {
+                    const overlayCaption = caption || alt;
+                    return `<figure style="position:relative;margin:0 0 20px;overflow:hidden;border-radius:8px;"><img src="${url}" alt="${alt}" style="width:100%;display:block;" loading="lazy"><figcaption style="position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.55);color:#fff;font-size:13px;padding:8px 12px;">${overlayCaption}</figcaption></figure><p>&nbsp;</p>`;
+                }
+
+                case 'img-link-blank': {
+                    const blankUrl = document.getElementById('img-link-blank-url').value.trim() || '#';
+                    return `<a href="${blankUrl}" target="_blank" rel="noopener noreferrer"><img src="${url}" alt="${alt}" style="display:block;max-width:100%;" loading="lazy"></a><p>&nbsp;</p>`;
+                }
+
+                case 'img-zoom-hover':
+                    return `<div style="overflow:hidden;border-radius:8px;display:inline-block;max-width:100%;"><img src="${url}" alt="${alt}" style="display:block;width:100%;transition:transform 0.3s ease;" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'" loading="lazy"></div><p>&nbsp;</p>`;
+
+                case 'img-grayscale':
+                    return `<img src="${url}" alt="${alt}" style="filter:grayscale(100%);display:block;max-width:100%;border-radius:6px;" loading="lazy"><p>&nbsp;</p>`;
+
+                case 'img-sepia':
+                    return `<img src="${url}" alt="${alt}" style="filter:sepia(80%);display:block;max-width:100%;border-radius:6px;" loading="lazy"><p>&nbsp;</p>`;
+
+                case 'img-opaque':
+                    return `<img src="${url}" alt="${alt}" style="opacity:0.6;display:block;max-width:100%;border-radius:6px;" loading="lazy"><p>&nbsp;</p>`;
+
+                case 'img-full-width':
+                    return `<img src="${url}" alt="${alt}" style="width:100vw;max-width:100vw;display:block;height:auto;" loading="lazy"><p>&nbsp;</p>`;
+
+                case 'img-fixed-height':
+                    return `<img src="${url}" alt="${alt}" style="width:100%;height:300px;object-fit:cover;object-position:center;display:block;border-radius:8px;" loading="lazy"><p>&nbsp;</p>`;
+
+                case 'img-thumbnail': {
+                    const thumbCaption = caption || "Cliquez sur l'image pour l'agrandir";
+                    return `<figure style="text-align:center;margin:1em auto;"><a href="${url}" target="_blank" title="${thumbCaption}" style="display:inline-block;"><img loading="lazy" alt="${alt}" src="${url}" style="display:block;max-width:200px;height:auto;border:1px solid #ddd;border-radius:4px;padding:2px;"></a><figcaption style="font-size:13px;color:#64748b;font-style:italic;margin-top:6px;">${thumbCaption}</figcaption></figure><p>&nbsp;</p>`;
+                }
+
+                // ── Styles graphiques ──────────────────────────────────
                 case 'hero': {
                     const title    = document.getElementById('img-hero-title').value    || 'Titre principal';
                     const subtitle = document.getElementById('img-hero-subtitle').value || 'Sous-titre · Détail · Lieu';
@@ -582,7 +693,7 @@
                 }
 
                 const url = document.getElementById('img-url').value.trim();
-                if (!url) { alert('Veuillez entrer une URL d\'image.'); return; }
+                if (!url && style !== 'img-alt-only') { alert('Veuillez entrer une URL d\'image.'); return; }
                 const snippet = buildImageSnippet(style, url);
                 closeModal('image-modal');
                 insertHtmlAtCursor(snippet);
