@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Éditeur Sémantique Pro</title>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <script src="templates.js"></script>
     <style>
         :root {
             --bg-color: #f8f9fa; --panel-bg: #ffffff; --text-color: #212529;
@@ -178,6 +177,30 @@
                     <option value="img-fixed-height">Image hauteur fixe (object-fit)</option>
                     <option value="img-thumbnail">Vignette cliquable (thumbnail)</option>
                 </optgroup>
+                <optgroup label="— Formes CSS —">
+                    <option value="img-normal">Normal (centré 25%)</option>
+                    <option value="img-angles-arrondis">Angles arrondis</option>
+                    <option value="img-lien-cliquable">Lien cliquable (agrandissement)</option>
+                    <option value="img-arrondis-haut-bas">Arrondis haut-bas</option>
+                    <option value="img-ovale-penche">Ovale penché</option>
+                    <option value="img-ovale-fluide">Ovale fluide (clip-path)</option>
+                    <option value="img-blob-soft">Blob soft</option>
+                    <option value="img-blob-classique">Blob classique</option>
+                    <option value="img-blob-ample">Blob ample</option>
+                    <option value="img-arrondis-bas">Arrondis en bas</option>
+                    <option value="img-dome">Dôme</option>
+                    <option value="img-nuage">Nuage</option>
+                    <option value="img-pinces-1">Effet pinces 1</option>
+                    <option value="img-pinces-2">Effet pinces 2</option>
+                    <option value="img-rond-ombre">Rond parfait avec ombre</option>
+                    <option value="img-rond">Rond parfait</option>
+                    <option value="img-polygon">Polygon (parallélogramme)</option>
+                    <option value="img-losange">Losange</option>
+                    <option value="img-dessous-arrondi">Dessous arrondi (clip)</option>
+                    <option value="img-hexagone">Hexagone (6 côtés)</option>
+                    <option value="img-polygon-ecran">Polygon écran</option>
+                    <option value="img-grise">Image grisée</option>
+                </optgroup>
                 <optgroup label="— Styles graphiques —">
                     <option value="hero">Hero (texte superposé en bas)</option>
                     <option value="polaroid">Polaroid</option>
@@ -241,6 +264,11 @@
         <!-- Image avec lien -->
         <div id="img-lien-fields" class="img-style-fields">
             <div class="form-group"><label>URL du lien (destination du clic) :</label><input type="text" id="img-lien-url" placeholder="https://..." oninput="updateModalPreview('image')"></div>
+        </div>
+
+        <!-- Image CSS lien cliquable -->
+        <div id="img-lien-cliquable-fields" class="img-style-fields">
+            <div class="form-group"><label>URL du lien (destination) :</label><input type="text" id="img-lien-cliquable-url" placeholder="https://..." oninput="updateModalPreview('image')"></div>
         </div>
 
         <!-- Miniature avec lien -->
@@ -357,20 +385,20 @@
             const style = document.getElementById('img-style').value;
             const isInsta    = style === 'instagram';
             const isGalerie  = style === 'galerie-responsive';
-            const noUrl      = ['img-alt-only'].includes(style);
             document.getElementById('img-url-group').style.display    = (isInsta || isGalerie) ? 'none' : 'block';
             document.getElementById('img-common-group').style.display = isGalerie ? 'none' : 'block';
             document.getElementById('img-standard-fields').style.display = style === 'standard' ? 'block' : 'none';
             document.querySelectorAll('.img-style-fields').forEach(el => el.classList.remove('visible'));
             const map = {
-                'hero':              'img-hero-fields',
-                'promo':             'img-promo-fields',
-                'cliquable':         'img-cliquable-fields',
-                'lien':              'img-lien-fields',
-                'miniature-lien':    'img-miniature-lien-fields',
-                'img-link-blank':    'img-link-blank-fields',
-                'instagram':         'img-instagram-fields',
-                'galerie-responsive':'img-galerie-fields'
+                'hero':                   'img-hero-fields',
+                'promo':                  'img-promo-fields',
+                'cliquable':              'img-cliquable-fields',
+                'lien':                   'img-lien-fields',
+                'img-lien-cliquable':     'img-lien-cliquable-fields',
+                'miniature-lien':         'img-miniature-lien-fields',
+                'img-link-blank':         'img-link-blank-fields',
+                'instagram':              'img-instagram-fields',
+                'galerie-responsive':     'img-galerie-fields'
             };
             if (map[style]) document.getElementById(map[style]).classList.add('visible');
         }
@@ -379,7 +407,7 @@
         function openImageModal() {
             ['img-url','img-alt','img-caption','img-text','img-hero-title','img-hero-subtitle',
              'img-promo-value','img-promo-label-top','img-promo-label-bottom',
-             'img-click-url','img-lien-url','img-insta-url','img-insta-nom',
+             'img-click-url','img-lien-url','img-lien-cliquable-url','img-insta-url','img-insta-nom',
              'img-mini-lien-url','img-link-blank-url'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.value = '';
@@ -415,7 +443,7 @@
 
         // ── Utilitaires ───────────────────────────────────────────────
         function saveToLocalStorage(content) {
-            localStorage.setItem('editor_saved_data', content);
+            try { localStorage.setItem('editor_saved_data', content); } catch(e) {}
             saveStatus.style.opacity = '1';
             clearTimeout(saveTimeout);
             saveTimeout = setTimeout(() => { saveStatus.style.opacity = '0'; }, 2000);
@@ -424,7 +452,7 @@
         function resetEditor() {
             if (confirm('Êtes-vous sûr de vouloir tout effacer ?')) {
                 visualEditor.innerHTML = '';
-                localStorage.removeItem('editor_saved_data');
+                try { localStorage.removeItem('editor_saved_data'); } catch(e) {}
                 updateFromVisual();
             }
         }
@@ -555,7 +583,7 @@
                     return `<figure style="text-align:center;margin:1em auto;"><a title="${label}" target="_blank" href="${clickUrl}" style="display:block;line-height:0;font-size:0;"><img loading="lazy" src="${url}" alt="${alt}" style="display:block;margin:0 auto;width:100%;max-width:400px;height:auto;"></a><span style="display:block;font-size:14px;color:#64748b;font-style:italic;margin-top:0.5em;">${label}</span></figure><p>&nbsp;</p>`;
                 }
 
-                // ── Formes issue #4 ────────────────────────────────────
+                // ── Formes & Formats ───────────────────────────────────
                 case 'miniature':
                     return `<img src="${url}" alt="${alt}" width="250" height="250"><p>&nbsp;</p>`;
 
@@ -623,6 +651,76 @@
                     const thumbCaption = caption || "Cliquez sur l'image pour l'agrandir";
                     return `<figure style="text-align:center;margin:1em auto;"><a href="${url}" target="_blank" title="${thumbCaption}" style="display:inline-block;"><img loading="lazy" alt="${alt}" src="${url}" style="display:block;max-width:200px;height:auto;border:1px solid #ddd;border-radius:4px;padding:2px;"></a><figcaption style="font-size:13px;color:#64748b;font-style:italic;margin-top:6px;">${thumbCaption}</figcaption></figure><p>&nbsp;</p>`;
                 }
+
+                // ── Formes CSS ─────────────────────────────────────────
+                case 'img-normal':
+                    return `<div style="text-align:center; margin:16px 0;">\n  <img src="${url}" alt="${alt}" style="width:25%;">\n</div><p>&nbsp;</p>`;
+
+                case 'img-angles-arrondis':
+                    return `<div style="text-align:center; margin:16px 0;">\n  <img src="${url}" alt="${alt}" style="width:25%; border-radius:25px;">\n</div><p>&nbsp;</p>`;
+
+                case 'img-lien-cliquable': {
+                    const lcUrl = document.getElementById('img-lien-cliquable-url').value.trim() || url;
+                    const lcLabel = caption || "Cliquez sur l'image pour l'agrandir";
+                    return `<div style="text-align:center; margin:16px 0;">\n  <a href="${lcUrl}" target="_blank" rel="noopener noreferrer" title="${lcLabel}">\n    <img src="${url}" alt="${alt}" style="width:55%; border-radius:25px;">\n  </a>\n  <p style="margin:6px 0 0; font-size:12px;">${lcLabel}</p>\n</div><p>&nbsp;</p>`;
+                }
+
+                case 'img-arrondis-haut-bas':
+                    return `<div style="text-align:center; margin:16px 0;">\n  <img src="${url}" alt="${alt}" style="width:25%; border-radius:50% / 30%;">\n</div><p>&nbsp;</p>`;
+
+                case 'img-ovale-penche':
+                    return `<div style="text-align:center; margin:16px 0;">\n  <img src="${url}" alt="${alt}" style="width:25%; border-radius:40% 60% 40% 60%; object-fit:cover;">\n</div><p>&nbsp;</p>`;
+
+                case 'img-ovale-fluide':
+                    return `<div style="text-align:center; margin:16px 0;">\n  <img src="${url}" alt="${alt}" style="width:25%; clip-path:ellipse(50% 40% at 50% 50%);">\n</div><p>&nbsp;</p>`;
+
+                case 'img-blob-soft':
+                    return `<div style="text-align:center; margin:16px 0;">\n  <img src="${url}" alt="${alt}" style="width:25%; border-radius:50% 50% 20% 20%;">\n</div><p>&nbsp;</p>`;
+
+                case 'img-blob-classique':
+                    return `<div style="text-align:center; margin:16px 0;">\n  <img src="${url}" alt="${alt}" style="width:25%; border-radius:60% 40% 35% 65% / 55% 60% 40% 45%;">\n</div><p>&nbsp;</p>`;
+
+                case 'img-blob-ample':
+                    return `<div style="text-align:center; margin:16px 0;">\n  <img src="${url}" alt="${alt}" style="width:25%; border-radius:60% 40% 60% 40% / 50% 60% 40% 50%; border:none;">\n</div><p>&nbsp;</p>`;
+
+                case 'img-arrondis-bas':
+                    return `<div style="text-align:center; margin:16px 0;">\n  <img src="${url}" alt="${alt}" style="width:25%; border-radius:0 0 80px 80px; object-fit:cover;">\n</div><p>&nbsp;</p>`;
+
+                case 'img-dome':
+                    return `<div style="text-align:center; margin:16px 0;">\n  <img src="${url}" alt="${alt}" style="width:25%; border-radius:50% 50% 0 0; object-fit:cover;">\n</div><p>&nbsp;</p>`;
+
+                case 'img-nuage':
+                    return `<div style="text-align:center; margin:16px 0;">\n  <img src="${url}" alt="${alt}" style="width:25%; border-radius:30% 30% 50% 50%; object-fit:cover;">\n</div><p>&nbsp;</p>`;
+
+                case 'img-pinces-1':
+                    return `<div style="text-align:center; margin:16px 0;">\n  <img src="${url}" alt="${alt}" style="width:25%; border-top-right-radius:80px; border-bottom-left-radius:80px;">\n</div><p>&nbsp;</p>`;
+
+                case 'img-pinces-2':
+                    return `<div style="text-align:center; margin:16px 0;">\n  <img src="${url}" alt="${alt}" style="width:25%; border-top-left-radius:80px; border-bottom-right-radius:80px;">\n</div><p>&nbsp;</p>`;
+
+                case 'img-rond-ombre':
+                    return `<div style="text-align:center; margin:16px 0;">\n  <img src="${url}" alt="${alt}" width="250" height="250" style="border-radius:50%; box-shadow:0 0 20px rgba(0,0,0,0.2); object-fit:cover;">\n</div><p>&nbsp;</p>`;
+
+                case 'img-rond':
+                    return `<div style="text-align:center; margin:16px 0;">\n  <img src="${url}" alt="${alt}" width="250" height="250" style="border-radius:50%; object-fit:cover;">\n</div><p>&nbsp;</p>`;
+
+                case 'img-polygon':
+                    return `<div style="text-align:center; margin:16px 0;">\n  <img src="${url}" alt="${alt}" style="width:25%; clip-path:polygon(0 10%, 100% 0, 100% 90%, 0 100%);">\n</div><p>&nbsp;</p>`;
+
+                case 'img-losange':
+                    return `<div style="text-align:center; margin:16px 0;">\n  <img src="${url}" alt="${alt}" style="width:100px; height:100px; object-fit:cover; clip-path:polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);">\n</div><p>&nbsp;</p>`;
+
+                case 'img-dessous-arrondi':
+                    return `<div style="text-align:center; margin:16px 0;">\n  <img src="${url}" alt="${alt}" style="width:25%; clip-path:ellipse(100% 85% at 50% 15%);">\n</div><p>&nbsp;</p>`;
+
+                case 'img-hexagone':
+                    return `<div style="text-align:center; margin:16px 0;">\n  <img src="${url}" alt="${alt}" style="width:250px; height:250px; object-fit:cover; clip-path:polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);">\n</div><p>&nbsp;</p>`;
+
+                case 'img-polygon-ecran':
+                    return `<div style="text-align:center; margin:16px 0;">\n  <img src="${url}" alt="${alt}" style="width:25%; border-radius:10px; clip-path:polygon(0% 10%, 100% 0%, 100% 100%, 0% 100%);">\n</div><p>&nbsp;</p>`;
+
+                case 'img-grise':
+                    return `<div style="text-align:center; margin:16px 0;">\n  <img src="${url}" alt="${alt}" style="width:25%; filter:grayscale(90%);">\n</div><p>&nbsp;</p>`;
 
                 // ── Styles graphiques ──────────────────────────────────
                 case 'hero': {
@@ -797,10 +895,49 @@
 
         window.onload = () => {
             onImgStyleChange();
-            const saved = localStorage.getItem('editor_saved_data');
+            let saved = null;
+            try { saved = localStorage.getItem('editor_saved_data'); } catch(e) {}
             visualEditor.innerHTML = (saved && saved.trim()) ? saved : '';
             updateFromVisual();
         };
+    </script>
+
+    <!-- Chargement des modèles externes (doit être après le script principal) -->
+    <script src="templates.js" defer></script>
+    <script>
+        // Initialisation de la modale modèles après chargement de templates.js
+        document.addEventListener('DOMContentLoaded', function() {
+            // Création de la modale modèles si templates.js est chargé
+            if (!document.getElementById('templates-modal')) {
+                const dlg = document.createElement('dialog');
+                dlg.id = 'templates-modal';
+                dlg.innerHTML = '<h3>Modèles disponibles</h3><div id="templates-list"></div><div class="dialog-buttons"><button class="btn-secondary" onclick="document.getElementById(\'templates-modal\').close()">Fermer</button></div>';
+                document.body.appendChild(dlg);
+            }
+        });
+
+        function showTemplatesModal() {
+            const list = document.getElementById('templates-list');
+            if (!list) return;
+            if (typeof window.mesModelesExternes === 'undefined' || !window.mesModelesExternes.length) {
+                list.innerHTML = '<p style="color:#888;">Aucun modèle disponible.</p>';
+            } else {
+                list.innerHTML = window.mesModelesExternes.map((t, i) =>
+                    `<div style="border:1px solid #dee2e6;border-radius:6px;padding:12px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;">
+                        <strong>${t.name}</strong>
+                        <button onclick="insertTemplate(${i})">Insérer</button>
+                    </div>`
+                ).join('');
+            }
+            document.getElementById('templates-modal').showModal();
+        }
+
+        function insertTemplate(index) {
+            const tpl = window.mesModelesExternes[index];
+            if (!tpl) return;
+            document.getElementById('templates-modal').close();
+            insertHtmlAtCursor(tpl.content);
+        }
     </script>
 </body>
 </html>
