@@ -175,11 +175,14 @@
                 <option value="promo">Bandeau promo</option>
                 <option value="degrade">Bordure dégradé</option>
                 <option value="cliquable">Image cliquable (menu scannable)</option>
+                <option value="lien">Image avec lien cliquable</option>
+                <option value="instagram">Logo Instagram + lien marchand</option>
+                <option value="galerie">Galerie — formes variées</option>
             </select>
         </div>
 
         <!-- Champs communs -->
-        <div class="form-group"><label>URL de l'image :</label><input type="text" id="img-url" placeholder="https://..." oninput="updateModalPreview('image')"></div>
+        <div class="form-group" id="img-url-group"><label>URL de l'image :</label><input type="text" id="img-url" placeholder="https://..." oninput="updateModalPreview('image')"></div>
         <div class="form-group"><label>Alt (Accessibilité) :</label><input type="text" id="img-alt" placeholder="Description courte..."></div>
         <div class="form-group"><label>Légende :</label><input type="text" id="img-caption" placeholder="Légende..." oninput="updateModalPreview('image')"></div>
 
@@ -214,9 +217,20 @@
             <div class="form-group"><label>Libellé en-dessous :</label><input type="text" id="img-promo-label-bottom" placeholder="sur vos entrées" oninput="updateModalPreview('image')"></div>
         </div>
 
-        <!-- Champs Cliquable -->
+        <!-- Champs Image cliquable (menu scannable) -->
         <div id="img-cliquable-fields" class="img-style-fields">
             <div class="form-group"><label>URL agrandissement (clic) :</label><input type="text" id="img-click-url" placeholder="https://... (URL grande image)" oninput="updateModalPreview('image')"></div>
+        </div>
+
+        <!-- Champs Image avec lien cliquable (issue #2) -->
+        <div id="img-lien-fields" class="img-style-fields">
+            <div class="form-group"><label>URL du lien (destination du clic) :</label><input type="text" id="img-lien-url" placeholder="https://..." oninput="updateModalPreview('image')"></div>
+        </div>
+
+        <!-- Champs Instagram (issue #3) -->
+        <div id="img-instagram-fields" class="img-style-fields">
+            <div class="form-group"><label>URL Instagram du marchand :</label><input type="text" id="img-insta-url" placeholder="https://www.instagram.com/nommerchant" oninput="updateModalPreview('image')"></div>
+            <div class="form-group"><label>Nom du marchand :</label><input type="text" id="img-insta-nom" placeholder="@NomMarchand" oninput="updateModalPreview('image')"></div>
         </div>
 
         <div id="img-modal-preview" class="modal-media-preview"><div class="preview-placeholder">Aperçu (entrez une URL)</div></div>
@@ -266,29 +280,38 @@
         // ── Affichage conditionnel des champs image ──────────────────
         function onImgStyleChange() {
             const style = document.getElementById('img-style').value;
+            // Champ URL image : masqué pour Instagram (pas d'URL image à saisir)
+            document.getElementById('img-url-group').style.display = style === 'instagram' ? 'none' : 'block';
+            // Champs standard
             document.getElementById('img-standard-fields').style.display = style === 'standard' ? 'block' : 'none';
+            // Tous les champs spécifiques
             document.querySelectorAll('.img-style-fields').forEach(el => el.classList.remove('visible'));
-            if (style === 'hero')      document.getElementById('img-hero-fields').classList.add('visible');
-            if (style === 'promo')     document.getElementById('img-promo-fields').classList.add('visible');
-            if (style === 'cliquable') document.getElementById('img-cliquable-fields').classList.add('visible');
+            if (style === 'hero')        document.getElementById('img-hero-fields').classList.add('visible');
+            if (style === 'promo')       document.getElementById('img-promo-fields').classList.add('visible');
+            if (style === 'cliquable')   document.getElementById('img-cliquable-fields').classList.add('visible');
+            if (style === 'lien')        document.getElementById('img-lien-fields').classList.add('visible');
+            if (style === 'instagram')   document.getElementById('img-instagram-fields').classList.add('visible');
         }
 
         // ── Ouvre la modale image en réinitialisant l'état ───────────
         function openImageModal() {
-            document.getElementById('img-url').value      = '';
-            document.getElementById('img-alt').value      = '';
-            document.getElementById('img-caption').value  = '';
-            document.getElementById('img-text').value     = '';
-            document.getElementById('img-size').value     = '100%';
-            document.getElementById('img-radius').value   = '8px';
-            document.getElementById('img-align').value    = 'center';
-            document.getElementById('img-style').value    = 'standard';
-            document.getElementById('img-hero-title').value    = '';
-            document.getElementById('img-hero-subtitle').value = '';
-            document.getElementById('img-promo-value').value   = '';
-            document.getElementById('img-promo-label-top').value    = '';
-            document.getElementById('img-promo-label-bottom').value = '';
-            document.getElementById('img-click-url').value = '';
+            document.getElementById('img-url').value               = '';
+            document.getElementById('img-alt').value               = '';
+            document.getElementById('img-caption').value           = '';
+            document.getElementById('img-text').value              = '';
+            document.getElementById('img-size').value              = '100%';
+            document.getElementById('img-radius').value            = '8px';
+            document.getElementById('img-align').value             = 'center';
+            document.getElementById('img-style').value             = 'standard';
+            document.getElementById('img-hero-title').value        = '';
+            document.getElementById('img-hero-subtitle').value     = '';
+            document.getElementById('img-promo-value').value       = '';
+            document.getElementById('img-promo-label-top').value   = '';
+            document.getElementById('img-promo-label-bottom').value= '';
+            document.getElementById('img-click-url').value         = '';
+            document.getElementById('img-lien-url').value          = '';
+            document.getElementById('img-insta-url').value         = '';
+            document.getElementById('img-insta-nom').value         = '';
             document.getElementById('img-modal-preview').innerHTML = '<div class="preview-placeholder">Aperçu (entrez une URL)</div>';
             onImgStyleChange();
             document.getElementById('image-modal').showModal();
@@ -357,13 +380,21 @@
         // ── Preview modale ───────────────────────────────────────────
         function updateModalPreview(type) {
             if (type === 'image') {
-                const url      = document.getElementById('img-url').value.trim();
                 const style    = document.getElementById('img-style').value;
                 const previewBox = document.getElementById('img-modal-preview');
+
+                // Cas Instagram : preview sans URL image
+                if (style === 'instagram') {
+                    const instaUrl = document.getElementById('img-insta-url').value.trim() || 'URLINSTA';
+                    const nom      = document.getElementById('img-insta-nom').value.trim() || 'NomMarchand';
+                    previewBox.innerHTML = `<div style="text-align:center;padding:10px;"><a href="${instaUrl}" style="display:inline-flex;align-items:center;gap:10px;text-decoration:none;color:#E1306C;font-family:sans-serif;font-size:15px;font-weight:600;"><img src="https://img.grouponcdn.com/editorial/Q6qS1c4xBikscgJTzmXff1/logo-instagram-550x550" alt="Instagram" style="width:32px;height:32px;"><span>${nom}</span></a></div>`;
+                    return;
+                }
+
+                const url = document.getElementById('img-url').value.trim();
                 if (!url) { previewBox.innerHTML = '<div class="preview-placeholder">Aperçu (entrez une URL)</div>'; return; }
 
                 if (style === 'standard') {
-                    // Preview du style standard directement ici
                     const align   = document.getElementById('img-align').value;
                     const size    = document.getElementById('img-size').value || '100%';
                     const radius  = document.getElementById('img-radius').value || '8px';
@@ -373,11 +404,9 @@
                     const captionHtml = caption ? `<figcaption style="font-size:0.9em;color:#666;margin-top:5px;text-align:center;">${caption}</figcaption>` : '';
                     const imgTag  = `<img src="${url}" alt="${alt}" style="width:100%;border-radius:${radius};display:block;">`;
                     let textHtml  = '';
-                    if (rawText.trim()) {
-                        textHtml = rawText.split('\n').filter(p => p.trim()).map(p => `<p style="margin:0 0 8px;">${p}</p>`).join('');
-                    }
+                    if (rawText.trim()) textHtml = rawText.split('\n').filter(p=>p.trim()).map(p=>`<p style="margin:0 0 8px;">${p}</p>`).join('');
                     if (align === 'center') {
-                        previewBox.innerHTML = `<div style="margin-bottom:10px;text-align:center;"><figure style="margin:0 auto;width:${size};max-width:100%;">${imgTag}${captionHtml}</figure>${textHtml ? `<div style="margin-top:10px;">${textHtml}</div>` : ''}</div>`;
+                        previewBox.innerHTML = `<div style="text-align:center;"><figure style="margin:0 auto;width:${size};max-width:100%;">${imgTag}${captionHtml}</figure>${textHtml ? `<div style="margin-top:10px;">${textHtml}</div>` : ''}</div>`;
                     } else {
                         const dir = align === 'right' ? 'row-reverse' : 'row';
                         previewBox.innerHTML = `<div style="display:flex;flex-wrap:wrap;gap:12px;flex-direction:${dir};"><figure style="margin:0;flex:1 1 ${size};min-width:120px;">${imgTag}${captionHtml}</figure>${textHtml ? `<div style="flex:1 1 120px;">${textHtml}</div>` : ''}</div>`;
@@ -385,8 +414,17 @@
                     return;
                 }
 
-                // Styles avancés : réutilise buildImageSnippet
-                previewBox.innerHTML = buildImageSnippet(style, url, true);
+                if (style === 'lien') {
+                    const lienUrl = document.getElementById('img-lien-url').value.trim() || '#';
+                    const alt     = document.getElementById('img-alt').value || 'image';
+                    const caption = document.getElementById('img-caption').value;
+                    const captionHtml = caption ? `<figcaption style="font-size:13px;color:#64748b;font-style:italic;margin-top:6px;">${caption}</figcaption>` : '';
+                    previewBox.innerHTML = `<figure style="text-align:center;margin:0 auto;"><a href="${lienUrl}" target="_blank" style="display:block;line-height:0;"><img src="${url}" alt="${alt}" style="width:100%;max-width:100%;border-radius:8px;display:block;margin:0 auto;"></a>${captionHtml}</figure>`;
+                    return;
+                }
+
+                // Styles avancés
+                previewBox.innerHTML = buildImageSnippet(style, url);
                 return;
             }
 
@@ -398,10 +436,9 @@
             const align    = document.getElementById('vid-align').value;
             const previewBox = document.getElementById('vid-modal-preview');
             if (!url) { previewBox.innerHTML = '<div class="preview-placeholder">Aperçu intégral (Entrez une URL)</div>'; return; }
-
             const mediaStyle = `width:100%;border-radius:${radius};display:block;object-fit:contain;`;
-            const textHtml   = rawText.trim()
-                ? rawText.split('\n').filter(p => p.trim()).map(p => `<p style="margin:0 0 10px;color:#222;">${p}</p>`).join('')
+            const textHtml = rawText.trim()
+                ? rawText.split('\n').filter(p=>p.trim()).map(p=>`<p style="margin:0 0 10px;color:#222;">${p}</p>`).join('')
                 : '<p style="font-style:italic;color:#999;margin:0;">(Votre texte s\'affichera ici…)</p>';
             const ytMatch = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
             const mediaHtml = ytMatch
@@ -443,9 +480,9 @@
                     return `<div style="display:block;background:#fff;padding:12px 12px 40px;box-shadow:0 8px 30px rgba(0,0,0,0.18);border-radius:4px;transform:rotate(-1.5deg);margin:0 auto 30px;width:60%;max-width:480px;"><img src="${url}" alt="${alt}" style="width:100%;display:block;border-radius:2px;" loading="lazy"><p style="text-align:center;font-family:'Georgia',serif;font-size:15px;color:#888;margin:12px 0 0;letter-spacing:1px;">${legend}</p></div><p>&nbsp;</p>`;
                 }
                 case 'promo': {
-                    const pv  = document.getElementById('img-promo-value').value || '-XX%';
-                    const lt  = document.getElementById('img-promo-label-top').value || "Jusqu'à";
-                    const lb  = document.getElementById('img-promo-label-bottom').value || 'sur vos entrées';
+                    const pv = document.getElementById('img-promo-value').value || '-XX%';
+                    const lt = document.getElementById('img-promo-label-top').value || "Jusqu'à";
+                    const lb = document.getElementById('img-promo-label-bottom').value || 'sur vos entrées';
                     return `<div style="display:flex;align-items:stretch;border-radius:20px;overflow:hidden;box-shadow:0 6px 24px rgba(0,0,0,0.12);margin-bottom:24px;min-height:200px;"><div style="flex:1.5;overflow:hidden;"><img src="${url}" alt="${alt}" style="width:100%;height:100%;object-fit:cover;display:block;" loading="lazy"></div><div style="flex:1;background:#1a5e3a;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:24px;text-align:center;"><p style="color:#fff;font-size:13px;text-transform:uppercase;letter-spacing:2px;margin:0 0 8px;">${lt}</p><p style="color:#f5c842;font-size:48px;font-weight:900;margin:0;line-height:1;">${pv}</p><p style="color:#fff;font-size:14px;margin:8px 0 0;">${lb}</p></div></div><p>&nbsp;</p>`;
                 }
                 case 'degrade':
@@ -456,6 +493,68 @@
                     const label    = caption || "Cliquez sur l'image pour agrandir";
                     return `<figure style="text-align:center;margin:1em auto;"><a title="${label}" target="_blank" href="${clickUrl}" style="display:block;line-height:0;font-size:0;"><img loading="lazy" src="${url}" alt="${alt}" style="display:block;margin:0 auto;width:100%;max-width:400px;height:auto;vertical-align:bottom;"></a><span style="display:block;font-size:14px;color:#64748b;font-style:italic;margin-top:0.5em;">${label}</span></figure><p>&nbsp;</p>`;
                 }
+
+                // ── Nouveaux styles (issues #2 #3 #4) ───────────────
+                case 'lien': {
+                    const lienUrl     = document.getElementById('img-lien-url').value.trim() || '#';
+                    const captionLien = caption ? `<figcaption style="font-size:13px;color:#64748b;font-style:italic;margin-top:6px;text-align:center;">${caption}</figcaption>` : '';
+                    return `<figure style="text-align:center;margin:1em auto;"><a href="${lienUrl}" target="_blank" rel="noopener noreferrer" style="display:block;line-height:0;font-size:0;"><img src="${url}" alt="${alt}" style="display:block;margin:0 auto;width:100%;max-width:600px;height:auto;border-radius:8px;" loading="lazy"></a>${captionLien}</figure><p>&nbsp;</p>`;
+                }
+
+                case 'instagram': {
+                    const instaUrl = document.getElementById('img-insta-url').value.trim() || 'URLINSTA';
+                    const nom      = document.getElementById('img-insta-nom').value.trim() || 'NomMarchand';
+                    return `<div style="text-align:center;margin:20px auto;"><a href="${instaUrl}" rel="nofollow noreferrer" target="_blank" style="display:inline-flex;align-items:center;gap:10px;text-decoration:none;color:#E1306C;font-family:sans-serif;font-size:15px;font-weight:600;"><img src="https://img.grouponcdn.com/editorial/Q6qS1c4xBikscgJTzmXff1/logo-instagram-550x550" alt="Instagram" style="width:32px;height:32px;display:inline-block;vertical-align:middle;"><span>${nom}</span></a></div><p>&nbsp;</p>`;
+                }
+
+                case 'galerie': {
+                    return `
+<!-- Image simple centrée -->
+<div style="text-align:center;margin:16px auto;">
+  <img src="${url}" alt="${alt}" style="max-width:100%;border-radius:8px;display:block;margin:0 auto;" loading="lazy">
+</div>
+
+<!-- Image cliquable (agrandissement) -->
+<figure style="text-align:center;margin:16px auto;">
+  <a href="${url}" target="_blank" rel="noopener noreferrer" style="display:block;line-height:0;">
+    <img alt="${alt}" src="${url}" style="max-width:100%;border-radius:8px;display:block;margin:0 auto;" loading="lazy">
+  </a>
+  <figcaption style="font-size:13px;color:#64748b;font-style:italic;margin-top:6px;">Cliquez sur l'image pour l'agrandir</figcaption>
+</figure>
+
+<!-- Image ronde -->
+<div style="text-align:center;margin:16px auto;">
+  <img src="${url}" alt="${alt}" style="width:120px;height:120px;border-radius:50%;object-fit:cover;display:inline-block;" loading="lazy">
+</div>
+
+<!-- Image carrée avec ombre -->
+<div style="text-align:center;margin:16px auto;">
+  <img src="${url}" alt="${alt}" style="width:200px;height:200px;object-fit:cover;border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,0.15);display:inline-block;" loading="lazy">
+</div>
+
+<!-- Image carrée fixe 250×250 -->
+<div style="text-align:center;margin:16px auto;">
+  <img src="${url}" alt="${alt}" width="250" height="250" style="object-fit:cover;border-radius:8px;display:inline-block;" loading="lazy">
+</div>
+
+<!-- Image 16/9 pleine largeur -->
+<div style="width:100%;aspect-ratio:16/9;overflow:hidden;border-radius:12px;margin:16px auto;">
+  <img src="${url}" alt="${alt}" style="width:100%;height:100%;object-fit:cover;display:block;" loading="lazy">
+</div>
+
+<!-- Bordure dégradé -->
+<div style="padding:3px;background:linear-gradient(135deg,#f5a623,#2ecc71,#3498db);border-radius:16px;display:block;max-width:400px;margin:16px auto;">
+  <img src="${url}" alt="${alt}" style="width:100%;border-radius:13px;display:block;" loading="lazy">
+</div>
+
+<!-- Polaroid -->
+<div style="background:#fff;padding:10px 10px 36px;box-shadow:0 8px 24px rgba(0,0,0,0.18);border-radius:4px;transform:rotate(-1.5deg);max-width:280px;margin:20px auto;">
+  <img src="${url}" alt="${alt}" style="width:100%;display:block;border-radius:2px;" loading="lazy">
+  <p style="text-align:center;font-family:'Georgia',serif;font-size:14px;color:#888;margin:10px 0 0;">${caption || 'Légende'}</p>
+</div>
+<p>&nbsp;</p>`;
+                }
+
                 default: return '';
             }
         }
@@ -464,7 +563,16 @@
         function insertMedia(type) {
             if (type === 'image') {
                 const style = document.getElementById('img-style').value;
-                const url   = document.getElementById('img-url').value.trim();
+
+                // Instagram : pas de validation URL image
+                if (style === 'instagram') {
+                    const snippet = buildImageSnippet('instagram', '');
+                    closeModal('image-modal');
+                    insertHtmlAtCursor(snippet);
+                    return;
+                }
+
+                const url = document.getElementById('img-url').value.trim();
                 if (!url) { alert("Veuillez entrer une URL d'image."); return; }
 
                 if (style !== 'standard') {
@@ -537,7 +645,7 @@
             insertHtmlAtCursor(snippet);
         }
 
-        // ── Sync éditeur ────────────────────────────────────────────
+        // ── Sync éditeur ─────────────────────────────────────────────
         function cleanAndFormatHTML(html) {
             const doc = new DOMParser().parseFromString(html, 'text/html');
             doc.querySelectorAll('br').forEach(br => br.replaceWith(doc.createTextNode('\u00A0')));
