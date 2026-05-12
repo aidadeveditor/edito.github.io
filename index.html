@@ -547,7 +547,6 @@ function buildImageSnippet(fmt, url) {
     const linkUrl = document.getElementById('img-link-url')? document.getElementById('img-link-url').value.trim() || '' : '';
     const captFig = caption ? `<figcaption style="font-size:13px;color:#64748b;text-align:center;margin-top:6px;font-style:italic;">${caption}</figcaption>` : '';
 
-    // ── Wrap d'un <img> avec lien optionnel ──────────────────
     function imgTag(extraStyle) {
         return `<img src="${url}" alt="${alt}" style="${extraStyle}" loading="lazy">`;
     }
@@ -570,18 +569,29 @@ function buildImageSnippet(fmt, url) {
             return `${imgTag(`width:${size};border-radius:${radius};display:block;`)}<p>&nbsp;</p>`;
         case 'right':
             return `<div style="text-align:right;">${imgTag(`width:${size};border-radius:${radius};display:inline-block;`)}</div><p>&nbsp;</p>`;
+
+        // FIX : légende dans un <figure> flottant, séparée du bloc texte
         case 'float-left': {
             const rawText = document.getElementById('img-text').value;
             const txt = rawText.trim() ? rawText.split('\n').filter(p=>p.trim()).map(p=>`<p style="margin:0 0 10px;">${p}</p>`).join('') : '<p>Votre texte descriptif ici.</p>';
-            const cap = captFig ? `<br>${captFig}` : '';
-            return `<div style="overflow:hidden;margin-bottom:24px;">${imgTag(`float:left;width:${size};border-radius:${radius};margin:0 20px 12px 0;display:block;`)}${cap}<div style="font-size:15px;line-height:1.7;color:#333;">${txt}</div></div><div style="clear:both;"></div><p>&nbsp;</p>`;
+            const figStyle = `float:left;width:${size};margin:0 20px 12px 0;`;
+            const imgHtml  = imgTag(`width:100%;border-radius:${radius};display:block;`);
+            const figHtml  = captFig
+                ? `<figure style="${figStyle}">${imgHtml}${captFig}</figure>`
+                : `<figure style="${figStyle}margin-bottom:0;">${imgHtml}</figure>`;
+            return `<div style="overflow:hidden;margin-bottom:24px;">${figHtml}<div style="font-size:15px;line-height:1.7;color:#333;">${txt}</div></div><div style="clear:both;"></div><p>&nbsp;</p>`;
         }
         case 'float-right': {
             const rawText = document.getElementById('img-text').value;
             const txt = rawText.trim() ? rawText.split('\n').filter(p=>p.trim()).map(p=>`<p style="margin:0 0 10px;">${p}</p>`).join('') : '<p>Votre texte descriptif ici.</p>';
-            const cap = captFig ? `<br>${captFig}` : '';
-            return `<div style="overflow:hidden;margin-bottom:24px;">${imgTag(`float:right;width:${size};border-radius:${radius};margin:0 0 12px 20px;display:block;`)}${cap}<div style="font-size:15px;line-height:1.7;color:#333;">${txt}</div></div><div style="clear:both;"></div><p>&nbsp;</p>`;
+            const figStyle = `float:right;width:${size};margin:0 0 12px 20px;`;
+            const imgHtml  = imgTag(`width:100%;border-radius:${radius};display:block;`);
+            const figHtml  = captFig
+                ? `<figure style="${figStyle}">${imgHtml}${captFig}</figure>`
+                : `<figure style="${figStyle}margin-bottom:0;">${imgHtml}</figure>`;
+            return `<div style="overflow:hidden;margin-bottom:24px;">${figHtml}<div style="font-size:15px;line-height:1.7;color:#333;">${txt}</div></div><div style="clear:both;"></div><p>&nbsp;</p>`;
         }
+
         case 'full':
             return `<div style="margin-bottom:20px;">${imgTag(`width:100%;display:block;border-radius:${radius};`)}</div><p>&nbsp;</p>`;
         case 'ratio169':
