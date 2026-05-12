@@ -57,7 +57,7 @@ window.mesModelesExternes = [
 <!-- FIN TOGGLE Menu -->
 <p>&nbsp;</p>
 `
-    }, // <-- VIRGULE TRÈS IMPORTANTE ICI POUR SÉPARER LES MODÈLES
+    },
 
     // --- MODÈLE 2 : UNE FAQ ---
     {
@@ -72,12 +72,14 @@ window.mesModelesExternes = [
 </details>
 <p>&nbsp;</p>
 `
-    },  // --- MODÈLE  : Toggle - Liste des options avec détails  ---
+    },
+
+    // --- MODÈLE 3 : Toggle - Liste des options avec détails ---
     {
         id: 'toggle-liste-options-details',
         name: 'Toggle - Liste des options avec détails',
         content: `
-        <ul style="list-style-type: none;">
+<ul style="list-style-type: none;">
   <li>
     <details>
       <summary><u>option</u></summary>
@@ -109,26 +111,34 @@ window.mesModelesExternes = [
     </details>
   </li>
 </ul>
-
 <p>&nbsp;</p>
 `
-   },  // --- MODÈLE  :  ---
+    },
+
+    // --- MODÈLE 4 : Image cliquable (menu scannable) --- ✅ CORRIGÉ width:5% → 100%
     {
-        id: '',
-        name: '',
+        id: 'image-cliquable-menu',
+        name: 'Image cliquable (menu scannable)',
         content: `
-
+<figure style="text-align:center; margin:1em auto;">
+  <a title="Cliquez sur l'image pour agrandir le menu" target="_blank"
+     href="URL_GRANDE_IMAGE"
+     style="display:block; line-height:0; font-size:0;">
+    <picture>
+      <source srcset="URL_GRANDE_IMAGE" type="image/webp">
+      <img loading="lazy"
+           src="URL_GRANDE_IMAGE"
+           alt="menu"
+           style="display:block; margin:0 auto; width:100%; max-width:400px; height:auto; vertical-align:bottom;">
+    </picture>
+  </a>
+  <span style="display:block; font-size:14px; color:#64748b; font-style:italic; margin-top:0.5em;">Cliquez sur l'image pour agrandir le menu</span>
+</figure>
 <p>&nbsp;</p>
 `
-   },  // --- MODÈLE  :  ---
-    {
-        id: '',
-        name: '',
-        content: `
+    },
 
-<p>&nbsp;</p>
-`
-   },// --- MODÈLE 3 : UN BOUTON D'APPEL À L'ACTION ---
+    // --- MODÈLE 5 : Bouton d'appel à l'action ---
     {
         id: 'bouton-action',
         name: 'Bouton (Appel à l\'action)',
@@ -138,5 +148,5 @@ window.mesModelesExternes = [
 </div>
 <p>&nbsp;</p>
 `
-    } // <-- PAS DE VIRGULE SUR LE DERNIER
+    }
 ];
