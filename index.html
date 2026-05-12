@@ -180,6 +180,10 @@
         .template-menu h3 { text-align: center; border-bottom: 2px dashed var(--border-color); padding-bottom: 10px; margin-top: 0;}
         .template-menu-item { display: flex; justify-content: space-between; margin-bottom: 10px; border-bottom: 1px dotted #eee; }
         .template-menu-item span:first-child { font-weight: bold; }
+
+        /* Champs conditionnels dans la modale image */
+        .img-style-fields { display: none; }
+        .img-style-fields.visible { display: block; }
     </style>
 </head>
 <body>
@@ -255,8 +259,7 @@
         <p style="font-size: 0.9em; color: #666; margin-top: 0;">Choisissez un modèle pré-construit. Il s'insérera là où se trouve votre curseur.</p>
         <div class="form-group">
             <label>Sélectionnez un modèle :</label>
-            <select id="template-select">
-                </select>
+            <select id="template-select"></select>
         </div>
         <div class="dialog-buttons">
             <button class="btn-secondary" onclick="closeModal('template-modal')">Annuler</button>
@@ -278,23 +281,62 @@
 
     <dialog id="image-modal">
         <h3>Insérer une Image</h3>
+
+        <!-- NOUVEAU : Style de présentation -->
         <div class="form-group">
-            <label>Alignement & Mise en page :</label>
-            <select id="img-align" onchange="document.getElementById('img-size').value = this.value === 'center' ? '100%' : '50%'; updateModalPreview('image');">
-                <option value="center">Centré (Défaut)</option>
-                <option value="left">Média à Gauche, Texte à Droite</option>
-                <option value="right">Média à Droite, Texte à Gauche</option>
+            <label>Style de présentation :</label>
+            <select id="img-style" onchange="onImgStyleChange(); updateModalPreview('image');">
+                <option value="standard">Standard (alignement libre)</option>
+                <option value="hero">Hero (texte superposé en bas)</option>
+                <option value="figure">Figure avec légende centrée</option>
+                <option value="float">Image flottante + texte</option>
+                <option value="ratio169">16/9 pleine largeur</option>
+                <option value="polaroid">Polaroid</option>
+                <option value="promo">Bandeau promo</option>
+                <option value="degrade">Bordure dégradé</option>
+                <option value="cliquable">Image cliquable (menu scannable)</option>
             </select>
         </div>
-        <div class="form-group"><label>URL :</label><input type="text" id="img-url" placeholder="https://..." oninput="updateModalPreview('image')"></div>
-        <div class="form-group">
-            <label>Texte descriptif (Optionnel) :</label>
-            <textarea id="img-text" rows="4" oninput="updateModalPreview('image')"></textarea>
+
+        <!-- Champs standard -->
+        <div id="img-standard-fields">
+            <div class="form-group">
+                <label>Alignement & Mise en page :</label>
+                <select id="img-align" onchange="document.getElementById('img-size').value = this.value === 'center' ? '100%' : '50%'; updateModalPreview('image');">
+                    <option value="center">Centré (Défaut)</option>
+                    <option value="left">Média à Gauche, Texte à Droite</option>
+                    <option value="right">Média à Droite, Texte à Gauche</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Texte descriptif (Optionnel) :</label>
+                <textarea id="img-text" rows="4" oninput="updateModalPreview('image')"></textarea>
+            </div>
+            <div class="form-group"><label>Taille :</label><input type="text" id="img-size" value="100%" oninput="updateModalPreview('image')"></div>
+            <div class="form-group"><label>Arrondi :</label><input type="text" id="img-radius" value="8px" oninput="updateModalPreview('image')"></div>
         </div>
+
+        <!-- Champs communs à tous les styles -->
+        <div class="form-group"><label>URL de l'image :</label><input type="text" id="img-url" placeholder="https://..." oninput="updateModalPreview('image')"></div>
         <div class="form-group"><label>Alt (Accessibilité) :</label><input type="text" id="img-alt" placeholder="Description courte..."></div>
         <div class="form-group"><label>Légende :</label><input type="text" id="img-caption" placeholder="Légende..."></div>
-        <div class="form-group"><label>Taille :</label><input type="text" id="img-size" value="100%" oninput="updateModalPreview('image')"></div>
-        <div class="form-group"><label>Arrondi :</label><input type="text" id="img-radius" value="8px" oninput="updateModalPreview('image')"></div>
+
+        <!-- Champs spécifiques selon le style -->
+        <div id="img-hero-fields" class="img-style-fields">
+            <div class="form-group"><label>Titre (superposé) :</label><input type="text" id="img-hero-title" placeholder="Titre principal"></div>
+            <div class="form-group"><label>Sous-titre :</label><input type="text" id="img-hero-subtitle" placeholder="Sous-titre · Détail · Lieu"></div>
+        </div>
+
+        <div id="img-promo-fields" class="img-style-fields">
+            <div class="form-group"><label>Texte promo (ex: -40%) :</label><input type="text" id="img-promo-value" placeholder="-40%"></div>
+            <div class="form-group"><label>Libellé au-dessus :</label><input type="text" id="img-promo-label-top" placeholder="Jusqu'à"></div>
+            <div class="form-group"><label>Libellé en-dessous :</label><input type="text" id="img-promo-label-bottom" placeholder="sur vos entrées"></div>
+        </div>
+
+        <div id="img-cliquable-fields" class="img-style-fields">
+            <div class="form-group"><label>URL agrandissement (clic) :</label><input type="text" id="img-click-url" placeholder="https://... (URL grande image)"></div>
+        </div>
+
         <div id="img-modal-preview" class="modal-media-preview"><div class="preview-placeholder">Aperçu intégral (Entrez une URL)</div></div>
         <div class="dialog-buttons">
             <button class="btn-secondary" onclick="closeModal('image-modal')">Annuler</button>
@@ -341,47 +383,42 @@
 
         document.execCommand('defaultParagraphSeparator', false, 'p');
 
-        // === GESTION DES MODÈLES (TEMPLATES) ===
+        // === GESTION DU STYLE IMAGE ===
+        function onImgStyleChange() {
+            const style = document.getElementById('img-style').value;
+            document.getElementById('img-standard-fields').style.display = style === 'standard' ? 'block' : 'none';
+            document.querySelectorAll('.img-style-fields').forEach(el => el.classList.remove('visible'));
+            if (style === 'hero')       document.getElementById('img-hero-fields').classList.add('visible');
+            if (style === 'promo')      document.getElementById('img-promo-fields').classList.add('visible');
+            if (style === 'cliquable')  document.getElementById('img-cliquable-fields').classList.add('visible');
+        }
 
-        // Modèles de démonstration (utilisés si le fichier externe templates.js n'existe pas)
+        // === GESTION DES MODÈLES (TEMPLATES) ===
         const demoTemplates = [
             {
                 id: 'faq-demo',
                 name: 'FAQ - Question / Réponse',
-                content: `<div class="template-faq">\n<h3>Question fréquente ?</h3>\n<p>Remplacez ce texte par votre réponse détaillée. Cette structure est conçue pour être dupliquée facilement.</p>\n</div>\n<p>&nbsp;</p>`
+                content: `<div class="template-faq">\n<h3>Question fréquente ?</h3>\n<p>Remplacez ce texte par votre réponse détaillée.</p>\n</div>\n<p>&nbsp;</p>`
             },
             {
                 id: 'menu-demo',
                 name: 'Menu de Restaurant (Catégorie)',
-                content: `<div class="template-menu">\n<h3>Nom de la Catégorie (ex: Entrées)</h3>\n<div class="template-menu-item"><span>Salade César</span><span>12 €</span></div>\n<div class="template-menu-item"><span>Soupe à l'oignon</span><span>9 €</span></div>\n<div class="template-menu-item"><span>Carpaccio de bœuf</span><span>14 €</span></div>\n</div>\n<p>&nbsp;</p>`
-            },
-            {
-                id: 'alert-info',
-                name: 'Boîte d\'information (Alerte)',
-                content: `<div style="background-color: #e7f3fe; border-left: 5px solid #0d6efd; padding: 15px; border-radius: 4px; margin-bottom: 20px;">\n<strong style="color: #0d6efd;">Information :</strong>\n<p style="margin: 5px 0 0 0;">Tapez votre message d'information ici.</p>\n</div>\n<p>&nbsp;</p>`
+                content: `<div class="template-menu">\n<h3>Nom de la Catégorie</h3>\n<div class="template-menu-item"><span>Plat 1</span><span>12 €</span></div>\n</div>\n<p>&nbsp;</p>`
             }
         ];
 
-        // Ouvre la fenêtre des modèles et génère la liste déroulante
         function openTemplateModal() {
-            // Cherche 'mesModelesExternes' (qui proviendra de templates.js). S'il n'existe pas, utilise 'demoTemplates'
             const activeTemplates = window.mesModelesExternes || demoTemplates;
             const select = document.getElementById('template-select');
-            
             select.innerHTML = activeTemplates.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
             document.getElementById('template-modal').showModal();
         }
 
-        // Insère le modèle choisi
         function insertTemplate() {
             const activeTemplates = window.mesModelesExternes || demoTemplates;
             const selectedId = document.getElementById('template-select').value;
             const template = activeTemplates.find(t => t.id === selectedId);
-            
-            if (template) {
-                closeModal('template-modal');
-                insertHtmlAtCursor(template.content);
-            }
+            if (template) { closeModal('template-modal'); insertHtmlAtCursor(template.content); }
         }
 
         // ============================================
@@ -394,7 +431,7 @@
         }
 
         function resetEditor() {
-            if (confirm("Êtes-vous sûr de vouloir tout effacer ? Cette action est irréversible.")) {
+            if (confirm("Êtes-vous sûr de vouloir tout effacer ?")) {
                 visualEditor.innerHTML = "";
                 localStorage.removeItem('editor_saved_data');
                 updateFromVisual();
@@ -403,19 +440,13 @@
 
         function exportHtml() {
             const htmlContent = htmlOutput.value;
-            if (!htmlContent.trim()) {
-                alert("Il n'y a rien à exporter !");
-                return;
-            }
+            if (!htmlContent.trim()) { alert("Il n'y a rien à exporter !"); return; }
             const blob = new Blob([htmlContent], { type: 'text/plain' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
-            a.href = url;
-            a.download = 'mon_code_html.txt';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
+            a.href = url; a.download = 'mon_code_html.txt';
+            document.body.appendChild(a); a.click();
+            document.body.removeChild(a); URL.revokeObjectURL(url);
         }
 
         function importMarkdown() {
@@ -428,7 +459,16 @@
         }
 
         function updateModalPreview(type) {
-            const prefix = type === 'image' ? 'img' : 'vid';
+            if (type === 'image') {
+                const url = document.getElementById('img-url').value.trim();
+                const style = document.getElementById('img-style').value;
+                const previewBox = document.getElementById('img-modal-preview');
+                if (!url) { previewBox.innerHTML = `<div class="preview-placeholder">Aperçu intégral (Entrez une URL)</div>`; return; }
+                previewBox.innerHTML = buildImageSnippet(style, url, true);
+                return;
+            }
+            // VIDEO
+            const prefix = 'vid';
             const url = document.getElementById(`${prefix}-url`).value.trim();
             const rawText = document.getElementById(`${prefix}-text`).value;
             const size = document.getElementById(`${prefix}-size`).value;
@@ -439,19 +479,6 @@
             if (!url) { previewBox.innerHTML = `<div class="preview-placeholder">Aperçu intégral (Entrez une URL)</div>`; return; }
 
             let mediaStyle = `width: 100%; border-radius: ${radius}; display: block; object-fit: contain;`;
-            let mediaHtml = "";
-
-            if (type === 'image') {
-                mediaHtml = `<img src="${url}" style="${mediaStyle}">`;
-            } else {
-                const ytMatch = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
-                if (ytMatch) {
-                    mediaHtml = `<iframe style="${mediaStyle} aspect-ratio: 16/9; max-height: 200px;" src="https://www.youtube-nocookie.com/embed/${ytMatch[1]}?rel=0" frameborder="0"></iframe>`;
-                } else {
-                    mediaHtml = `<video src="${url}" style="${mediaStyle} max-height: 200px;" controls></video>`;
-                }
-            }
-
             let textHtml = '';
             if (rawText.trim() !== '') {
                 const paragraphs = rawText.split('\n').filter(p => p.trim() !== '');
@@ -460,16 +487,115 @@
                 textHtml = '<p style="font-style: italic; color: #999; margin:0;">(Votre texte descriptif s\'affichera ici...)</p>';
             }
 
-            let figureStyle = `margin: 0; flex: 1 1 ${size}; min-width: 200px; max-width: 100%;`;
-            let textContainerStyle = `flex: 1 1 200px; min-width: 0; text-align: justify;`;
+            const ytMatch = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
+            let mediaHtml = ytMatch
+                ? `<iframe style="${mediaStyle} aspect-ratio: 16/9; max-height: 200px;" src="https://www.youtube-nocookie.com/embed/${ytMatch[1]}?rel=0" frameborder="0"></iframe>`
+                : `<video src="${url}" style="${mediaStyle} max-height: 200px;" controls></video>`;
 
+            let figureStyle, containerStyle;
             if (align === 'center') {
                 figureStyle = `margin: 0 auto 15px auto; text-align: center; width: ${size}; max-width: 100%;`;
-                previewBox.innerHTML = `<div style="margin-bottom: 20px;">\n<figure style="${figureStyle}">\n${mediaHtml}\n</figure>\n<div style="text-align: center; margin-top: 15px;">${textHtml}</div>\n</div>`;
+                previewBox.innerHTML = `<div style="margin-bottom: 20px;"><figure style="${figureStyle}">${mediaHtml}</figure><div style="text-align: center; margin-top: 15px;">${textHtml}</div></div>`;
             } else {
-                let containerFlexStyle = "display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 20px; margin-bottom: 20px;";
-                if (align === 'right') containerFlexStyle += " flex-direction: row-reverse;";
-                previewBox.innerHTML = `<div style="${containerFlexStyle}">\n<figure style="${figureStyle}">\n${mediaHtml}\n</figure>\n<div style="${textContainerStyle}">${textHtml}</div>\n</div>`;
+                containerStyle = `display: flex; flex-wrap: wrap; align-items: center; gap: 20px; margin-bottom: 20px;${align === 'right' ? ' flex-direction: row-reverse;' : ''}`;
+                figureStyle = `margin: 0; flex: 1 1 ${size}; min-width: 200px; max-width: 100%;`;
+                previewBox.innerHTML = `<div style="${containerStyle}"><figure style="${figureStyle}">${mediaHtml}</figure><div style="flex: 1 1 200px; min-width: 0; text-align: justify;">${textHtml}</div></div>`;
+            }
+        }
+
+        // === CONSTRUCTION DU SNIPPET IMAGE SELON LE STYLE ===
+        function buildImageSnippet(style, url, forPreview) {
+            const alt     = document.getElementById('img-alt').value || 'image';
+            const caption = document.getElementById('img-caption').value;
+            const captionHtml = caption ? `<figcaption style="background: #f5f5f5; padding: 12px 16px; font-size: 13px; color: #555; text-align: center;">${caption}</figcaption>` : '';
+
+            switch (style) {
+
+                case 'hero': {
+                    const title    = document.getElementById('img-hero-title').value || 'Titre principal';
+                    const subtitle = document.getElementById('img-hero-subtitle').value || 'Sous-titre · Détail · Lieu';
+                    return `<div style="position: relative; width: 100%; margin-bottom: 24px; border-radius: 20px; overflow: hidden;">
+  <img src="${url}" alt="${alt}" style="width: 100%; display: block; height: 320px; object-fit: cover;" loading="lazy">
+  <div style="position: absolute; bottom: 0; left: 0; right: 0; padding: 20px 24px; background: linear-gradient(transparent, rgba(0,0,0,0.65));">
+    <p style="margin: 0; color: #fff; font-size: 22px; font-weight: bold;">${title}</p>
+    <p style="margin: 4px 0 0; color: #f0f0f0; font-size: 14px;">${subtitle}</p>
+  </div>
+</div>
+<p>&nbsp;</p>`;
+                }
+
+                case 'figure': {
+                    return `<figure style="margin: 0 auto 24px; max-width: 700px; border-radius: 20px; overflow: hidden; box-shadow: 0 6px 20px rgba(0,0,0,0.15);">
+  <img src="${url}" alt="${alt}" style="width: 100%; display: block;" loading="lazy">
+  ${captionHtml}
+</figure>
+<p>&nbsp;</p>`;
+                }
+
+                case 'float': {
+                    const rawText = document.getElementById('img-text') ? document.getElementById('img-text').value : '';
+                    const textHtml = rawText.trim() ? rawText.split('\n').filter(p=>p.trim()).map(p=>`<p style="margin: 0 0 10px 0;">${p}</p>`).join('') : '<p>Votre texte descriptif ici.</p>';
+                    return `<div style="overflow: hidden; margin-bottom: 24px;">
+  <img src="${url}" alt="${alt}" style="float: left; width: 45%; border-radius: 16px; margin: 0 20px 12px 0; display: block;" loading="lazy">
+  <div style="font-size: 15px; line-height: 1.7; color: #333;">${textHtml}</div>
+</div>
+<div style="clear: both;"></div>
+<p>&nbsp;</p>`;
+                }
+
+                case 'ratio169': {
+                    return `<div style="width: 100%; aspect-ratio: 16/9; border-radius: 20px; overflow: hidden; margin-bottom: 24px;">
+  <img src="${url}" alt="${alt}" style="width: 100%; height: 100%; object-fit: cover; object-position: center; display: block;" loading="lazy">
+</div>
+<p>&nbsp;</p>`;
+                }
+
+                case 'polaroid': {
+                    const legend = caption || 'Légende';
+                    return `<div style="display: block; background: #fff; padding: 12px 12px 40px; box-shadow: 0 8px 30px rgba(0,0,0,0.18); border-radius: 4px; transform: rotate(-1.5deg); margin: 0 auto 30px; width: 60%; max-width: 480px;">
+  <img src="${url}" alt="${alt}" style="width: 100%; display: block; border-radius: 2px;" loading="lazy">
+  <p style="text-align: center; font-family: 'Georgia', serif; font-size: 15px; color: #888; margin: 12px 0 0; letter-spacing: 1px;">${legend}</p>
+</div>
+<p>&nbsp;</p>`;
+                }
+
+                case 'promo': {
+                    const promoVal   = document.getElementById('img-promo-value').value || '-XX%';
+                    const labelTop   = document.getElementById('img-promo-label-top').value || "Jusqu'à";
+                    const labelBot   = document.getElementById('img-promo-label-bottom').value || 'sur vos entrées';
+                    return `<div style="display: flex; align-items: stretch; border-radius: 20px; overflow: hidden; box-shadow: 0 6px 24px rgba(0,0,0,0.12); margin-bottom: 24px; min-height: 200px;">
+  <div style="flex: 1.5; overflow: hidden;">
+    <img src="${url}" alt="${alt}" style="width: 100%; height: 100%; object-fit: cover; display: block;" loading="lazy">
+  </div>
+  <div style="flex: 1; background: #1a5e3a; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 24px; text-align: center;">
+    <p style="color: #fff; font-size: 13px; text-transform: uppercase; letter-spacing: 2px; margin: 0 0 8px;">${labelTop}</p>
+    <p style="color: #f5c842; font-size: 48px; font-weight: 900; margin: 0; line-height: 1;">${promoVal}</p>
+    <p style="color: #fff; font-size: 14px; margin: 8px 0 0;">${labelBot}</p>
+  </div>
+</div>
+<p>&nbsp;</p>`;
+                }
+
+                case 'degrade': {
+                    return `<div style="padding: 4px; background: linear-gradient(135deg, #f5a623, #2ecc71, #3498db); border-radius: 24px; margin-bottom: 24px; width: 100%; box-sizing: border-box;">
+  <img src="${url}" alt="${alt}" style="width: 100%; display: block; border-radius: 20px;" loading="lazy">
+</div>
+<p>&nbsp;</p>`;
+                }
+
+                case 'cliquable': {
+                    const clickUrl = document.getElementById('img-click-url').value || url;
+                    const label = caption || "Cliquez sur l'image pour agrandir";
+                    return `<figure style="text-align:center; margin:1em auto;">
+  <a title="${label}" target="_blank" href="${clickUrl}" style="display:block; line-height:0; font-size:0;">
+    <img loading="lazy" src="${url}" alt="${alt}" style="display:block; margin:0 auto; width:100%; max-width:400px; height:auto; vertical-align:bottom;">
+  </a>
+  <span style="display:block; font-size:14px; color:#64748b; font-style:italic; margin-top:0.5em;">${label}</span>
+</figure>
+<p>&nbsp;</p>`;
+                }
+
+                default: return null; // style standard — géré par insertMedia()
             }
         }
 
@@ -556,10 +682,29 @@
         }
 
         function insertMedia(type) {
+            if (type === 'image') {
+                const style = document.getElementById('img-style').value;
+                const url   = document.getElementById('img-url').value.trim();
+                if (!url) { alert('Veuillez entrer une URL d\'image.'); return; }
+
+                if (style !== 'standard') {
+                    const snippet = buildImageSnippet(style, url, false);
+                    closeModal('image-modal');
+                    document.getElementById('img-url').value = '';
+                    document.getElementById('img-alt').value = '';
+                    document.getElementById('img-caption').value = '';
+                    document.getElementById('img-style').value = 'standard';
+                    onImgStyleChange();
+                    insertHtmlAtCursor(snippet);
+                    return;
+                }
+            }
+
+            // Comportement standard (image standard + vidéo)
             const prefix = type === 'image' ? 'img' : 'vid';
             const align = document.getElementById(`${prefix}-align`).value;
             const url = document.getElementById(`${prefix}-url`).value;
-            const rawText = document.getElementById(`${prefix}-text`).value;
+            const rawText = type === 'image' ? document.getElementById('img-text').value : document.getElementById('vid-text').value;
             const alt = document.getElementById(`${prefix}-alt`).value;
             const caption = document.getElementById(`${prefix}-caption`).value;
             const size = document.getElementById(`${prefix}-size`).value;
@@ -571,7 +716,7 @@
                 textHtml = `\n<div style="flex: 1 1 200px; min-width: 0; text-align: justify;">\n` + paragraphs.map(p => `<p>${p}</p>`).join('\n') + `\n</div>`;
             }
 
-            let figureStyle = ""; let containerStart = ""; let containerEnd = "";
+            let figureStyle = '', containerStart = '', containerEnd = '';
             let mediaStyle = `width: 100%; border-radius: ${radius}; display: block;`;
 
             if (align === 'left') {
@@ -588,31 +733,36 @@
                 containerEnd = `\n</div>`;
             }
 
-            let mediaHtml = "";
+            let mediaHtml = '';
             let captionHtml = caption ? `\n<figcaption style="font-size: 0.9em; color: #666; margin-top: 5px; text-align: center;">${caption}</figcaption>` : '';
 
-            if (type === 'image') { mediaHtml = `<img src="${url}" alt="${alt}" style="${mediaStyle}">`; } 
-            else {
+            if (type === 'image') {
+                mediaHtml = `<img src="${url}" alt="${alt}" style="${mediaStyle}">`;
+            } else {
                 const isAutoplay = document.getElementById('vid-autoplay').checked;
                 const ytAutoParam = isAutoplay ? "?autoplay=1&mute=1&rel=0" : "?rel=0";
                 const html5AutoParam = isAutoplay ? "autoplay muted loop playsinline" : "controls";
                 const ytMatch = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
-
-                if (ytMatch) { mediaHtml = `<iframe height="315" src="https://www.youtube-nocookie.com/embed/${ytMatch[1]}${ytAutoParam}" title="${alt}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen style="${mediaStyle}"></iframe>`; } 
-                else { mediaHtml = `<video src="${url}" title="${alt}" style="${mediaStyle} min-height: 250px;" ${html5AutoParam}></video>`; }
+                if (ytMatch) {
+                    mediaHtml = `<iframe height="315" src="https://www.youtube-nocookie.com/embed/${ytMatch[1]}${ytAutoParam}" title="${alt}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen style="${mediaStyle}"></iframe>`;
+                } else {
+                    mediaHtml = `<video src="${url}" title="${alt}" style="${mediaStyle} min-height: 250px;" ${html5AutoParam}></video>`;
+                }
             }
 
             const snippet = `${containerStart}<figure style="${figureStyle}">\n${mediaHtml}${captionHtml}\n</figure>\n${textHtml}${containerEnd}`;
             closeModal(`${type}-modal`);
-            
-            document.getElementById(`${prefix}-url`).value = ''; document.getElementById(`${prefix}-text`).value = ''; document.getElementById(`${prefix}-caption`).value = '';
+            document.getElementById(`${prefix}-url`).value = '';
+            document.getElementById(`${prefix}-text`) && (document.getElementById(`${prefix}-text`).value = '');
+            document.getElementById(`${prefix}-caption`).value = '';
             insertHtmlAtCursor(snippet);
         }
 
         window.onload = () => {
+            onImgStyleChange(); // init état des champs
             const savedData = localStorage.getItem('editor_saved_data');
             if (savedData && savedData.trim() !== '') { visualEditor.innerHTML = savedData; } 
-            else { visualEditor.innerHTML = ""; }
+            else { visualEditor.innerHTML = ''; }
             updateFromVisual();
         };
     </script>
