@@ -6,7 +6,6 @@
     <title>Éditeur Sémantique Pro - Avec Modèles Externes</title>
     
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-
     <script src="templates.js"></script>
 
     <style>
@@ -23,165 +22,49 @@
             --btn-danger-hover: #c82333;
             --modal-bg: #ffffff;
         }
-
-        body {
-            font-family: system-ui, -apple-system, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            overflow: hidden;
-        }
-
-        header {
-            background-color: var(--header-bg);
-            padding: 10px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid var(--border-color);
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
+        body { font-family: system-ui, -apple-system, sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+        header { background-color: var(--header-bg); padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); flex-wrap: wrap; gap: 10px; }
         .toolbar-group { display: flex; gap: 8px; align-items: center; }
-
-        button {
-            background-color: var(--btn-bg);
-            color: var(--btn-text);
-            border: none;
-            padding: 6px 12px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            transition: 0.2s;
-        }
-
+        button { background-color: var(--btn-bg); color: var(--btn-text); border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 0.9rem; transition: 0.2s; }
         button:hover { background-color: var(--btn-hover); }
         .btn-secondary { background-color: #6c757d; }
         .btn-secondary:hover { background-color: #5c636a; }
         .btn-danger { background-color: var(--btn-danger); }
         .btn-danger:hover { background-color: var(--btn-danger-hover); }
-
-        .text-format-toolbar {
-            display: flex;
-            gap: 4px;
-            flex-wrap: wrap;
-            background-color: #ffffff;
-            padding: 8px 20px;
-            border-bottom: 1px solid var(--border-color);
-            width: 100%;
-            box-sizing: border-box;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            z-index: 10;
-        }
-
-        .text-format-toolbar button {
-            background-color: #f1f3f5;
-            color: #333;
-            border: 1px solid #ced4da;
-            padding: 5px 10px;
-            font-size: 0.85rem;
-            font-weight: bold;
-            border-radius: 3px;
-        }
-
+        .text-format-toolbar { display: flex; gap: 4px; flex-wrap: wrap; background-color: #ffffff; padding: 8px 20px; border-bottom: 1px solid var(--border-color); width: 100%; box-sizing: border-box; box-shadow: 0 2px 4px rgba(0,0,0,0.05); z-index: 10; }
+        .text-format-toolbar button { background-color: #f1f3f5; color: #333; border: 1px solid #ced4da; padding: 5px 10px; font-size: 0.85rem; font-weight: bold; border-radius: 3px; }
         .text-format-toolbar button:hover { background-color: #e2e6ea; }
-
-        main {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            flex-grow: 1;
-            gap: 10px;
-            padding: 10px;
-            overflow: hidden;
-        }
-
-        .panel {
-            background-color: var(--panel-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-
-        .panel-header {
-            background-color: var(--header-bg);
-            padding: 8px 12px;
-            font-weight: bold;
-            font-size: 0.9rem;
-            border-bottom: 1px solid var(--border-color);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .panel-content {
-            flex-grow: 1;
-            padding: 15px;
-            overflow-y: auto;
-            width: 100%;
-            box-sizing: border-box;
-        }
-
+        main { display: grid; grid-template-columns: 1fr 1fr 1fr; flex-grow: 1; gap: 10px; padding: 10px; overflow: hidden; }
+        .panel { background-color: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 6px; display: flex; flex-direction: column; overflow: hidden; }
+        .panel-header { background-color: var(--header-bg); padding: 8px 12px; font-weight: bold; font-size: 0.9rem; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
+        .panel-content { flex-grow: 1; padding: 15px; overflow-y: auto; width: 100%; box-sizing: border-box; }
         #visual-editor { width: 100%; height: 100%; outline: none; line-height: 1.5; }
         #visual-editor:empty:before { content: attr(data-placeholder); color: #888; }
-        
         #visual-editor iframe, #visual-editor video { pointer-events: none; }
-
-        textarea {
-            width: 100%; height: 100%; border: none; resize: none; background: transparent;
-            color: inherit; font-family: 'Courier New', monospace; outline: none; line-height: 1.4;
-        }
-
+        textarea { width: 100%; height: 100%; border: none; resize: none; background: transparent; color: inherit; font-family: 'Courier New', monospace; outline: none; line-height: 1.4; }
         .preview-container { display: flex; justify-content: center; background-color: #555; padding: 10px; }
-
-        #preview-output {
-            width: 100%; height: 100%; transition: width 0.3s ease, background-color 0.3s, color 0.3s;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.4); overflow-y: auto; padding: 20px; box-sizing: border-box;
-        }
-
+        #preview-output { width: 100%; height: 100%; transition: width 0.3s ease, background-color 0.3s, color 0.3s; box-shadow: 0 4px 8px rgba(0,0,0,0.4); overflow-y: auto; padding: 20px; box-sizing: border-box; }
         #preview-output.mobile-view { width: 375px; }
         #preview-output.tablet-view { width: 768px; }
         #preview-output.desktop-view { width: 100%; }
         #preview-output.theme-light { background-color: #ffffff; color: #000000; }
         #preview-output.theme-dark { background-color: #121212; color: #f0f0f0; }
-
-        dialog {
-            background-color: var(--modal-bg); color: var(--text-color); border: 1px solid var(--border-color);
-            border-radius: 8px; padding: 20px; width: 500px; max-width: 90%; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            max-height: 90vh; overflow-y: auto;
-        }
+        dialog { background-color: var(--modal-bg); color: var(--text-color); border: 1px solid var(--border-color); border-radius: 8px; padding: 20px; width: 500px; max-width: 90%; box-shadow: 0 10px 30px rgba(0,0,0,0.5); max-height: 90vh; overflow-y: auto; }
         dialog::backdrop { background: rgba(0, 0, 0, 0.6); }
         .form-group { margin-bottom: 15px; display: flex; flex-direction: column; gap: 5px; }
-        .form-group input[type="text"], .form-group select, .form-group textarea { 
-            padding: 8px; border: 1px solid var(--border-color); border-radius: 4px; font-family: inherit;
-        }
+        .form-group input[type="text"], .form-group select, .form-group textarea { padding: 8px; border: 1px solid var(--border-color); border-radius: 4px; font-family: inherit; }
         .checkbox-group { display: flex; flex-direction: row; align-items: center; gap: 10px; cursor: pointer; }
         .dialog-buttons { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
-        
         #save-status { font-size: 0.8rem; color: #28a745; margin-left: 10px; opacity: 0; transition: opacity 0.5s; }
-
-        .modal-media-preview {
-            margin-top: 15px; padding: 10px; background-color: var(--header-bg); border: 1px dashed var(--border-color);
-            border-radius: 6px; min-height: 100px; display: block; overflow: hidden; color: #888; font-size: 0.9rem;
-        }
+        .modal-media-preview { margin-top: 15px; padding: 10px; background-color: var(--header-bg); border: 1px dashed var(--border-color); border-radius: 6px; min-height: 100px; display: block; overflow: hidden; color: #888; font-size: 0.9rem; }
         .modal-media-preview:has(div.preview-placeholder) { display: flex; align-items: center; justify-content: center; text-align: center; }
-
-        /* Styles intégrés pour les modèles (FAQ, Menu, etc.) */
         .template-faq { border-left: 4px solid var(--btn-bg); padding-left: 15px; margin-bottom: 20px; }
         .template-faq h3 { margin-bottom: 5px; color: var(--btn-bg); }
         .template-faq p { margin-top: 0; color: #555; }
-        
         .template-menu { border: 1px solid var(--border-color); padding: 15px; border-radius: 8px; margin-bottom: 20px; }
-        .template-menu h3 { text-align: center; border-bottom: 2px dashed var(--border-color); padding-bottom: 10px; margin-top: 0;}
+        .template-menu h3 { text-align: center; border-bottom: 2px dashed var(--border-color); padding-bottom: 10px; margin-top: 0; }
         .template-menu-item { display: flex; justify-content: space-between; margin-bottom: 10px; border-bottom: 1px dotted #eee; }
         .template-menu-item span:first-child { font-weight: bold; }
-
-        /* Champs conditionnels dans la modale image */
         .img-style-fields { display: none; }
         .img-style-fields.visible { display: block; }
     </style>
@@ -190,16 +73,13 @@
 
     <header>
         <div class="toolbar-group">
-            <button onclick="document.getElementById('image-modal').showModal()">🖼️ Ajouter Image</button>
+            <button onclick="openImageModal()">🖼️ Ajouter Image</button>
             <button onclick="document.getElementById('video-modal').showModal()">🎥 Ajouter Vidéo</button>
-            
             <button onclick="openTemplateModal()" class="btn-secondary" style="background-color: #6f42c1;">📋 Modèles</button>
-            
             <button onclick="document.getElementById('markdown-modal').showModal()" class="btn-secondary">📝 Import MD</button>
             <button onclick="resetEditor()" class="btn-danger" title="Tout effacer">🗑️ Reset</button>
             <span id="save-status">✓ Sauvegardé</span>
         </div>
-        
         <div class="toolbar-group">
             <span>Rendu :</span>
             <button class="btn-secondary" onclick="setDeviceView('mobile-view')" title="Mobile">📱</button>
@@ -232,7 +112,6 @@
                 <div id="visual-editor" contenteditable="true" data-placeholder="Tapez votre texte ici..."></div>
             </div>
         </section>
-
         <section class="panel">
             <div class="panel-header">
                 2. Code HTML
@@ -245,7 +124,6 @@
                 <textarea id="html-output" placeholder="Le code HTML se générera ici..."></textarea>
             </div>
         </section>
-
         <section class="panel">
             <div class="panel-header">3. Aperçu Rendu (Appareil)</div>
             <div class="panel-content preview-container">
@@ -254,6 +132,7 @@
         </section>
     </main>
 
+    <!-- MODALE MODÈLES -->
     <dialog id="template-modal">
         <h3>Insérer un Modèle</h3>
         <p style="font-size: 0.9em; color: #666; margin-top: 0;">Choisissez un modèle pré-construit. Il s'insérera là où se trouve votre curseur.</p>
@@ -267,11 +146,12 @@
         </div>
     </dialog>
 
+    <!-- MODALE MARKDOWN -->
     <dialog id="markdown-modal">
         <h3>Importer du Markdown</h3>
-        <p style="font-size: 0.9em; color: #666; margin-top: 0;">Collez votre code Markdown ci-dessous. N'oubliez pas les espaces après les titres (ex: <code>## Mon Titre</code>).</p>
+        <p style="font-size: 0.9em; color: #666; margin-top: 0;">Collez votre code Markdown ci-dessous.</p>
         <div class="form-group">
-            <textarea id="md-input" rows="10" placeholder="## Titre\n\n- Élément 1\n- Élément 2\n\n**Texte en gras**" style="font-family: monospace;"></textarea>
+            <textarea id="md-input" rows="10" placeholder="## Titre\n\n- Élément 1" style="font-family: monospace;"></textarea>
         </div>
         <div class="dialog-buttons">
             <button class="btn-secondary" onclick="closeModal('markdown-modal')">Annuler</button>
@@ -279,10 +159,10 @@
         </div>
     </dialog>
 
+    <!-- MODALE IMAGE -->
     <dialog id="image-modal">
         <h3>Insérer une Image</h3>
 
-        <!-- NOUVEAU : Style de présentation -->
         <div class="form-group">
             <label>Style de présentation :</label>
             <select id="img-style" onchange="onImgStyleChange(); updateModalPreview('image');">
@@ -298,10 +178,15 @@
             </select>
         </div>
 
-        <!-- Champs standard -->
+        <!-- Champs communs -->
+        <div class="form-group"><label>URL de l'image :</label><input type="text" id="img-url" placeholder="https://..." oninput="updateModalPreview('image')"></div>
+        <div class="form-group"><label>Alt (Accessibilité) :</label><input type="text" id="img-alt" placeholder="Description courte..."></div>
+        <div class="form-group"><label>Légende :</label><input type="text" id="img-caption" placeholder="Légende..." oninput="updateModalPreview('image')"></div>
+
+        <!-- Champs Standard uniquement -->
         <div id="img-standard-fields">
             <div class="form-group">
-                <label>Alignement & Mise en page :</label>
+                <label>Alignement :</label>
                 <select id="img-align" onchange="document.getElementById('img-size').value = this.value === 'center' ? '100%' : '50%'; updateModalPreview('image');">
                     <option value="center">Centré (Défaut)</option>
                     <option value="left">Média à Gauche, Texte à Droite</option>
@@ -310,40 +195,38 @@
             </div>
             <div class="form-group">
                 <label>Texte descriptif (Optionnel) :</label>
-                <textarea id="img-text" rows="4" oninput="updateModalPreview('image')"></textarea>
+                <textarea id="img-text" rows="3" oninput="updateModalPreview('image')"></textarea>
             </div>
             <div class="form-group"><label>Taille :</label><input type="text" id="img-size" value="100%" oninput="updateModalPreview('image')"></div>
             <div class="form-group"><label>Arrondi :</label><input type="text" id="img-radius" value="8px" oninput="updateModalPreview('image')"></div>
         </div>
 
-        <!-- Champs communs à tous les styles -->
-        <div class="form-group"><label>URL de l'image :</label><input type="text" id="img-url" placeholder="https://..." oninput="updateModalPreview('image')"></div>
-        <div class="form-group"><label>Alt (Accessibilité) :</label><input type="text" id="img-alt" placeholder="Description courte..."></div>
-        <div class="form-group"><label>Légende :</label><input type="text" id="img-caption" placeholder="Légende..."></div>
-
-        <!-- Champs spécifiques selon le style -->
+        <!-- Champs Hero -->
         <div id="img-hero-fields" class="img-style-fields">
-            <div class="form-group"><label>Titre (superposé) :</label><input type="text" id="img-hero-title" placeholder="Titre principal"></div>
-            <div class="form-group"><label>Sous-titre :</label><input type="text" id="img-hero-subtitle" placeholder="Sous-titre · Détail · Lieu"></div>
+            <div class="form-group"><label>Titre superposé :</label><input type="text" id="img-hero-title" placeholder="Titre principal" oninput="updateModalPreview('image')"></div>
+            <div class="form-group"><label>Sous-titre :</label><input type="text" id="img-hero-subtitle" placeholder="Sous-titre · Détail · Lieu" oninput="updateModalPreview('image')"></div>
         </div>
 
+        <!-- Champs Promo -->
         <div id="img-promo-fields" class="img-style-fields">
-            <div class="form-group"><label>Texte promo (ex: -40%) :</label><input type="text" id="img-promo-value" placeholder="-40%"></div>
-            <div class="form-group"><label>Libellé au-dessus :</label><input type="text" id="img-promo-label-top" placeholder="Jusqu'à"></div>
-            <div class="form-group"><label>Libellé en-dessous :</label><input type="text" id="img-promo-label-bottom" placeholder="sur vos entrées"></div>
+            <div class="form-group"><label>Texte promo (ex: -40%) :</label><input type="text" id="img-promo-value" placeholder="-40%" oninput="updateModalPreview('image')"></div>
+            <div class="form-group"><label>Libellé au-dessus :</label><input type="text" id="img-promo-label-top" placeholder="Jusqu'à" oninput="updateModalPreview('image')"></div>
+            <div class="form-group"><label>Libellé en-dessous :</label><input type="text" id="img-promo-label-bottom" placeholder="sur vos entrées" oninput="updateModalPreview('image')"></div>
         </div>
 
+        <!-- Champs Cliquable -->
         <div id="img-cliquable-fields" class="img-style-fields">
-            <div class="form-group"><label>URL agrandissement (clic) :</label><input type="text" id="img-click-url" placeholder="https://... (URL grande image)"></div>
+            <div class="form-group"><label>URL agrandissement (clic) :</label><input type="text" id="img-click-url" placeholder="https://... (URL grande image)" oninput="updateModalPreview('image')"></div>
         </div>
 
-        <div id="img-modal-preview" class="modal-media-preview"><div class="preview-placeholder">Aperçu intégral (Entrez une URL)</div></div>
+        <div id="img-modal-preview" class="modal-media-preview"><div class="preview-placeholder">Aperçu (entrez une URL)</div></div>
         <div class="dialog-buttons">
             <button class="btn-secondary" onclick="closeModal('image-modal')">Annuler</button>
             <button onclick="insertMedia('image')">Valider</button>
         </div>
     </dialog>
 
+    <!-- MODALE VIDÉO -->
     <dialog id="video-modal">
         <h3>Insérer une Vidéo</h3>
         <div class="form-group">
@@ -355,10 +238,7 @@
             </select>
         </div>
         <div class="form-group"><label>Lien (YouTube ou .mp4) :</label><input type="text" id="vid-url" placeholder="https://..." oninput="updateModalPreview('video')"></div>
-        <div class="form-group">
-            <label>Texte descriptif (Optionnel) :</label>
-            <textarea id="vid-text" rows="4" oninput="updateModalPreview('video')"></textarea>
-        </div>
+        <div class="form-group"><label>Texte descriptif (Optionnel) :</label><textarea id="vid-text" rows="4" oninput="updateModalPreview('video')"></textarea></div>
         <div class="form-group"><label>Titre (Alt) :</label><input type="text" id="vid-alt" placeholder="Titre..."></div>
         <div class="form-group"><label>Légende :</label><input type="text" id="vid-caption" placeholder="Légende..."></div>
         <div class="form-group"><label>Taille :</label><input type="text" id="vid-size" value="100%" oninput="updateModalPreview('video')"></div>
@@ -376,53 +256,65 @@
 
     <script>
         const visualEditor = document.getElementById('visual-editor');
-        const htmlOutput = document.getElementById('html-output');
+        const htmlOutput   = document.getElementById('html-output');
         const previewOutput = document.getElementById('preview-output');
-        const saveStatus = document.getElementById('save-status');
+        const saveStatus   = document.getElementById('save-status');
         let saveTimeout;
 
         document.execCommand('defaultParagraphSeparator', false, 'p');
 
-        // === GESTION DU STYLE IMAGE ===
+        // ── Affichage conditionnel des champs image ──────────────────
         function onImgStyleChange() {
             const style = document.getElementById('img-style').value;
             document.getElementById('img-standard-fields').style.display = style === 'standard' ? 'block' : 'none';
             document.querySelectorAll('.img-style-fields').forEach(el => el.classList.remove('visible'));
-            if (style === 'hero')       document.getElementById('img-hero-fields').classList.add('visible');
-            if (style === 'promo')      document.getElementById('img-promo-fields').classList.add('visible');
-            if (style === 'cliquable')  document.getElementById('img-cliquable-fields').classList.add('visible');
+            if (style === 'hero')      document.getElementById('img-hero-fields').classList.add('visible');
+            if (style === 'promo')     document.getElementById('img-promo-fields').classList.add('visible');
+            if (style === 'cliquable') document.getElementById('img-cliquable-fields').classList.add('visible');
         }
 
-        // === GESTION DES MODÈLES (TEMPLATES) ===
+        // ── Ouvre la modale image en réinitialisant l'état ───────────
+        function openImageModal() {
+            document.getElementById('img-url').value      = '';
+            document.getElementById('img-alt').value      = '';
+            document.getElementById('img-caption').value  = '';
+            document.getElementById('img-text').value     = '';
+            document.getElementById('img-size').value     = '100%';
+            document.getElementById('img-radius').value   = '8px';
+            document.getElementById('img-align').value    = 'center';
+            document.getElementById('img-style').value    = 'standard';
+            document.getElementById('img-hero-title').value    = '';
+            document.getElementById('img-hero-subtitle').value = '';
+            document.getElementById('img-promo-value').value   = '';
+            document.getElementById('img-promo-label-top').value    = '';
+            document.getElementById('img-promo-label-bottom').value = '';
+            document.getElementById('img-click-url').value = '';
+            document.getElementById('img-modal-preview').innerHTML = '<div class="preview-placeholder">Aperçu (entrez une URL)</div>';
+            onImgStyleChange();
+            document.getElementById('image-modal').showModal();
+        }
+
+        // ── Modèles ──────────────────────────────────────────────────
         const demoTemplates = [
-            {
-                id: 'faq-demo',
-                name: 'FAQ - Question / Réponse',
-                content: `<div class="template-faq">\n<h3>Question fréquente ?</h3>\n<p>Remplacez ce texte par votre réponse détaillée.</p>\n</div>\n<p>&nbsp;</p>`
-            },
-            {
-                id: 'menu-demo',
-                name: 'Menu de Restaurant (Catégorie)',
-                content: `<div class="template-menu">\n<h3>Nom de la Catégorie</h3>\n<div class="template-menu-item"><span>Plat 1</span><span>12 €</span></div>\n</div>\n<p>&nbsp;</p>`
-            }
+            { id: 'faq-demo', name: 'FAQ - Question / Réponse',
+              content: `<div class="template-faq">\n<h3>Question fréquente ?</h3>\n<p>Réponse détaillée ici.</p>\n</div>\n<p>&nbsp;</p>` },
+            { id: 'menu-demo', name: 'Menu de Restaurant (Catégorie)',
+              content: `<div class="template-menu">\n<h3>Catégorie</h3>\n<div class="template-menu-item"><span>Plat</span><span>12 €</span></div>\n</div>\n<p>&nbsp;</p>` }
         ];
 
         function openTemplateModal() {
-            const activeTemplates = window.mesModelesExternes || demoTemplates;
-            const select = document.getElementById('template-select');
-            select.innerHTML = activeTemplates.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
+            const list = window.mesModelesExternes || demoTemplates;
+            document.getElementById('template-select').innerHTML = list.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
             document.getElementById('template-modal').showModal();
         }
 
         function insertTemplate() {
-            const activeTemplates = window.mesModelesExternes || demoTemplates;
-            const selectedId = document.getElementById('template-select').value;
-            const template = activeTemplates.find(t => t.id === selectedId);
-            if (template) { closeModal('template-modal'); insertHtmlAtCursor(template.content); }
+            const list = window.mesModelesExternes || demoTemplates;
+            const tpl  = list.find(t => t.id === document.getElementById('template-select').value);
+            if (tpl) { closeModal('template-modal'); insertHtmlAtCursor(tpl.content); }
         }
 
-        // ============================================
-
+        // ── Utilitaires ──────────────────────────────────────────────
         function saveToLocalStorage(content) {
             localStorage.setItem('editor_saved_data', content);
             saveStatus.style.opacity = '1';
@@ -431,338 +323,287 @@
         }
 
         function resetEditor() {
-            if (confirm("Êtes-vous sûr de vouloir tout effacer ?")) {
-                visualEditor.innerHTML = "";
+            if (confirm('Êtes-vous sûr de vouloir tout effacer ?')) {
+                visualEditor.innerHTML = '';
                 localStorage.removeItem('editor_saved_data');
                 updateFromVisual();
             }
         }
 
         function exportHtml() {
-            const htmlContent = htmlOutput.value;
-            if (!htmlContent.trim()) { alert("Il n'y a rien à exporter !"); return; }
-            const blob = new Blob([htmlContent], { type: 'text/plain' });
-            const url = URL.createObjectURL(blob);
+            const v = htmlOutput.value;
+            if (!v.trim()) { alert("Rien à exporter !"); return; }
             const a = document.createElement('a');
-            a.href = url; a.download = 'mon_code_html.txt';
-            document.body.appendChild(a); a.click();
-            document.body.removeChild(a); URL.revokeObjectURL(url);
+            a.href = URL.createObjectURL(new Blob([v], { type: 'text/plain' }));
+            a.download = 'mon_code_html.txt';
+            document.body.appendChild(a); a.click(); document.body.removeChild(a);
         }
 
         function importMarkdown() {
-            const mdText = document.getElementById('md-input').value;
-            if (!mdText.trim()) { closeModal('markdown-modal'); return; }
-            const rawHtml = marked.parse(mdText, { breaks: true, gfm: true });
+            const txt = document.getElementById('md-input').value;
+            if (!txt.trim()) { closeModal('markdown-modal'); return; }
+            const html = marked.parse(txt, { breaks: true, gfm: true });
             closeModal('markdown-modal');
             document.getElementById('md-input').value = '';
-            insertHtmlAtCursor(String(rawHtml));
+            insertHtmlAtCursor(String(html));
         }
 
+        function closeModal(id) {
+            document.getElementById(id).close();
+            if (id === 'video-modal')
+                document.getElementById('vid-modal-preview').innerHTML = '<div class="preview-placeholder">Aperçu intégral (Entrez une URL)</div>';
+        }
+
+        // ── Preview modale ───────────────────────────────────────────
         function updateModalPreview(type) {
             if (type === 'image') {
-                const url = document.getElementById('img-url').value.trim();
-                const style = document.getElementById('img-style').value;
+                const url      = document.getElementById('img-url').value.trim();
+                const style    = document.getElementById('img-style').value;
                 const previewBox = document.getElementById('img-modal-preview');
-                if (!url) { previewBox.innerHTML = `<div class="preview-placeholder">Aperçu intégral (Entrez une URL)</div>`; return; }
+                if (!url) { previewBox.innerHTML = '<div class="preview-placeholder">Aperçu (entrez une URL)</div>'; return; }
+
+                if (style === 'standard') {
+                    // Preview du style standard directement ici
+                    const align   = document.getElementById('img-align').value;
+                    const size    = document.getElementById('img-size').value || '100%';
+                    const radius  = document.getElementById('img-radius').value || '8px';
+                    const rawText = document.getElementById('img-text').value;
+                    const caption = document.getElementById('img-caption').value;
+                    const alt     = document.getElementById('img-alt').value || 'image';
+                    const captionHtml = caption ? `<figcaption style="font-size:0.9em;color:#666;margin-top:5px;text-align:center;">${caption}</figcaption>` : '';
+                    const imgTag  = `<img src="${url}" alt="${alt}" style="width:100%;border-radius:${radius};display:block;">`;
+                    let textHtml  = '';
+                    if (rawText.trim()) {
+                        textHtml = rawText.split('\n').filter(p => p.trim()).map(p => `<p style="margin:0 0 8px;">${p}</p>`).join('');
+                    }
+                    if (align === 'center') {
+                        previewBox.innerHTML = `<div style="margin-bottom:10px;text-align:center;"><figure style="margin:0 auto;width:${size};max-width:100%;">${imgTag}${captionHtml}</figure>${textHtml ? `<div style="margin-top:10px;">${textHtml}</div>` : ''}</div>`;
+                    } else {
+                        const dir = align === 'right' ? 'row-reverse' : 'row';
+                        previewBox.innerHTML = `<div style="display:flex;flex-wrap:wrap;gap:12px;flex-direction:${dir};"><figure style="margin:0;flex:1 1 ${size};min-width:120px;">${imgTag}${captionHtml}</figure>${textHtml ? `<div style="flex:1 1 120px;">${textHtml}</div>` : ''}</div>`;
+                    }
+                    return;
+                }
+
+                // Styles avancés : réutilise buildImageSnippet
                 previewBox.innerHTML = buildImageSnippet(style, url, true);
                 return;
             }
-            // VIDEO
-            const prefix = 'vid';
-            const url = document.getElementById(`${prefix}-url`).value.trim();
-            const rawText = document.getElementById(`${prefix}-text`).value;
-            const size = document.getElementById(`${prefix}-size`).value;
-            const radius = document.getElementById(`${prefix}-radius`).value;
-            const align = document.getElementById(`${prefix}-align`).value;
-            const previewBox = document.getElementById(`${prefix}-modal-preview`);
 
-            if (!url) { previewBox.innerHTML = `<div class="preview-placeholder">Aperçu intégral (Entrez une URL)</div>`; return; }
+            // ── Vidéo ────────────────────────────────────────────────
+            const url      = document.getElementById('vid-url').value.trim();
+            const rawText  = document.getElementById('vid-text').value;
+            const size     = document.getElementById('vid-size').value;
+            const radius   = document.getElementById('vid-radius').value;
+            const align    = document.getElementById('vid-align').value;
+            const previewBox = document.getElementById('vid-modal-preview');
+            if (!url) { previewBox.innerHTML = '<div class="preview-placeholder">Aperçu intégral (Entrez une URL)</div>'; return; }
 
-            let mediaStyle = `width: 100%; border-radius: ${radius}; display: block; object-fit: contain;`;
-            let textHtml = '';
-            if (rawText.trim() !== '') {
-                const paragraphs = rawText.split('\n').filter(p => p.trim() !== '');
-                textHtml = paragraphs.map(p => `<p style="text-align: justify; margin: 0 0 10px 0; color: #222;">${p}</p>`).join('\n');
-            } else {
-                textHtml = '<p style="font-style: italic; color: #999; margin:0;">(Votre texte descriptif s\'affichera ici...)</p>';
-            }
-
+            const mediaStyle = `width:100%;border-radius:${radius};display:block;object-fit:contain;`;
+            const textHtml   = rawText.trim()
+                ? rawText.split('\n').filter(p => p.trim()).map(p => `<p style="margin:0 0 10px;color:#222;">${p}</p>`).join('')
+                : '<p style="font-style:italic;color:#999;margin:0;">(Votre texte s\'affichera ici…)</p>';
             const ytMatch = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
-            let mediaHtml = ytMatch
-                ? `<iframe style="${mediaStyle} aspect-ratio: 16/9; max-height: 200px;" src="https://www.youtube-nocookie.com/embed/${ytMatch[1]}?rel=0" frameborder="0"></iframe>`
-                : `<video src="${url}" style="${mediaStyle} max-height: 200px;" controls></video>`;
-
-            let figureStyle, containerStyle;
+            const mediaHtml = ytMatch
+                ? `<iframe style="${mediaStyle}aspect-ratio:16/9;max-height:200px;" src="https://www.youtube-nocookie.com/embed/${ytMatch[1]}?rel=0" frameborder="0"></iframe>`
+                : `<video src="${url}" style="${mediaStyle}max-height:200px;" controls></video>`;
             if (align === 'center') {
-                figureStyle = `margin: 0 auto 15px auto; text-align: center; width: ${size}; max-width: 100%;`;
-                previewBox.innerHTML = `<div style="margin-bottom: 20px;"><figure style="${figureStyle}">${mediaHtml}</figure><div style="text-align: center; margin-top: 15px;">${textHtml}</div></div>`;
+                previewBox.innerHTML = `<figure style="margin:0 auto 10px;width:${size};max-width:100%;">${mediaHtml}</figure><div style="text-align:center;">${textHtml}</div>`;
             } else {
-                containerStyle = `display: flex; flex-wrap: wrap; align-items: center; gap: 20px; margin-bottom: 20px;${align === 'right' ? ' flex-direction: row-reverse;' : ''}`;
-                figureStyle = `margin: 0; flex: 1 1 ${size}; min-width: 200px; max-width: 100%;`;
-                previewBox.innerHTML = `<div style="${containerStyle}"><figure style="${figureStyle}">${mediaHtml}</figure><div style="flex: 1 1 200px; min-width: 0; text-align: justify;">${textHtml}</div></div>`;
+                const dir = align === 'right' ? 'row-reverse' : 'row';
+                previewBox.innerHTML = `<div style="display:flex;flex-wrap:wrap;gap:12px;flex-direction:${dir};"><figure style="margin:0;flex:1 1 ${size};min-width:120px;">${mediaHtml}</figure><div style="flex:1 1 120px;">${textHtml}</div></div>`;
             }
         }
 
-        // === CONSTRUCTION DU SNIPPET IMAGE SELON LE STYLE ===
-        function buildImageSnippet(style, url, forPreview) {
+        // ── Génération HTML par style image ─────────────────────────
+        function buildImageSnippet(style, url) {
             const alt     = document.getElementById('img-alt').value || 'image';
             const caption = document.getElementById('img-caption').value;
-            const captionHtml = caption ? `<figcaption style="background: #f5f5f5; padding: 12px 16px; font-size: 13px; color: #555; text-align: center;">${caption}</figcaption>` : '';
+            const captionHtml = caption ? `<figcaption style="background:#f5f5f5;padding:12px 16px;font-size:13px;color:#555;text-align:center;">${caption}</figcaption>` : '';
 
             switch (style) {
-
                 case 'hero': {
                     const title    = document.getElementById('img-hero-title').value || 'Titre principal';
                     const subtitle = document.getElementById('img-hero-subtitle').value || 'Sous-titre · Détail · Lieu';
-                    return `<div style="position: relative; width: 100%; margin-bottom: 24px; border-radius: 20px; overflow: hidden;">
-  <img src="${url}" alt="${alt}" style="width: 100%; display: block; height: 320px; object-fit: cover;" loading="lazy">
-  <div style="position: absolute; bottom: 0; left: 0; right: 0; padding: 20px 24px; background: linear-gradient(transparent, rgba(0,0,0,0.65));">
-    <p style="margin: 0; color: #fff; font-size: 22px; font-weight: bold;">${title}</p>
-    <p style="margin: 4px 0 0; color: #f0f0f0; font-size: 14px;">${subtitle}</p>
-  </div>
-</div>
-<p>&nbsp;</p>`;
+                    return `<div style="position:relative;width:100%;margin-bottom:24px;border-radius:20px;overflow:hidden;"><img src="${url}" alt="${alt}" style="width:100%;display:block;height:320px;object-fit:cover;" loading="lazy"><div style="position:absolute;bottom:0;left:0;right:0;padding:20px 24px;background:linear-gradient(transparent,rgba(0,0,0,0.65));"><p style="margin:0;color:#fff;font-size:22px;font-weight:bold;">${title}</p><p style="margin:4px 0 0;color:#f0f0f0;font-size:14px;">${subtitle}</p></div></div><p>&nbsp;</p>`;
                 }
-
-                case 'figure': {
-                    return `<figure style="margin: 0 auto 24px; max-width: 700px; border-radius: 20px; overflow: hidden; box-shadow: 0 6px 20px rgba(0,0,0,0.15);">
-  <img src="${url}" alt="${alt}" style="width: 100%; display: block;" loading="lazy">
-  ${captionHtml}
-</figure>
-<p>&nbsp;</p>`;
-                }
+                case 'figure':
+                    return `<figure style="margin:0 auto 24px;max-width:700px;border-radius:20px;overflow:hidden;box-shadow:0 6px 20px rgba(0,0,0,0.15);"><img src="${url}" alt="${alt}" style="width:100%;display:block;" loading="lazy">${captionHtml}</figure><p>&nbsp;</p>`;
 
                 case 'float': {
-                    const rawText = document.getElementById('img-text') ? document.getElementById('img-text').value : '';
-                    const textHtml = rawText.trim() ? rawText.split('\n').filter(p=>p.trim()).map(p=>`<p style="margin: 0 0 10px 0;">${p}</p>`).join('') : '<p>Votre texte descriptif ici.</p>';
-                    return `<div style="overflow: hidden; margin-bottom: 24px;">
-  <img src="${url}" alt="${alt}" style="float: left; width: 45%; border-radius: 16px; margin: 0 20px 12px 0; display: block;" loading="lazy">
-  <div style="font-size: 15px; line-height: 1.7; color: #333;">${textHtml}</div>
-</div>
-<div style="clear: both;"></div>
-<p>&nbsp;</p>`;
+                    const rawText = document.getElementById('img-text').value;
+                    const textHtml = rawText.trim() ? rawText.split('\n').filter(p=>p.trim()).map(p=>`<p style="margin:0 0 10px;">${p}</p>`).join('') : '<p>Votre texte descriptif ici.</p>';
+                    return `<div style="overflow:hidden;margin-bottom:24px;"><img src="${url}" alt="${alt}" style="float:left;width:45%;border-radius:16px;margin:0 20px 12px 0;display:block;" loading="lazy"><div style="font-size:15px;line-height:1.7;color:#333;">${textHtml}</div></div><div style="clear:both;"></div><p>&nbsp;</p>`;
                 }
-
-                case 'ratio169': {
-                    return `<div style="width: 100%; aspect-ratio: 16/9; border-radius: 20px; overflow: hidden; margin-bottom: 24px;">
-  <img src="${url}" alt="${alt}" style="width: 100%; height: 100%; object-fit: cover; object-position: center; display: block;" loading="lazy">
-</div>
-<p>&nbsp;</p>`;
-                }
+                case 'ratio169':
+                    return `<div style="width:100%;aspect-ratio:16/9;border-radius:20px;overflow:hidden;margin-bottom:24px;"><img src="${url}" alt="${alt}" style="width:100%;height:100%;object-fit:cover;object-position:center;display:block;" loading="lazy"></div><p>&nbsp;</p>`;
 
                 case 'polaroid': {
                     const legend = caption || 'Légende';
-                    return `<div style="display: block; background: #fff; padding: 12px 12px 40px; box-shadow: 0 8px 30px rgba(0,0,0,0.18); border-radius: 4px; transform: rotate(-1.5deg); margin: 0 auto 30px; width: 60%; max-width: 480px;">
-  <img src="${url}" alt="${alt}" style="width: 100%; display: block; border-radius: 2px;" loading="lazy">
-  <p style="text-align: center; font-family: 'Georgia', serif; font-size: 15px; color: #888; margin: 12px 0 0; letter-spacing: 1px;">${legend}</p>
-</div>
-<p>&nbsp;</p>`;
+                    return `<div style="display:block;background:#fff;padding:12px 12px 40px;box-shadow:0 8px 30px rgba(0,0,0,0.18);border-radius:4px;transform:rotate(-1.5deg);margin:0 auto 30px;width:60%;max-width:480px;"><img src="${url}" alt="${alt}" style="width:100%;display:block;border-radius:2px;" loading="lazy"><p style="text-align:center;font-family:'Georgia',serif;font-size:15px;color:#888;margin:12px 0 0;letter-spacing:1px;">${legend}</p></div><p>&nbsp;</p>`;
                 }
-
                 case 'promo': {
-                    const promoVal   = document.getElementById('img-promo-value').value || '-XX%';
-                    const labelTop   = document.getElementById('img-promo-label-top').value || "Jusqu'à";
-                    const labelBot   = document.getElementById('img-promo-label-bottom').value || 'sur vos entrées';
-                    return `<div style="display: flex; align-items: stretch; border-radius: 20px; overflow: hidden; box-shadow: 0 6px 24px rgba(0,0,0,0.12); margin-bottom: 24px; min-height: 200px;">
-  <div style="flex: 1.5; overflow: hidden;">
-    <img src="${url}" alt="${alt}" style="width: 100%; height: 100%; object-fit: cover; display: block;" loading="lazy">
-  </div>
-  <div style="flex: 1; background: #1a5e3a; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 24px; text-align: center;">
-    <p style="color: #fff; font-size: 13px; text-transform: uppercase; letter-spacing: 2px; margin: 0 0 8px;">${labelTop}</p>
-    <p style="color: #f5c842; font-size: 48px; font-weight: 900; margin: 0; line-height: 1;">${promoVal}</p>
-    <p style="color: #fff; font-size: 14px; margin: 8px 0 0;">${labelBot}</p>
-  </div>
-</div>
-<p>&nbsp;</p>`;
+                    const pv  = document.getElementById('img-promo-value').value || '-XX%';
+                    const lt  = document.getElementById('img-promo-label-top').value || "Jusqu'à";
+                    const lb  = document.getElementById('img-promo-label-bottom').value || 'sur vos entrées';
+                    return `<div style="display:flex;align-items:stretch;border-radius:20px;overflow:hidden;box-shadow:0 6px 24px rgba(0,0,0,0.12);margin-bottom:24px;min-height:200px;"><div style="flex:1.5;overflow:hidden;"><img src="${url}" alt="${alt}" style="width:100%;height:100%;object-fit:cover;display:block;" loading="lazy"></div><div style="flex:1;background:#1a5e3a;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:24px;text-align:center;"><p style="color:#fff;font-size:13px;text-transform:uppercase;letter-spacing:2px;margin:0 0 8px;">${lt}</p><p style="color:#f5c842;font-size:48px;font-weight:900;margin:0;line-height:1;">${pv}</p><p style="color:#fff;font-size:14px;margin:8px 0 0;">${lb}</p></div></div><p>&nbsp;</p>`;
                 }
-
-                case 'degrade': {
-                    return `<div style="padding: 4px; background: linear-gradient(135deg, #f5a623, #2ecc71, #3498db); border-radius: 24px; margin-bottom: 24px; width: 100%; box-sizing: border-box;">
-  <img src="${url}" alt="${alt}" style="width: 100%; display: block; border-radius: 20px;" loading="lazy">
-</div>
-<p>&nbsp;</p>`;
-                }
+                case 'degrade':
+                    return `<div style="padding:4px;background:linear-gradient(135deg,#f5a623,#2ecc71,#3498db);border-radius:24px;margin-bottom:24px;width:100%;box-sizing:border-box;"><img src="${url}" alt="${alt}" style="width:100%;display:block;border-radius:20px;" loading="lazy"></div><p>&nbsp;</p>`;
 
                 case 'cliquable': {
                     const clickUrl = document.getElementById('img-click-url').value || url;
-                    const label = caption || "Cliquez sur l'image pour agrandir";
-                    return `<figure style="text-align:center; margin:1em auto;">
-  <a title="${label}" target="_blank" href="${clickUrl}" style="display:block; line-height:0; font-size:0;">
-    <img loading="lazy" src="${url}" alt="${alt}" style="display:block; margin:0 auto; width:100%; max-width:400px; height:auto; vertical-align:bottom;">
-  </a>
-  <span style="display:block; font-size:14px; color:#64748b; font-style:italic; margin-top:0.5em;">${label}</span>
-</figure>
-<p>&nbsp;</p>`;
+                    const label    = caption || "Cliquez sur l'image pour agrandir";
+                    return `<figure style="text-align:center;margin:1em auto;"><a title="${label}" target="_blank" href="${clickUrl}" style="display:block;line-height:0;font-size:0;"><img loading="lazy" src="${url}" alt="${alt}" style="display:block;margin:0 auto;width:100%;max-width:400px;height:auto;vertical-align:bottom;"></a><span style="display:block;font-size:14px;color:#64748b;font-style:italic;margin-top:0.5em;">${label}</span></figure><p>&nbsp;</p>`;
                 }
-
-                default: return null; // style standard — géré par insertMedia()
+                default: return '';
             }
         }
 
-        function closeModal(id) { 
-            document.getElementById(id).close(); 
-            if (id === 'template-modal') return;
-            if (id === 'image-modal') document.getElementById('img-modal-preview').innerHTML = `<div class="preview-placeholder">Aperçu intégral (Entrez une URL)</div>`;
-            if (id === 'video-modal') document.getElementById('vid-modal-preview').innerHTML = `<div class="preview-placeholder">Aperçu intégral (Entrez une URL)</div>`;
-        }
-
-        function cleanAndFormatHTML(html) {
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(html, 'text/html');
-
-            doc.querySelectorAll('br').forEach(br => { const spaceNode = doc.createTextNode('\u00A0'); br.replaceWith(spaceNode); });
-            doc.querySelectorAll('p').forEach(p => { if (p.innerHTML.replace(/&nbsp;/g, '').replace(/\u00A0/g, '').trim() === '') p.remove(); });
-            doc.querySelectorAll('b').forEach(el => { const strong = doc.createElement('strong'); strong.innerHTML = el.innerHTML; el.replaceWith(strong); });
-            doc.querySelectorAll('i').forEach(el => { const em = doc.createElement('em'); em.innerHTML = el.innerHTML; el.replaceWith(em); });
-            doc.querySelectorAll('u').forEach(el => { const span = doc.createElement('span'); span.style.textDecoration = 'underline'; span.innerHTML = el.innerHTML; el.replaceWith(span); });
-            doc.querySelectorAll('strike, s').forEach(el => { const del = doc.createElement('del'); del.innerHTML = el.innerHTML; el.replaceWith(del); });
-            doc.querySelectorAll('center').forEach(el => { const div = doc.createElement('div'); div.style.textAlign = 'center'; div.innerHTML = el.innerHTML; el.replaceWith(div); });
-            doc.querySelectorAll('font').forEach(el => { const span = doc.createElement('span'); if (el.getAttribute('color')) span.style.color = el.getAttribute('color'); span.innerHTML = el.innerHTML; el.replaceWith(span); });
-
-            doc.querySelectorAll('ul > ul, ol > ol, ul > ol, ol > ul').forEach(nestedList => {
-                const prevLi = nestedList.previousElementSibling;
-                if (prevLi && prevLi.tagName === 'LI') { prevLi.appendChild(nestedList); } 
-                else { const li = doc.createElement('li'); li.style.listStyle = 'none'; nestedList.parentNode.insertBefore(li, nestedList); li.appendChild(nestedList); }
-            });
-
-            let cleanHtml = doc.body.innerHTML;
-            cleanHtml = cleanHtml.replace(/<br\s*\/?>/gi, '');
-
-            let formatted = cleanHtml.replace(/>\s+</g, '><');
-            const blockTags = ['p', 'div', 'h1', 'h2', 'h3', 'h4', 'ul', 'ol', 'li', 'figure', 'figcaption', 'iframe', 'video'];
-            blockTags.forEach(tag => {
-                const regexOpen = new RegExp(`(<${tag}(?:\\s[^>]*)?>)`, 'gi');
-                const regexClose = new RegExp(`(</${tag}>)`, 'gi');
-                formatted = formatted.replace(regexOpen, `\n$1`).replace(regexClose, `$1\n`);
-            });
-
-            return formatted.replace(/\n\s*\n/g, '\n').trim();
-        }
-
-        function updateFromVisual() {
-            const rawHTML = visualEditor.innerHTML;
-            const cleanedHTML = cleanAndFormatHTML(rawHTML);
-            const safeHTML = cleanedHTML.replace(/&amp;mute=1/g, '&mute=1').replace(/&amp;rel=0/g, '&rel=0');
-            htmlOutput.value = safeHTML;
-            previewOutput.innerHTML = safeHTML;
-            saveToLocalStorage(safeHTML);
-        }
-
-        function updateFromHtml() {
-            const manualHTML = htmlOutput.value;
-            visualEditor.innerHTML = manualHTML;
-            previewOutput.innerHTML = manualHTML;
-            saveToLocalStorage(manualHTML);
-        }
-
-        function formatText(command, value = null) { document.execCommand(command, false, value); visualEditor.focus(); updateFromVisual(); }
-
-        visualEditor.addEventListener('input', updateFromVisual);
-        htmlOutput.addEventListener('input', updateFromHtml);
-
-        function copyHtml() { htmlOutput.select(); navigator.clipboard.writeText(htmlOutput.value).then(() => alert("Code HTML copié dans le presse-papier !")); }
-
-        function setDeviceView(viewClass) {
-            const isDark = previewOutput.classList.contains('theme-dark');
-            previewOutput.className = isDark ? 'theme-dark' : 'theme-light';
-            previewOutput.classList.add(viewClass);
-        }
-
-        document.getElementById('theme-toggle').addEventListener('click', () => {
-            const isDark = previewOutput.classList.contains('theme-dark');
-            previewOutput.classList.toggle('theme-light', isDark);
-            previewOutput.classList.toggle('theme-dark', !isDark);
-        });
-
-        function insertHtmlAtCursor(htmlSnippet) {
-            visualEditor.focus();
-            const success = document.execCommand('insertHTML', false, htmlSnippet);
-            if (!success) { visualEditor.insertAdjacentHTML('beforeend', htmlSnippet); }
-            updateFromVisual();
-        }
-
+        // ── Insertion media ──────────────────────────────────────────
         function insertMedia(type) {
             if (type === 'image') {
                 const style = document.getElementById('img-style').value;
                 const url   = document.getElementById('img-url').value.trim();
-                if (!url) { alert('Veuillez entrer une URL d\'image.'); return; }
+                if (!url) { alert("Veuillez entrer une URL d'image."); return; }
 
                 if (style !== 'standard') {
-                    const snippet = buildImageSnippet(style, url, false);
+                    const snippet = buildImageSnippet(style, url);
                     closeModal('image-modal');
-                    document.getElementById('img-url').value = '';
-                    document.getElementById('img-alt').value = '';
-                    document.getElementById('img-caption').value = '';
-                    document.getElementById('img-style').value = 'standard';
-                    onImgStyleChange();
                     insertHtmlAtCursor(snippet);
                     return;
                 }
-            }
 
-            // Comportement standard (image standard + vidéo)
-            const prefix = type === 'image' ? 'img' : 'vid';
-            const align = document.getElementById(`${prefix}-align`).value;
-            const url = document.getElementById(`${prefix}-url`).value;
-            const rawText = type === 'image' ? document.getElementById('img-text').value : document.getElementById('vid-text').value;
-            const alt = document.getElementById(`${prefix}-alt`).value;
-            const caption = document.getElementById(`${prefix}-caption`).value;
-            const size = document.getElementById(`${prefix}-size`).value;
-            const radius = document.getElementById(`${prefix}-radius`).value;
-
-            let textHtml = '';
-            if (rawText.trim() !== '') {
-                const paragraphs = rawText.split('\n').filter(p => p.trim() !== '');
-                textHtml = `\n<div style="flex: 1 1 200px; min-width: 0; text-align: justify;">\n` + paragraphs.map(p => `<p>${p}</p>`).join('\n') + `\n</div>`;
-            }
-
-            let figureStyle = '', containerStart = '', containerEnd = '';
-            let mediaStyle = `width: 100%; border-radius: ${radius}; display: block;`;
-
-            if (align === 'left') {
-                figureStyle = `margin: 0; flex: 1 1 ${size}; min-width: 200px; max-width: 100%;`;
-                containerStart = `<div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 20px; margin-bottom: 20px;">\n`;
-                containerEnd = `\n</div>`;
-            } else if (align === 'right') {
-                figureStyle = `margin: 0; flex: 1 1 ${size}; min-width: 200px; max-width: 100%;`;
-                containerStart = `<div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: center; flex-direction: row-reverse; gap: 20px; margin-bottom: 20px;">\n`;
-                containerEnd = `\n</div>`;
-            } else {
-                figureStyle = `margin: 0 auto 15px auto; text-align: center; width: ${size}; max-width: 100%;`;
-                containerStart = `<div style="margin-bottom: 20px; text-align: center;">\n`;
-                containerEnd = `\n</div>`;
-            }
-
-            let mediaHtml = '';
-            let captionHtml = caption ? `\n<figcaption style="font-size: 0.9em; color: #666; margin-top: 5px; text-align: center;">${caption}</figcaption>` : '';
-
-            if (type === 'image') {
-                mediaHtml = `<img src="${url}" alt="${alt}" style="${mediaStyle}">`;
-            } else {
-                const isAutoplay = document.getElementById('vid-autoplay').checked;
-                const ytAutoParam = isAutoplay ? "?autoplay=1&mute=1&rel=0" : "?rel=0";
-                const html5AutoParam = isAutoplay ? "autoplay muted loop playsinline" : "controls";
-                const ytMatch = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
-                if (ytMatch) {
-                    mediaHtml = `<iframe height="315" src="https://www.youtube-nocookie.com/embed/${ytMatch[1]}${ytAutoParam}" title="${alt}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen style="${mediaStyle}"></iframe>`;
-                } else {
-                    mediaHtml = `<video src="${url}" title="${alt}" style="${mediaStyle} min-height: 250px;" ${html5AutoParam}></video>`;
+                // Style standard
+                const align   = document.getElementById('img-align').value;
+                const rawText = document.getElementById('img-text').value;
+                const alt     = document.getElementById('img-alt').value;
+                const caption = document.getElementById('img-caption').value;
+                const size    = document.getElementById('img-size').value;
+                const radius  = document.getElementById('img-radius').value;
+                const captionHtml = caption ? `\n<figcaption style="font-size:0.9em;color:#666;margin-top:5px;text-align:center;">${caption}</figcaption>` : '';
+                const imgTag  = `<img src="${url}" alt="${alt}" style="width:100%;border-radius:${radius};display:block;">`;
+                let textHtml  = '';
+                if (rawText.trim()) {
+                    textHtml = `\n<div style="flex:1 1 200px;min-width:0;text-align:justify;">\n` + rawText.split('\n').filter(p=>p.trim()).map(p=>`<p>${p}</p>`).join('\n') + `\n</div>`;
                 }
+                let snippet;
+                if (align === 'center') {
+                    snippet = `<div style="margin-bottom:20px;text-align:center;">\n<figure style="margin:0 auto 15px;width:${size};max-width:100%;">\n${imgTag}${captionHtml}\n</figure>${textHtml}\n</div>`;
+                } else {
+                    const dir = align === 'right' ? 'flex-direction:row-reverse;' : '';
+                    snippet = `<div style="display:flex;flex-wrap:wrap;align-items:center;gap:20px;margin-bottom:20px;${dir}">\n<figure style="margin:0;flex:1 1 ${size};min-width:200px;max-width:100%;">\n${imgTag}${captionHtml}\n</figure>${textHtml}\n</div>`;
+                }
+                closeModal('image-modal');
+                insertHtmlAtCursor(snippet);
+                return;
             }
 
-            const snippet = `${containerStart}<figure style="${figureStyle}">\n${mediaHtml}${captionHtml}\n</figure>\n${textHtml}${containerEnd}`;
-            closeModal(`${type}-modal`);
-            document.getElementById(`${prefix}-url`).value = '';
-            document.getElementById(`${prefix}-text`) && (document.getElementById(`${prefix}-text`).value = '');
-            document.getElementById(`${prefix}-caption`).value = '';
+            // ── Vidéo ────────────────────────────────────────────────
+            const align   = document.getElementById('vid-align').value;
+            const url     = document.getElementById('vid-url').value;
+            const rawText = document.getElementById('vid-text').value;
+            const alt     = document.getElementById('vid-alt').value;
+            const caption = document.getElementById('vid-caption').value;
+            const size    = document.getElementById('vid-size').value;
+            const radius  = document.getElementById('vid-radius').value;
+            const isAutoplay = document.getElementById('vid-autoplay').checked;
+            const ytAutoParam    = isAutoplay ? '?autoplay=1&mute=1&rel=0' : '?rel=0';
+            const html5AutoParam = isAutoplay ? 'autoplay muted loop playsinline' : 'controls';
+            const mediaStyle = `width:100%;border-radius:${radius};display:block;`;
+            const captionHtml = caption ? `\n<figcaption style="font-size:0.9em;color:#666;margin-top:5px;text-align:center;">${caption}</figcaption>` : '';
+            let textHtml = '';
+            if (rawText.trim()) {
+                textHtml = `\n<div style="flex:1 1 200px;min-width:0;text-align:justify;">\n` + rawText.split('\n').filter(p=>p.trim()).map(p=>`<p>${p}</p>`).join('\n') + `\n</div>`;
+            }
+            const ytMatch = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
+            let mediaHtml;
+            if (ytMatch) {
+                mediaHtml = `<iframe height="315" src="https://www.youtube-nocookie.com/embed/${ytMatch[1]}${ytAutoParam}" title="${alt}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen style="${mediaStyle}"></iframe>`;
+            } else {
+                mediaHtml = `<video src="${url}" title="${alt}" style="${mediaStyle}min-height:250px;" ${html5AutoParam}></video>`;
+            }
+            let snippet;
+            if (align === 'center') {
+                snippet = `<div style="margin-bottom:20px;text-align:center;">\n<figure style="margin:0 auto 15px;width:${size};max-width:100%;">\n${mediaHtml}${captionHtml}\n</figure>${textHtml}\n</div>`;
+            } else {
+                const dir = align === 'right' ? 'flex-direction:row-reverse;' : '';
+                snippet = `<div style="display:flex;flex-wrap:wrap;align-items:center;gap:20px;margin-bottom:20px;${dir}">\n<figure style="margin:0;flex:1 1 ${size};min-width:200px;max-width:100%;">\n${mediaHtml}${captionHtml}\n</figure>${textHtml}\n</div>`;
+            }
+            closeModal('video-modal');
+            document.getElementById('vid-url').value     = '';
+            document.getElementById('vid-text').value    = '';
+            document.getElementById('vid-caption').value = '';
             insertHtmlAtCursor(snippet);
         }
 
+        // ── Sync éditeur ────────────────────────────────────────────
+        function cleanAndFormatHTML(html) {
+            const doc = new DOMParser().parseFromString(html, 'text/html');
+            doc.querySelectorAll('br').forEach(br => br.replaceWith(doc.createTextNode('\u00A0')));
+            doc.querySelectorAll('p').forEach(p => { if (!p.innerHTML.replace(/&nbsp;|\u00A0/g,'').trim()) p.remove(); });
+            doc.querySelectorAll('b').forEach(el => { const s=doc.createElement('strong'); s.innerHTML=el.innerHTML; el.replaceWith(s); });
+            doc.querySelectorAll('i').forEach(el => { const s=doc.createElement('em'); s.innerHTML=el.innerHTML; el.replaceWith(s); });
+            doc.querySelectorAll('u').forEach(el => { const s=doc.createElement('span'); s.style.textDecoration='underline'; s.innerHTML=el.innerHTML; el.replaceWith(s); });
+            doc.querySelectorAll('strike,s').forEach(el => { const d=doc.createElement('del'); d.innerHTML=el.innerHTML; el.replaceWith(d); });
+            doc.querySelectorAll('center').forEach(el => { const d=doc.createElement('div'); d.style.textAlign='center'; d.innerHTML=el.innerHTML; el.replaceWith(d); });
+            doc.querySelectorAll('font').forEach(el => { const s=doc.createElement('span'); if(el.getAttribute('color')) s.style.color=el.getAttribute('color'); s.innerHTML=el.innerHTML; el.replaceWith(s); });
+            doc.querySelectorAll('ul>ul,ol>ol,ul>ol,ol>ul').forEach(nl => {
+                const prev = nl.previousElementSibling;
+                if (prev && prev.tagName==='LI') prev.appendChild(nl);
+                else { const li=doc.createElement('li'); li.style.listStyle='none'; nl.parentNode.insertBefore(li,nl); li.appendChild(nl); }
+            });
+            let out = doc.body.innerHTML.replace(/<br\s*\/?>/gi,'').replace(/>\s+</g,'><');
+            ['p','div','h1','h2','h3','h4','ul','ol','li','figure','figcaption','iframe','video'].forEach(tag => {
+                out = out.replace(new RegExp(`(<${tag}(?:\\s[^>]*)?>)`,'gi'),`\n$1`).replace(new RegExp(`(</${tag}>)`,'gi'),`$1\n`);
+            });
+            return out.replace(/\n\s*\n/g,'\n').trim();
+        }
+
+        function updateFromVisual() {
+            const clean = cleanAndFormatHTML(visualEditor.innerHTML).replace(/&amp;mute=1/g,'&mute=1').replace(/&amp;rel=0/g,'&rel=0');
+            htmlOutput.value = clean;
+            previewOutput.innerHTML = clean;
+            saveToLocalStorage(clean);
+        }
+
+        function updateFromHtml() {
+            const v = htmlOutput.value;
+            visualEditor.innerHTML = v;
+            previewOutput.innerHTML = v;
+            saveToLocalStorage(v);
+        }
+
+        function formatText(cmd, val=null) { document.execCommand(cmd, false, val); visualEditor.focus(); updateFromVisual(); }
+
+        visualEditor.addEventListener('input', updateFromVisual);
+        htmlOutput.addEventListener('input', updateFromHtml);
+
+        function copyHtml() { htmlOutput.select(); navigator.clipboard.writeText(htmlOutput.value).then(() => alert('Code HTML copié !')); }
+
+        function setDeviceView(cls) {
+            const dark = previewOutput.classList.contains('theme-dark');
+            previewOutput.className = dark ? 'theme-dark' : 'theme-light';
+            previewOutput.classList.add(cls);
+        }
+
+        document.getElementById('theme-toggle').addEventListener('click', () => {
+            const dark = previewOutput.classList.contains('theme-dark');
+            previewOutput.classList.toggle('theme-light', dark);
+            previewOutput.classList.toggle('theme-dark', !dark);
+        });
+
+        function insertHtmlAtCursor(html) {
+            visualEditor.focus();
+            if (!document.execCommand('insertHTML', false, html))
+                visualEditor.insertAdjacentHTML('beforeend', html);
+            updateFromVisual();
+        }
+
         window.onload = () => {
-            onImgStyleChange(); // init état des champs
-            const savedData = localStorage.getItem('editor_saved_data');
-            if (savedData && savedData.trim() !== '') { visualEditor.innerHTML = savedData; } 
-            else { visualEditor.innerHTML = ''; }
+            onImgStyleChange();
+            const saved = localStorage.getItem('editor_saved_data');
+            visualEditor.innerHTML = (saved && saved.trim()) ? saved : '';
             updateFromVisual();
         };
     </script>
