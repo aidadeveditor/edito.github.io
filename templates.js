@@ -7,12 +7,12 @@ window.mesModelesExternes = [
         name: 'Menu Toggle (Carte de Restaurant)',
         content: `
 <!-- TOGGLE Menu -->
-<div style="max-width:500px;margin:30px auto;border-radius:15px;padding:30px;box-shadow:0 6px 20px rgba(0,0,0,0.1);text-align:center;">
+<div style="max-width:500px;margin:30px auto;border-radius:15px;padding:30px;box-shadow:0 6px 20px rgba(0,0,0,0.15);text-align:center;background-color:var(--panel-bg, #ffffff);color:var(--text-color, #212529);border:1px solid var(--border-color, #dee2e6);">
 
 <img src="https://img.grouponcdn.com/editorial/2AfJKw1YvJz2ZXUdaaxTWJFfx4M2/local-menu-groupon-6000x3375" alt="Carte du menu" style="width:25%;display:block;margin:0 auto 10px;">
 
 <details>
-<summary style="cursor:pointer; font-size:14px; color:#888; margin:0 auto 10px; width:max-content;">
+<summary style="cursor:pointer; font-size:14px; color:var(--text-color, #555); margin:0 auto 10px; width:max-content;">
       Voir / Masquer la carte
 </summary>
 
@@ -25,30 +25,30 @@ window.mesModelesExternes = [
 <p><em>xxx</em></p>
 <p><em>xxx</em></p>
 
-<p style="margin:18px 0;color:#888;"><strong>...</strong></p>
+<p style="margin:18px 0;opacity:0.6;"><strong>...</strong></p>
 
 <p><strong>Plats au choix</strong></p>
 <p><em>xxx</em></p>
 <p><em>xxx</em></p>
 <p><em>xxx</em></p>
 
-<p style="margin:18px 0;color:#888;"><strong>...</strong></p>
+<p style="margin:18px 0;opacity:0.6;"><strong>...</strong></p>
 
 <p><strong>Desserts au choix</strong></p>
 <p><em>xxx</em></p>
 <p><em>xxx</em></p>
 <p><em>xxx</em></p>
 
-<p style="margin:18px 0;color:#888;"><strong>...</strong></p>
+<p style="margin:18px 0;opacity:0.6;"><strong>...</strong></p>
 
 <p><strong>Fromages au choix</strong></p>
 <p><em>xxx</em></p>
 <p><em>xxx</em></p>
 <p><em>xxx</em></p>
 
-<div style="border-bottom:1px solid #e0e0e0;margin:25px 50px;"></div>
+<div style="border-bottom:1px solid var(--border-color, #e0e0e0);margin:25px 50px;"></div>
 
-<p style="font-size:12px;color:#888;font-style:italic;">Les plats sont susceptibles de varier selon le marché, la saison et l'humeur du chef. Le cas échéant, ils sont remplacés par des produits de gamme et de qualité équivalentes.</p>
+<p style="font-size:12px;opacity:0.6;font-style:italic;">Les plats sont susceptibles de varier selon le marché, la saison et l'humeur du chef. Le cas échéant, ils sont remplacés par des produits de gamme et de qualité équivalentes.</p>
 
 </div>
 </details>
@@ -64,9 +64,9 @@ window.mesModelesExternes = [
         id: 'faq-accordeon',
         name: 'Question FAQ (Déroulante)',
         content: `
-<details style="background-color: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 10px; border: 1px solid #ddd;">
-    <summary style="font-weight: bold; cursor: pointer; color: #333;">Cliquez ici pour lire la question ?</summary>
-    <div style="margin-top: 10px; padding-top: 10px; border-top: 1px dashed #ccc; color: #555;">
+<details style="background-color:var(--header-bg, #f9f9f9); padding: 15px; border-radius: 8px; margin-bottom: 10px; border: 1px solid var(--border-color, #ddd);">
+    <summary style="font-weight: bold; cursor: pointer; color: var(--text-color, #333);">Cliquez ici pour lire la question ?</summary>
+    <div style="margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--border-color, #ccc); color: var(--text-color, #555);">
         <p style="margin: 0; text-align: justify;">Voici la réponse détaillée à la question. Vous pouvez la modifier directement dans l'éditeur visuel.</p>
     </div>
 </details>
