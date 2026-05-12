@@ -125,5 +125,87 @@ window.mesModelesExternes = [
 </div>
 <p>&nbsp;</p>
 `
+    },
+
+    // --- MODÈLE 5 : Image avec lien cliquable (issue #2) ---
+    {
+        id: 'image-lien-cliquable',
+        name: 'Image avec lien cliquable',
+        content: `
+<figure style="text-align:center;margin:1em auto;">
+  <a href="URL_LIEN" target="_blank" rel="noopener noreferrer" style="display:block;line-height:0;font-size:0;">
+    <img src="URL_IMAGE" alt="TITRE" style="display:block;margin:0 auto;width:100%;max-width:600px;height:auto;border-radius:8px;">
+  </a>
+  <figcaption style="font-size:14px;color:#64748b;font-style:italic;margin-top:0.5em;">LÉGENDE</figcaption>
+</figure>
+<p>&nbsp;</p>
+`
+    },
+
+    // --- MODÈLE 6 : Logo Instagram avec lien cliquable (issue #3) ---
+    {
+        id: 'logo-instagram',
+        name: 'Logo Instagram avec lien + nom marchand',
+        content: `
+<div style="text-align:center;margin:20px auto;">
+  <a href="URLINSTA" rel="nofollow noreferrer" target="_blank" style="display:inline-flex;align-items:center;gap:10px;text-decoration:none;color:#E1306C;font-family:sans-serif;font-size:15px;font-weight:600;">
+    <img src="https://img.grouponcdn.com/editorial/Q6qS1c4xBikscgJTzmXff1/logo-instagram-550x550" alt="Instagram" style="width:32px;height:32px;display:inline-block;vertical-align:middle;">
+    <span>NOMMERCHANT</span>
+  </a>
+</div>
+<p>&nbsp;</p>
+`
+    },
+
+    // --- MODÈLE 7 : Galerie d'images - formes variées (issue #4) ---
+    {
+        id: 'galerie-formes',
+        name: 'Galerie images — formes variées',
+        content: `
+<!-- Image simple centrée -->
+<div style="text-align:center;margin:16px auto;">
+  <img src="URL" alt="TITRE" style="max-width:100%;border-radius:8px;display:block;margin:0 auto;">
+</div>
+
+<!-- Image cliquable (agrandissement) -->
+<figure style="text-align:center;margin:16px auto;">
+  <a href="URL_GRANDE" target="_blank" rel="noopener noreferrer" style="display:block;line-height:0;">
+    <img alt="TITRE IMG" src="URL" style="max-width:100%;border-radius:8px;display:block;margin:0 auto;">
+  </a>
+  <figcaption style="font-size:13px;color:#64748b;font-style:italic;margin-top:6px;">Cliquez sur l'image pour l'agrandir</figcaption>
+</figure>
+
+<!-- Image ronde (avatar / portrait) -->
+<div style="text-align:center;margin:16px auto;">
+  <img src="URL" alt="TITRE" style="width:120px;height:120px;border-radius:50%;object-fit:cover;display:inline-block;">
+</div>
+
+<!-- Image carrée avec ombre -->
+<div style="text-align:center;margin:16px auto;">
+  <img src="URL" alt="TITRE" style="width:200px;height:200px;object-fit:cover;border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,0.15);display:inline-block;">
+</div>
+
+<!-- Image format carré fixe (250×250) -->
+<div style="text-align:center;margin:16px auto;">
+  <img src="URL" alt="TITRE" width="250" height="250" style="object-fit:cover;border-radius:8px;display:inline-block;">
+</div>
+
+<!-- Image pleine largeur 16/9 -->
+<div style="width:100%;aspect-ratio:16/9;overflow:hidden;border-radius:12px;margin:16px auto;">
+  <img src="URL" alt="TITRE" style="width:100%;height:100%;object-fit:cover;display:block;">
+</div>
+
+<!-- Image avec bordure dégradé -->
+<div style="padding:3px;background:linear-gradient(135deg,#f5a623,#2ecc71,#3498db);border-radius:16px;display:block;max-width:400px;margin:16px auto;">
+  <img src="URL" alt="TITRE" style="width:100%;border-radius:13px;display:block;">
+</div>
+
+<!-- Image Polaroid -->
+<div style="background:#fff;padding:10px 10px 36px;box-shadow:0 8px 24px rgba(0,0,0,0.18);border-radius:4px;transform:rotate(-1.5deg);max-width:280px;margin:20px auto;">
+  <img src="URL" alt="TITRE" style="width:100%;display:block;border-radius:2px;">
+  <p style="text-align:center;font-family:'Georgia',serif;font-size:14px;color:#888;margin:10px 0 0;">LÉGENDE</p>
+</div>
+<p>&nbsp;</p>
+`
     }
 ];
