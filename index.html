@@ -50,10 +50,9 @@
         #save-status { font-size: 0.8rem; color: #28a745; margin-left: 10px; opacity: 0; transition: opacity 0.5s; }
         .modal-media-preview { margin-top: 12px; padding: 10px; background-color: var(--header-bg); border: 1px dashed var(--border-color); border-radius: 6px; min-height: 90px; display: block; overflow: hidden; color: #888; font-size: 0.9rem; }
         .modal-media-preview:has(div.preview-placeholder) { display: flex; align-items: center; justify-content: center; text-align: center; }
-        /* Séparateur de section dans la modale image */
         .img-section-sep { border: none; border-top: 1px dashed #ced4da; margin: 10px 0 12px; }
         .img-section-title { font-size: 0.78rem; font-weight: 700; color: #6c757d; text-transform: uppercase; letter-spacing: .06em; margin: 14px 0 6px; }
-        /* Champs conditionnels */
+        /* Champs conditionnels — masqués par défaut */
         .img-opt { display: none; }
         .img-opt.show { display: block; }
         /* Galerie */
@@ -61,6 +60,11 @@
         .galerie-url-row input { flex: 1; }
         .galerie-url-row button { padding: 4px 10px; font-size: 0.8rem; background: #dc3545; flex-shrink: 0; }
         #galerie-add-btn { font-size: 0.82rem; padding: 5px 10px; background: #198754; }
+        /* Display radio buttons */
+        .display-group { display: flex; gap: 8px; margin-top: 4px; }
+        .display-group label { display: flex; align-items: center; gap: 5px; font-size: 0.88rem; font-weight: normal; color: #333; cursor: pointer; padding: 5px 10px; border: 1px solid #ced4da; border-radius: 4px; background: #f8f9fa; transition: 0.15s; }
+        .display-group label:has(input:checked) { background: #0d6efd; color: #fff; border-color: #0d6efd; }
+        .display-group input[type="radio"] { accent-color: #0d6efd; }
     </style>
 </head>
 <body>
@@ -126,9 +130,7 @@
     </section>
 </main>
 
-<!-- ══════════════════════════════════════════════════════════
-     MODALE MARKDOWN
-═══════════════════════════════════════════════════════════ -->
+<!-- MODALE MARKDOWN -->
 <dialog id="markdown-modal">
     <h3>Importer du Markdown</h3>
     <p style="font-size:0.9em;color:#666;margin-top:0;">Collez votre code Markdown ci-dessous.</p>
@@ -141,13 +143,11 @@
     </div>
 </dialog>
 
-<!-- ══════════════════════════════════════════════════════════
-     MODALE IMAGE — architecture : Format → options contextuelles
-═══════════════════════════════════════════════════════════ -->
+<!-- MODALE IMAGE -->
 <dialog id="image-modal">
     <h3 style="margin-bottom:14px;">Insérer une Image</h3>
 
-    <!-- ── ÉTAPE 1 : FORMAT ──────────────────────────────────── -->
+    <!-- ÉTAPE 1 : FORMAT -->
     <p class="img-section-title">1 · Format</p>
     <div class="form-group">
         <label>Format de l'image :</label>
@@ -207,7 +207,7 @@
         </select>
     </div>
 
-    <!-- ── URL image (masquée pour instagram & galerie) ──────── -->
+    <!-- URL image (masquée pour instagram & galerie) -->
     <div id="img-url-group" class="form-group">
         <label>URL de l'image :</label>
         <input type="text" id="img-url" placeholder="https://..." oninput="updateModalPreview('image')">
@@ -215,27 +215,44 @@
 
     <hr class="img-section-sep">
 
-    <!-- ── ÉTAPE 2 : OPTIONS CONTEXTUELLES ──────────────────── -->
+    <!-- ÉTAPE 2 : OPTIONS UNIVERSELLES + CONTEXTUELLES -->
     <p class="img-section-title">2 · Options</p>
 
-    <!-- Accessibilité (toujours visible sauf galerie/instagram) -->
+    <!-- Display (universel, masqué pour instagram/galerie) -->
+    <div id="opt-display" class="img-opt">
+        <div class="form-group">
+            <label>Display :</label>
+            <div class="display-group">
+                <label><input type="radio" name="img-display" value="center" checked onchange="updateModalPreview('image')"> ▤ Centre</label>
+                <label><input type="radio" name="img-display" value="left" onchange="updateModalPreview('image')"> ▧ Gauche</label>
+                <label><input type="radio" name="img-display" value="right" onchange="updateModalPreview('image')"> ▦ Droite</label>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alt (universel) -->
     <div id="opt-alt" class="img-opt">
-        <div class="form-group"><label>Alt (accessibilité) :</label><input type="text" id="img-alt" placeholder="Description courte..."></div>
+        <div class="form-group"><label>Alt (accessibilité) :</label><input type="text" id="img-alt" placeholder="Description courte de l'image..."></div>
     </div>
 
-    <!-- Légende (format qui la supportent) -->
+    <!-- Légende (universel) -->
     <div id="opt-caption" class="img-opt">
-        <div class="form-group"><label>Légende :</label><input type="text" id="img-caption" placeholder="Légende..." oninput="updateModalPreview('image')"></div>
+        <div class="form-group"><label>Légende :</label><input type="text" id="img-caption" placeholder="Légende sous l'image..." oninput="updateModalPreview('image')"></div>
     </div>
 
-    <!-- Taille (formats libres) -->
+    <!-- URL du lien (universel) -->
+    <div id="opt-link" class="img-opt">
+        <div class="form-group"><label>URL du lien (clic sur l'image) :</label><input type="text" id="img-link-url" placeholder="https://..." oninput="updateModalPreview('image')"></div>
+    </div>
+
+    <!-- Taille (universel) -->
     <div id="opt-size" class="img-opt">
-        <div class="form-group"><label>Taille (ex: 100%, 300px) :</label><input type="text" id="img-size" value="100%" oninput="updateModalPreview('image')"></div>
+        <div class="form-group"><label>Taille (ex&nbsp;: 100%, 300px) :</label><input type="text" id="img-size" value="100%" oninput="updateModalPreview('image')"></div>
     </div>
 
-    <!-- Arrondi (formats libres) -->
+    <!-- Arrondi (universel) -->
     <div id="opt-radius" class="img-opt">
-        <div class="form-group"><label>Arrondi (ex: 8px, 50%) :</label><input type="text" id="img-radius" value="8px" oninput="updateModalPreview('image')"></div>
+        <div class="form-group"><label>Arrondi (ex&nbsp;: 8px, 50%) :</label><input type="text" id="img-radius" value="8px" oninput="updateModalPreview('image')"></div>
     </div>
 
     <!-- Texte descriptif (float uniquement) -->
@@ -246,11 +263,6 @@
         </div>
     </div>
 
-    <!-- Lien cliquable (certains formats) -->
-    <div id="opt-link" class="img-opt">
-        <div class="form-group"><label>URL du lien (clic sur l'image) :</label><input type="text" id="img-link-url" placeholder="https://..." oninput="updateModalPreview('image')"></div>
-    </div>
-
     <!-- Hero fields -->
     <div id="opt-hero" class="img-opt">
         <div class="form-group"><label>Titre superposé :</label><input type="text" id="img-hero-title" placeholder="Titre principal" oninput="updateModalPreview('image')"></div>
@@ -259,7 +271,7 @@
 
     <!-- Promo fields -->
     <div id="opt-promo" class="img-opt">
-        <div class="form-group"><label>Texte promo (ex : -40%) :</label><input type="text" id="img-promo-value" placeholder="-40%" oninput="updateModalPreview('image')"></div>
+        <div class="form-group"><label>Texte promo (ex&nbsp;: -40%) :</label><input type="text" id="img-promo-value" placeholder="-40%" oninput="updateModalPreview('image')"></div>
         <div class="form-group"><label>Libellé au-dessus :</label><input type="text" id="img-promo-top" placeholder="Jusqu'à" oninput="updateModalPreview('image')"></div>
         <div class="form-group"><label>Libellé en-dessous :</label><input type="text" id="img-promo-bottom" placeholder="sur vos entrées" oninput="updateModalPreview('image')"></div>
     </div>
@@ -301,9 +313,7 @@
     </div>
 </dialog>
 
-<!-- ══════════════════════════════════════════════════════════
-     MODALE VIDÉO
-═══════════════════════════════════════════════════════════ -->
+<!-- MODALE VIDÉO -->
 <dialog id="video-modal">
     <h3>Insérer une Vidéo</h3>
     <div class="form-group">
@@ -332,76 +342,58 @@
 </dialog>
 
 <script>
-// ══════════════════════════════════════════════════════════════
+// ============================================================
 // CONFIGURATION DES OPTIONS PAR FORMAT
-// Clés : alt | caption | size | radius | text | link | hero | promo | instagram | galerie
-// ══════════════════════════════════════════════════════════════
-const FORMAT_OPTIONS = {
-    // Mise en page
-    'center':       { alt:1, caption:1, size:1, radius:1, link:1 },
-    'left':         { alt:1, size:1, radius:1 },
-    'right':        { alt:1, size:1, radius:1 },
-    'float-left':   { alt:1, caption:1, size:1, radius:1, text:1 },
-    'float-right':  { alt:1, caption:1, size:1, radius:1, text:1 },
-    'full':         { alt:1, caption:1 },
-    'ratio169':     { alt:1 },
-    'figure':       { alt:1, caption:1 },
-    // Formes CSS
-    'css-normal':   { alt:1 },
-    'css-arrondis': { alt:1 },
-    'css-arrondis-hb': { alt:1 },
-    'css-ovale-penche': { alt:1 },
-    'css-ovale-fluide': { alt:1 },
-    'css-blob-soft': { alt:1 },
-    'css-blob-classique': { alt:1 },
-    'css-blob-ample': { alt:1 },
-    'css-arrondis-bas': { alt:1 },
-    'css-dome':     { alt:1 },
-    'css-nuage':    { alt:1 },
-    'css-pinces-1': { alt:1 },
-    'css-pinces-2': { alt:1 },
-    'css-rond-ombre': { alt:1 },
-    'css-rond':     { alt:1 },
-    'css-polygon':  { alt:1 },
-    'css-losange':  { alt:1 },
-    'css-dessous':  { alt:1 },
-    'css-hexagone': { alt:1 },
-    'css-ecran':    { alt:1 },
-    'css-grise':    { alt:1 },
-    // Styles graphiques
-    'hero':         { alt:1, hero:1 },
-    'polaroid':     { alt:1, caption:1 },
-    'promo':        { promo:1 },
-    'degrade':      { alt:1 },
-    'ronde':        { alt:1, caption:1 },
-    'carre-ombre':  { alt:1, caption:1 },
-    'miniature':    { alt:1, link:1 },
-    'zoom-hover':   { alt:1 },
-    'fixed-height': { alt:1 },
-    'sepia':        { alt:1 },
-    'opaque':       { alt:1 },
-    // Réseaux sociaux
-    'instagram':    { instagram:1 },
-    // Galerie
-    'galerie':      { galerie:1 }
+// Clés universelles (tous formats sauf instagram/galerie) :
+//   display | alt | caption | link | size | radius
+// Clés spécifiques : text | hero | promo | instagram | galerie
+// ============================================================
+
+// Formats qui n'utilisent PAS les options universelles
+const FORMATS_SPECIAUX = new Set(['instagram', 'galerie']);
+
+// Formats qui ont EN PLUS des options spécifiques
+const FORMAT_EXTRA = {
+    'float-left':  { text:1 },
+    'float-right': { text:1 },
+    'hero':        { hero:1 },
+    'promo':       { promo:1 },
+    'instagram':   { instagram:1 },
+    'galerie':     { galerie:1 }
 };
 
-const OPT_IDS = ['opt-alt','opt-caption','opt-size','opt-radius','opt-text','opt-link','opt-hero','opt-promo','opt-instagram','opt-galerie'];
-const OPT_KEY_MAP = { 'opt-alt':'alt','opt-caption':'caption','opt-size':'size','opt-radius':'radius','opt-text':'text','opt-link':'link','opt-hero':'hero','opt-promo':'promo','opt-instagram':'instagram','opt-galerie':'galerie' };
+// IDs des options spécifiques uniquement (les universelles sont gérées séparément)
+const OPT_SPECIFIC_IDS = ['opt-text','opt-hero','opt-promo','opt-instagram','opt-galerie'];
+const OPT_SPECIFIC_MAP = { 'opt-text':'text','opt-hero':'hero','opt-promo':'promo','opt-instagram':'instagram','opt-galerie':'galerie' };
+
+// IDs des options universelles
+const OPT_UNIVERSAL_IDS = ['opt-display','opt-alt','opt-caption','opt-link','opt-size','opt-radius'];
+
+function getDisplayValue() {
+    return document.querySelector('input[name="img-display"]:checked')?.value || 'center';
+}
 
 function onFormatChange() {
     const fmt = document.getElementById('img-format').value;
-    const opts = FORMAT_OPTIONS[fmt] || {};
+    const isSpecial = FORMATS_SPECIAUX.has(fmt);
+    const extra = FORMAT_EXTRA[fmt] || {};
+
     // URL image : masquée pour instagram et galerie
-    document.getElementById('img-url-group').style.display = (fmt === 'instagram' || fmt === 'galerie') ? 'none' : 'block';
-    // Options contextuelles
-    OPT_IDS.forEach(id => {
-        const key = OPT_KEY_MAP[id];
-        document.getElementById(id).classList.toggle('show', !!opts[key]);
+    document.getElementById('img-url-group').style.display = isSpecial ? 'none' : 'block';
+
+    // Options universelles : visibles pour tous sauf formats spéciaux
+    OPT_UNIVERSAL_IDS.forEach(id => {
+        document.getElementById(id).classList.toggle('show', !isSpecial);
+    });
+
+    // Options spécifiques : uniquement si le format les déclare
+    OPT_SPECIFIC_IDS.forEach(id => {
+        const key = OPT_SPECIFIC_MAP[id];
+        document.getElementById(id).classList.toggle('show', !!extra[key]);
     });
 }
 
-// ── Galerie ───────────────────────────────────────────────────
+// ── Galerie ──────────────────────────────────────────────────
 function addGalerieRow() {
     const c = document.getElementById('galerie-urls-container');
     if (c.children.length >= 12) return;
@@ -417,7 +409,7 @@ function removeGalerieRow(btn) {
     btn.closest('.galerie-url-row').remove();
 }
 
-// ── Ouverture modale image ────────────────────────────────────
+// ── Ouverture modale image ───────────────────────────────────
 function openImageModal() {
     ['img-url','img-alt','img-caption','img-text','img-hero-title','img-hero-subtitle',
      'img-promo-value','img-promo-top','img-promo-bottom','img-link-url',
@@ -427,6 +419,9 @@ function openImageModal() {
     document.getElementById('img-size').value   = '100%';
     document.getElementById('img-radius').value = '8px';
     document.getElementById('img-format').value = 'center';
+    // Reset display radio
+    const radioCenter = document.querySelector('input[name="img-display"][value="center"]');
+    if (radioCenter) radioCenter.checked = true;
     // Reset galerie
     const gc = document.getElementById('galerie-urls-container');
     gc.innerHTML = '';
@@ -444,13 +439,13 @@ function openImageModal() {
     document.getElementById('image-modal').showModal();
 }
 
-// ── Modèles ───────────────────────────────────────────────────
+// ── Modèles ──────────────────────────────────────────────────
 function openTemplates() {
     if (typeof showTemplatesModal === 'function') showTemplatesModal();
     else alert('Le fichier templates.js n\'est pas chargé.');
 }
 
-// ── Utilitaires ───────────────────────────────────────────────
+// ── Utilitaires ──────────────────────────────────────────────
 function saveToLocalStorage(content) {
     try { localStorage.setItem('editor_saved_data', content); } catch(e) {}
     const s = document.getElementById('save-status');
@@ -491,9 +486,9 @@ function closeModal(id) {
         document.getElementById('vid-modal-preview').innerHTML = '<div class="preview-placeholder">Aperçu intégral (Entrez une URL)</div>';
 }
 
-// ══════════════════════════════════════════════════════════════
+// ============================================================
 // PREVIEW MODALE
-// ══════════════════════════════════════════════════════════════
+// ============================================================
 function updateModalPreview(type) {
     if (type !== 'image') {
         const url   = document.getElementById('vid-url').value.trim();
@@ -536,16 +531,35 @@ function updateModalPreview(type) {
     box.innerHTML = buildImageSnippet(fmt, url);
 }
 
-// ══════════════════════════════════════════════════════════════
+// ============================================================
+// HELPER : applique le display (centre / gauche / droite)
+// sur n'importe quel bloc HTML déjà construit
+// ============================================================
+function applyDisplay(inner, display, size) {
+    if (display === 'left') {
+        return `<div style="float:left;width:${size};margin:0 20px 12px 0;">${inner}</div><div style="clear:both;"></div><p>&nbsp;</p>`;
+    }
+    if (display === 'right') {
+        return `<div style="float:right;width:${size};margin:0 0 12px 20px;">${inner}</div><div style="clear:both;"></div><p>&nbsp;</p>`;
+    }
+    // center (défaut)
+    return `<div style="text-align:center;margin-bottom:20px;">${inner}</div><p>&nbsp;</p>`;
+}
+
+// ============================================================
 // GÉNÉRATION HTML PAR FORMAT
-// ══════════════════════════════════════════════════════════════
+// ============================================================
 function buildImageSnippet(fmt, url) {
-    const alt     = document.getElementById('img-alt')     ? document.getElementById('img-alt').value     || 'image' : 'image';
-    const caption = document.getElementById('img-caption') ? document.getElementById('img-caption').value || '' : '';
-    const size    = document.getElementById('img-size')    ? document.getElementById('img-size').value    || '100%' : '100%';
-    const radius  = document.getElementById('img-radius')  ? document.getElementById('img-radius').value  || '8px'  : '8px';
-    const linkUrl = document.getElementById('img-link-url')? document.getElementById('img-link-url').value.trim() || '' : '';
-    const captFig = caption ? `<figcaption style="font-size:13px;color:#64748b;text-align:center;margin-top:6px;font-style:italic;">${caption}</figcaption>` : '';
+    const alt     = document.getElementById('img-alt')?.value     || 'image';
+    const caption = document.getElementById('img-caption')?.value || '';
+    const size    = document.getElementById('img-size')?.value    || '100%';
+    const radius  = document.getElementById('img-radius')?.value  || '8px';
+    const linkUrl = document.getElementById('img-link-url')?.value.trim() || '';
+    const display = getDisplayValue(); // 'center' | 'left' | 'right'
+
+    const captFig = caption
+        ? `<figcaption style="font-size:13px;color:#64748b;text-align:center;margin-top:6px;font-style:italic;">${caption}</figcaption>`
+        : '';
 
     function imgTag(extraStyle) {
         return `<img src="${url}" alt="${alt}" style="${extraStyle}" loading="lazy">`;
@@ -554,117 +568,129 @@ function buildImageSnippet(fmt, url) {
         if (!linkUrl) return inner;
         return `<a href="${linkUrl}" target="_blank" rel="noopener noreferrer" style="display:block;line-height:0;">${inner}</a>`;
     }
+    // Construit un <figure> ou <div> avec légende puis applique le display
+    function figBlock(imgStyle) {
+        const img  = imgTag(imgStyle);
+        const linked = withLink(img);
+        const inner = captFig
+            ? `<figure style="margin:0;">${linked}${captFig}</figure>`
+            : linked;
+        return applyDisplay(inner, display, size);
+    }
 
     switch (fmt) {
 
-        /* ─── MISE EN PAGE ─────────────────────────────────── */
-        case 'center': {
-            const img = imgTag(`width:${size};border-radius:${radius};display:block;margin:0 auto;`);
-            const inner = withLink(img);
-            return captFig
-                ? `<figure style="margin:0 auto 20px;max-width:${size};">${inner}${captFig}</figure><p>&nbsp;</p>`
-                : `<div style="text-align:center;margin-bottom:20px;">${inner}</div><p>&nbsp;</p>`;
-        }
+        // ─── MISE EN PAGE (comportements spécifiques) ───
+        case 'center':
         case 'left':
-            return `${imgTag(`width:${size};border-radius:${radius};display:block;`)}<p>&nbsp;</p>`;
-        case 'right':
-            return `<div style="text-align:right;">${imgTag(`width:${size};border-radius:${radius};display:inline-block;`)}</div><p>&nbsp;</p>`;
+        case 'right': {
+            // Ces trois formats héritent maintenant du display universel
+            return figBlock(`width:${size};border-radius:${radius};display:block;`);
+        }
 
-        // FIX : légende dans un <figure> flottant, séparée du bloc texte
         case 'float-left': {
             const rawText = document.getElementById('img-text').value;
-            const txt = rawText.trim() ? rawText.split('\n').filter(p=>p.trim()).map(p=>`<p style="margin:0 0 10px;">${p}</p>`).join('') : '<p>Votre texte descriptif ici.</p>';
+            const txt = rawText.trim()
+                ? rawText.split('\n').filter(p=>p.trim()).map(p=>`<p style="margin:0 0 10px;">${p}</p>`).join('')
+                : '<p>Votre texte descriptif ici.</p>';
             const figStyle = `float:left;width:${size};margin:0 20px 12px 0;`;
             const imgHtml  = imgTag(`width:100%;border-radius:${radius};display:block;`);
             const figHtml  = captFig
                 ? `<figure style="${figStyle}">${imgHtml}${captFig}</figure>`
-                : `<figure style="${figStyle}margin-bottom:0;">${imgHtml}</figure>`;
+                : `<figure style="${figStyle}">${imgHtml}</figure>`;
             return `<div style="overflow:hidden;margin-bottom:24px;">${figHtml}<div style="font-size:15px;line-height:1.7;color:#333;">${txt}</div></div><div style="clear:both;"></div><p>&nbsp;</p>`;
         }
         case 'float-right': {
             const rawText = document.getElementById('img-text').value;
-            const txt = rawText.trim() ? rawText.split('\n').filter(p=>p.trim()).map(p=>`<p style="margin:0 0 10px;">${p}</p>`).join('') : '<p>Votre texte descriptif ici.</p>';
+            const txt = rawText.trim()
+                ? rawText.split('\n').filter(p=>p.trim()).map(p=>`<p style="margin:0 0 10px;">${p}</p>`).join('')
+                : '<p>Votre texte descriptif ici.</p>';
             const figStyle = `float:right;width:${size};margin:0 0 12px 20px;`;
             const imgHtml  = imgTag(`width:100%;border-radius:${radius};display:block;`);
             const figHtml  = captFig
                 ? `<figure style="${figStyle}">${imgHtml}${captFig}</figure>`
-                : `<figure style="${figStyle}margin-bottom:0;">${imgHtml}</figure>`;
+                : `<figure style="${figStyle}">${imgHtml}</figure>`;
             return `<div style="overflow:hidden;margin-bottom:24px;">${figHtml}<div style="font-size:15px;line-height:1.7;color:#333;">${txt}</div></div><div style="clear:both;"></div><p>&nbsp;</p>`;
         }
 
         case 'full':
-            return `<div style="margin-bottom:20px;">${imgTag(`width:100%;display:block;border-radius:${radius};`)}</div><p>&nbsp;</p>`;
-        case 'ratio169':
-            return `<div style="width:100%;aspect-ratio:16/9;border-radius:20px;overflow:hidden;margin-bottom:24px;">${imgTag('width:100%;height:100%;object-fit:cover;object-position:center;display:block;')}</div><p>&nbsp;</p>`;
-        case 'figure':
-            return `<figure style="margin:0 auto 24px;max-width:700px;border-radius:20px;overflow:hidden;box-shadow:0 6px 20px rgba(0,0,0,0.15);">${imgTag('width:100%;display:block;')}${captFig || ''}</figure><p>&nbsp;</p>`;
+            return figBlock(`width:100%;display:block;border-radius:${radius};`);
 
-        /* ─── FORMES CSS ────────────────────────────────────── */
-        case 'css-normal':           return `<div style="text-align:center;margin:16px 0;">${imgTag('width:25%;')}</div><p>&nbsp;</p>`;
-        case 'css-arrondis':         return `<div style="text-align:center;margin:16px 0;">${imgTag('width:25%;border-radius:25px;')}</div><p>&nbsp;</p>`;
-        case 'css-arrondis-hb':      return `<div style="text-align:center;margin:16px 0;">${imgTag('width:25%;border-radius:50% / 30%;')}</div><p>&nbsp;</p>`;
-        case 'css-ovale-penche':     return `<div style="text-align:center;margin:16px 0;">${imgTag('width:25%;border-radius:40% 60% 40% 60%;object-fit:cover;')}</div><p>&nbsp;</p>`;
-        case 'css-ovale-fluide':     return `<div style="text-align:center;margin:16px 0;">${imgTag('width:25%;clip-path:ellipse(50% 40% at 50% 50%);')}</div><p>&nbsp;</p>`;
-        case 'css-blob-soft':        return `<div style="text-align:center;margin:16px 0;">${imgTag('width:25%;border-radius:50% 50% 20% 20%;')}</div><p>&nbsp;</p>`;
-        case 'css-blob-classique':   return `<div style="text-align:center;margin:16px 0;">${imgTag('width:25%;border-radius:60% 40% 35% 65% / 55% 60% 40% 45%;')}</div><p>&nbsp;</p>`;
-        case 'css-blob-ample':       return `<div style="text-align:center;margin:16px 0;">${imgTag('width:25%;border-radius:60% 40% 60% 40% / 50% 60% 40% 50%;border:none;')}</div><p>&nbsp;</p>`;
-        case 'css-arrondis-bas':     return `<div style="text-align:center;margin:16px 0;">${imgTag('width:25%;border-radius:0 0 80px 80px;object-fit:cover;')}</div><p>&nbsp;</p>`;
-        case 'css-dome':             return `<div style="text-align:center;margin:16px 0;">${imgTag('width:25%;border-radius:50% 50% 0 0;object-fit:cover;')}</div><p>&nbsp;</p>`;
-        case 'css-nuage':            return `<div style="text-align:center;margin:16px 0;">${imgTag('width:25%;border-radius:30% 30% 50% 50%;object-fit:cover;')}</div><p>&nbsp;</p>`;
-        case 'css-pinces-1':         return `<div style="text-align:center;margin:16px 0;">${imgTag('width:25%;border-top-right-radius:80px;border-bottom-left-radius:80px;')}</div><p>&nbsp;</p>`;
-        case 'css-pinces-2':         return `<div style="text-align:center;margin:16px 0;">${imgTag('width:25%;border-top-left-radius:80px;border-bottom-right-radius:80px;')}</div><p>&nbsp;</p>`;
-        case 'css-rond-ombre':       return `<div style="text-align:center;margin:16px 0;"><img src="${url}" alt="${alt}" width="250" height="250" style="border-radius:50%;box-shadow:0 0 20px rgba(0,0,0,0.2);object-fit:cover;" loading="lazy"></div><p>&nbsp;</p>`;
-        case 'css-rond':             return `<div style="text-align:center;margin:16px 0;"><img src="${url}" alt="${alt}" width="250" height="250" style="border-radius:50%;object-fit:cover;" loading="lazy"></div><p>&nbsp;</p>`;
-        case 'css-polygon':          return `<div style="text-align:center;margin:16px 0;">${imgTag('width:25%;clip-path:polygon(0 10%, 100% 0, 100% 90%, 0 100%);')}</div><p>&nbsp;</p>`;
-        case 'css-losange':          return `<div style="text-align:center;margin:16px 0;"><img src="${url}" alt="${alt}" style="width:100px;height:100px;object-fit:cover;clip-path:polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);" loading="lazy"></div><p>&nbsp;</p>`;
-        case 'css-dessous':          return `<div style="text-align:center;margin:16px 0;">${imgTag('width:25%;clip-path:ellipse(100% 85% at 50% 15%);')}</div><p>&nbsp;</p>`;
-        case 'css-hexagone':         return `<div style="text-align:center;margin:16px 0;"><img src="${url}" alt="${alt}" style="width:250px;height:250px;object-fit:cover;clip-path:polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);" loading="lazy"></div><p>&nbsp;</p>`;
-        case 'css-ecran':            return `<div style="text-align:center;margin:16px 0;">${imgTag('width:25%;border-radius:10px;clip-path:polygon(0% 10%, 100% 0%, 100% 100%, 0% 100%);')}</div><p>&nbsp;</p>`;
-        case 'css-grise':            return `<div style="text-align:center;margin:16px 0;">${imgTag('width:25%;filter:grayscale(90%);')}</div><p>&nbsp;</p>`;
+        case 'ratio169': {
+            const inner = `<div style="width:${size};aspect-ratio:16/9;border-radius:${radius};overflow:hidden;">${imgTag('width:100%;height:100%;object-fit:cover;object-position:center;display:block;')}</div>`;
+            return applyDisplay(captFig ? `<figure style="margin:0;">${inner}${captFig}</figure>` : inner, display, size);
+        }
 
-        /* ─── STYLES GRAPHIQUES ─────────────────────────────── */
+        case 'figure': {
+            const inner = `<figure style="margin:0;border-radius:${radius};overflow:hidden;box-shadow:0 6px 20px rgba(0,0,0,0.15);">${imgTag('width:100%;display:block;')}${captFig}</figure>`;
+            return applyDisplay(withLink(inner), display, size);
+        }
+
+        // ─── FORMES CSS ───
+        case 'css-normal':           return figBlock(`width:${size};`);
+        case 'css-arrondis':         return figBlock(`width:${size};border-radius:25px;`);
+        case 'css-arrondis-hb':      return figBlock(`width:${size};border-radius:50% / 30%;`);
+        case 'css-ovale-penche':     return figBlock(`width:${size};border-radius:40% 60% 40% 60%;object-fit:cover;`);
+        case 'css-ovale-fluide':     return figBlock(`width:${size};clip-path:ellipse(50% 40% at 50% 50%);`);
+        case 'css-blob-soft':        return figBlock(`width:${size};border-radius:50% 50% 20% 20%;`);
+        case 'css-blob-classique':   return figBlock(`width:${size};border-radius:60% 40% 35% 65% / 55% 60% 40% 45%;`);
+        case 'css-blob-ample':       return figBlock(`width:${size};border-radius:60% 40% 60% 40% / 50% 60% 40% 50%;border:none;`);
+        case 'css-arrondis-bas':     return figBlock(`width:${size};border-radius:0 0 80px 80px;object-fit:cover;`);
+        case 'css-dome':             return figBlock(`width:${size};border-radius:50% 50% 0 0;object-fit:cover;`);
+        case 'css-nuage':            return figBlock(`width:${size};border-radius:30% 30% 50% 50%;object-fit:cover;`);
+        case 'css-pinces-1':         return figBlock(`width:${size};border-top-right-radius:80px;border-bottom-left-radius:80px;`);
+        case 'css-pinces-2':         return figBlock(`width:${size};border-top-left-radius:80px;border-bottom-right-radius:80px;`);
+        case 'css-rond-ombre':       return figBlock(`width:${size};height:${size};border-radius:50%;box-shadow:0 0 20px rgba(0,0,0,0.2);object-fit:cover;`);
+        case 'css-rond':             return figBlock(`width:${size};height:${size};border-radius:50%;object-fit:cover;`);
+        case 'css-polygon':          return figBlock(`width:${size};clip-path:polygon(0 10%, 100% 0, 100% 90%, 0 100%);`);
+        case 'css-losange':          return figBlock(`width:${size};height:${size};object-fit:cover;clip-path:polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);`);
+        case 'css-dessous':          return figBlock(`width:${size};clip-path:ellipse(100% 85% at 50% 15%);`);
+        case 'css-hexagone':         return figBlock(`width:${size};height:${size};object-fit:cover;clip-path:polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);`);
+        case 'css-ecran':            return figBlock(`width:${size};border-radius:10px;clip-path:polygon(0% 10%, 100% 0%, 100% 100%, 0% 100%);`);
+        case 'css-grise':            return figBlock(`width:${size};filter:grayscale(90%);`);
+
+        // ─── STYLES GRAPHIQUES ───
         case 'hero': {
             const title    = document.getElementById('img-hero-title').value    || 'Titre principal';
             const subtitle = document.getElementById('img-hero-subtitle').value || 'Sous-titre · Détail · Lieu';
-            return `<div style="position:relative;width:100%;margin-bottom:24px;border-radius:20px;overflow:hidden;">${imgTag('width:100%;display:block;height:320px;object-fit:cover;')}<div style="position:absolute;bottom:0;left:0;right:0;padding:20px 24px;background:linear-gradient(transparent,rgba(0,0,0,0.65));"><p style="margin:0;color:#fff;font-size:22px;font-weight:bold;">${title}</p><p style="margin:4px 0 0;color:#f0f0f0;font-size:14px;">${subtitle}</p></div></div><p>&nbsp;</p>`;
+            const heroHtml = `<div style="position:relative;width:${size};border-radius:${radius};overflow:hidden;">${imgTag('width:100%;display:block;height:320px;object-fit:cover;')}<div style="position:absolute;bottom:0;left:0;right:0;padding:20px 24px;background:linear-gradient(transparent,rgba(0,0,0,0.65));"><p style="margin:0;color:#fff;font-size:22px;font-weight:bold;">${title}</p><p style="margin:4px 0 0;color:#f0f0f0;font-size:14px;">${subtitle}</p></div></div>`;
+            return applyDisplay(heroHtml, display, size);
         }
         case 'polaroid': {
             const leg = caption || 'Légende';
-            return `<div style="display:block;background:#fff;padding:12px 12px 40px;box-shadow:0 8px 30px rgba(0,0,0,0.18);border-radius:4px;transform:rotate(-1.5deg);margin:0 auto 30px;width:60%;max-width:480px;">${imgTag('width:100%;display:block;border-radius:2px;')}<p style="text-align:center;font-family:'Georgia',serif;font-size:15px;color:#888;margin:12px 0 0;letter-spacing:1px;">${leg}</p></div><p>&nbsp;</p>`;
+            const inner = `<div style="background:#fff;padding:12px 12px 40px;box-shadow:0 8px 30px rgba(0,0,0,0.18);border-radius:4px;transform:rotate(-1.5deg);width:${size};max-width:480px;">${imgTag('width:100%;display:block;border-radius:2px;')}<p style="text-align:center;font-family:'Georgia',serif;font-size:15px;color:#888;margin:12px 0 0;letter-spacing:1px;">${leg}</p></div>`;
+            return applyDisplay(inner, display, size);
         }
         case 'promo': {
             const pv = document.getElementById('img-promo-value').value  || '-XX%';
             const lt = document.getElementById('img-promo-top').value    || "Jusqu'à";
             const lb = document.getElementById('img-promo-bottom').value || 'sur vos entrées';
-            return `<div style="display:flex;align-items:stretch;border-radius:20px;overflow:hidden;box-shadow:0 6px 24px rgba(0,0,0,0.12);margin-bottom:24px;min-height:200px;"><div style="flex:1.5;overflow:hidden;">${imgTag('width:100%;height:100%;object-fit:cover;display:block;')}</div><div style="flex:1;background:#1a5e3a;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:24px;text-align:center;"><p style="color:#fff;font-size:13px;text-transform:uppercase;letter-spacing:2px;margin:0 0 8px;">${lt}</p><p style="color:#f5c842;font-size:48px;font-weight:900;margin:0;line-height:1;">${pv}</p><p style="color:#fff;font-size:14px;margin:8px 0 0;">${lb}</p></div></div><p>&nbsp;</p>`;
+            const promoHtml = `<div style="display:flex;align-items:stretch;border-radius:${radius};overflow:hidden;box-shadow:0 6px 24px rgba(0,0,0,0.12);min-height:200px;width:${size};"><div style="flex:1.5;overflow:hidden;">${imgTag('width:100%;height:100%;object-fit:cover;display:block;')}</div><div style="flex:1;background:#1a5e3a;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:24px;text-align:center;"><p style="color:#fff;font-size:13px;text-transform:uppercase;letter-spacing:2px;margin:0 0 8px;">${lt}</p><p style="color:#f5c842;font-size:48px;font-weight:900;margin:0;line-height:1;">${pv}</p><p style="color:#fff;font-size:14px;margin:8px 0 0;">${lb}</p></div></div>`;
+            return applyDisplay(promoHtml, display, size);
         }
-        case 'degrade':
-            return `<div style="padding:4px;background:linear-gradient(135deg,#f5a623,#2ecc71,#3498db);border-radius:24px;margin-bottom:24px;">${imgTag('width:100%;display:block;border-radius:20px;')}</div><p>&nbsp;</p>`;
-        case 'ronde':
-            return `<div style="text-align:center;margin:16px auto;">${imgTag('width:150px;height:150px;border-radius:50%;object-fit:cover;display:inline-block;')}${captFig}</div><p>&nbsp;</p>`;
-        case 'carre-ombre':
-            return `<div style="text-align:center;margin:16px auto;">${imgTag('width:200px;height:200px;object-fit:cover;border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,0.15);display:inline-block;')}${captFig}</div><p>&nbsp;</p>`;
-        case 'miniature': {
-            const mn = `<img src="${url}" alt="${alt}" width="250" height="250" loading="lazy">`;
-            return linkUrl ? `<a href="${linkUrl}" target="_blank" rel="noopener noreferrer">${mn}</a><p>&nbsp;</p>` : `${mn}<p>&nbsp;</p>`;
+        case 'degrade': {
+            const inner = `<div style="padding:4px;background:linear-gradient(135deg,#f5a623,#2ecc71,#3498db);border-radius:calc(${radius} + 4px);width:${size};">${imgTag(`width:100%;display:block;border-radius:${radius};`)}</div>`;
+            return applyDisplay(captFig ? `<figure style="margin:0;">${inner}${captFig}</figure>` : inner, display, size);
         }
-        case 'zoom-hover':
-            return `<div style="overflow:hidden;border-radius:${radius};display:inline-block;max-width:100%;">${imgTag(`display:block;width:${size};transition:transform 0.3s ease;" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'`)}</div><p>&nbsp;</p>`;
-        case 'fixed-height':
-            return `${imgTag(`width:100%;height:300px;object-fit:cover;object-position:center;display:block;border-radius:${radius};`)}<p>&nbsp;</p>`;
-        case 'sepia':
-            return `${imgTag(`filter:sepia(80%);display:block;max-width:100%;border-radius:${radius};`)}<p>&nbsp;</p>`;
-        case 'opaque':
-            return `${imgTag(`opacity:0.6;display:block;max-width:100%;border-radius:${radius};`)}<p>&nbsp;</p>`;
+        case 'ronde':       return figBlock(`width:${size};height:${size};border-radius:50%;object-fit:cover;display:block;`);
+        case 'carre-ombre': return figBlock(`width:${size};height:${size};object-fit:cover;border-radius:${radius};box-shadow:0 4px 16px rgba(0,0,0,0.15);display:block;`);
+        case 'miniature':   return figBlock(`width:250px;height:250px;object-fit:cover;`);
+        case 'zoom-hover': {
+            const inner = `<div style="overflow:hidden;border-radius:${radius};width:${size};">${imgTag(`display:block;width:100%;transition:transform 0.3s ease;" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'`)}</div>`;
+            return applyDisplay(captFig ? `<figure style="margin:0;">${inner}${captFig}</figure>` : inner, display, size);
+        }
+        case 'fixed-height': return figBlock(`width:100%;height:300px;object-fit:cover;object-position:center;display:block;border-radius:${radius};`);
+        case 'sepia':        return figBlock(`filter:sepia(80%);display:block;width:${size};border-radius:${radius};`);
+        case 'opaque':       return figBlock(`opacity:0.6;display:block;width:${size};border-radius:${radius};`);
 
-        /* ─── INSTAGRAM ─────────────────────────────────────── */
+        // ─── INSTAGRAM ───
         case 'instagram': {
             const iu = document.getElementById('img-insta-url').value.trim() || 'URLINSTA';
             const nm = document.getElementById('img-insta-nom').value.trim() || 'NomMarchand';
             return `<div style="text-align:center;margin:20px auto;"><a href="${iu}" rel="nofollow noreferrer" target="_blank" style="display:inline-flex;align-items:center;gap:10px;text-decoration:none;color:#E1306C;font-family:sans-serif;font-size:15px;font-weight:600;"><img src="https://img.grouponcdn.com/editorial/Q6qS1c4xBikscgJTzmXff1/logo-instagram-550x550" alt="Instagram" style="width:32px;height:32px;display:inline-block;vertical-align:middle;"><span>${nm}</span></a></div><p>&nbsp;</p>`;
         }
 
-        /* ─── GALERIE ───────────────────────────────────────── */
+        // ─── GALERIE ───
         case 'galerie': {
             const cols   = document.getElementById('galerie-cols').value;
             const gap    = document.getElementById('galerie-gap').value;
@@ -679,9 +705,9 @@ function buildImageSnippet(fmt, url) {
     }
 }
 
-// ══════════════════════════════════════════════════════════════
+// ============================================================
 // INSERTION MEDIA
-// ══════════════════════════════════════════════════════════════
+// ============================================================
 function insertMedia(type) {
     if (type === 'image') {
         const fmt = document.getElementById('img-format').value;
@@ -704,7 +730,7 @@ function insertMedia(type) {
         insertHtmlAtCursor(snippet);
         return;
     }
-    // ── Vidéo ──────────────────────────────────────────────────
+    // ── Vidéo ────────────────────────────────────────
     const align   = document.getElementById('vid-align').value;
     const url     = document.getElementById('vid-url').value;
     const rawText = document.getElementById('vid-text').value;
@@ -735,9 +761,9 @@ function insertMedia(type) {
     insertHtmlAtCursor(snippet);
 }
 
-// ══════════════════════════════════════════════════════════════
+// ============================================================
 // SYNC ÉDITEUR
-// ══════════════════════════════════════════════════════════════
+// ============================================================
 const visualEditor  = document.getElementById('visual-editor');
 const htmlOutput    = document.getElementById('html-output');
 const previewOutput = document.getElementById('preview-output');
