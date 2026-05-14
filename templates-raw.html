@@ -1,66 +1,77 @@
 <!-- Raw HTML templates reference for Semantic Pro Editor -->
 <!-- File: templates-raw.html -->
+<!-- Inventaire complet synchronisé depuis templates.js + index.html -->
 
-<!-- Template: menu-toggle (Menu Toggle / Carte de Restaurant) -->
-<div style="max-width:500px;margin:30px auto;border-radius:15px;padding:30px;box-shadow:0 6px 20px rgba(0,0,0,0.1);text-align:center;">
+<!-- ============================================================ -->
+<!-- Template: menu-toggle (Menu Toggle / Carte de Restaurant)    -->
+<!-- Source: templates.js > mesModelesExternes[0]                 -->
+<!-- ============================================================ -->
+<div style="max-width:500px;margin:30px auto;border-radius:15px;padding:30px;box-shadow:0 6px 20px rgba(0,0,0,0.15);text-align:center;background-color:var(--panel-bg, #ffffff);color:var(--text-color, #212529);border:1px solid var(--border-color, #dee2e6);">
 
-    <img src="https://img.grouponcdn.com/editorial/2AfJKw1YvJz2ZXUdaaxTWJFfx4M2/local-menu-groupon-6000x3375" alt="Carte du menu" style="width:25%;display:block;margin:0 auto 10px;">
+<img src="https://img.grouponcdn.com/editorial/2AfJKw1YvJz2ZXUdaaxTWJFfx4M2/local-menu-groupon-6000x3375" alt="Carte du menu" style="width:25%;display:block;margin:0 auto 10px;">
 
-    <details>
-        <summary style="cursor:pointer; font-size:14px; color:#888; margin:0 auto 10px; width:max-content;">
-              Voir / Masquer la carte
-        </summary>
+<details>
+<summary style="cursor:pointer; font-size:14px; color:var(--text-color, #555); margin:0 auto 10px; width:max-content;">
+      Voir / Masquer la carte
+</summary>
 
-        <div style="margin-top:20px;text-align:center;">
+<div style="margin-top:20px;text-align:center;">
 
-            <p style="margin:0 0 20px 0;"><strong>À la carte</strong></p>
+<p style="margin:0 0 20px 0;"><strong>À la carte</strong></p>
 
-            <p><strong>Entrées au choix</strong></p>
-            <p><em>xxx</em></p>
-            <p><em>xxx</em></p>
-            <p><em>xxx</em></p>
+<p><strong>Entrées au choix</strong></p>
+<p><em>xxx</em></p>
+<p><em>xxx</em></p>
+<p><em>xxx</em></p>
 
-            <p style="margin:18px 0;color:#888;"><strong>...</strong></p>
+<p style="margin:18px 0;opacity:0.6;"><strong>...</strong></p>
 
-            <p><strong>Plats au choix</strong></p>
-            <p><em>xxx</em></p>
-            <p><em>xxx</em></p>
-            <p><em>xxx</em></p>
+<p><strong>Plats au choix</strong></p>
+<p><em>xxx</em></p>
+<p><em>xxx</em></p>
+<p><em>xxx</em></p>
 
-            <p style="margin:18px 0;color:#888;"><strong>...</strong></p>
+<p style="margin:18px 0;opacity:0.6;"><strong>...</strong></p>
 
-            <p><strong>Desserts au choix</strong></p>
-            <p><em>xxx</em></p>
-            <p><em>xxx</em></p>
-            <p><em>xxx</em></p>
+<p><strong>Desserts au choix</strong></p>
+<p><em>xxx</em></p>
+<p><em>xxx</em></p>
+<p><em>xxx</em></p>
 
-            <p style="margin:18px 0;color:#888;"><strong>...</strong></p>
+<p style="margin:18px 0;opacity:0.6;"><strong>...</strong></p>
 
-            <p><strong>Fromages au choix</strong></p>
-            <p><em>xxx</em></p>
-            <p><em>xxx</em></p>
-            <p><em>xxx</em></p>
+<p><strong>Fromages au choix</strong></p>
+<p><em>xxx</em></p>
+<p><em>xxx</em></p>
+<p><em>xxx</em></p>
 
-            <div style="border-bottom:1px solid #e0e0e0;margin:25px 50px;"></div>
+<div style="border-bottom:1px solid var(--border-color, #e0e0e0);margin:25px 50px;"></div>
 
-            <p style="font-size:12px;color:#888;font-style:italic;">Les plats sont susceptibles de varier selon le marché, la saison et l'humeur du chef. Le cas échéant, ils sont remplacés par des produits de gamme et de qualité équivalentes.</p>
+<p style="font-size:12px;opacity:0.6;font-style:italic;">Les plats sont susceptibles de varier selon le marché, la saison et l'humeur du chef. Le cas échéant, ils sont remplacés par des produits de gamme et de qualité équivalentes.</p>
 
-        </div>
-    </details>
+</div>
+</details>
 
 </div>
 <p>&nbsp;</p>
 
-<!-- Template: faq-accordeon (Question FAQ déroulante) -->
-<details style="background-color: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 10px; border: 1px solid #ddd;">
-    <summary style="font-weight: bold; cursor: pointer; color: #333;">Cliquez ici pour lire la question ?</summary>
-    <div style="margin-top: 10px; padding-top: 10px; border-top: 1px dashed #ccc; color: #555;">
+<!-- ============================================================ -->
+<!-- Template: faq-accordeon (Question FAQ déroulante)           -->
+<!-- Source: templates.js > mesModelesExternes[1]                 -->
+<!-- ============================================================ -->
+<details style="background-color:var(--header-bg, #f9f9f9); padding: 15px; border-radius: 8px; margin-bottom: 10px; border: 1px solid var(--border-color, #ddd);">
+    <summary style="font-weight: bold; cursor: pointer; color: var(--text-color, #333);">Cliquez ici pour lire la question ?</summary>
+    <div style="margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--border-color, #ccc); color: var(--text-color, #555);">
         <p style="margin: 0; text-align: justify;">Voici la réponse détaillée à la question. Vous pouvez la modifier directement dans l'éditeur visuel.</p>
     </div>
 </details>
 <p>&nbsp;</p>
 
-<!-- Template: toggle-liste-options-details (Toggle - Liste des options avec détails) -->
+<!-- ============================================================ -->
+<!-- Template: toggle-liste-options-details                       -->
+<!-- (Toggle - Liste des options avec détails)                    -->
+<!-- Source: templates.js > mesModelesExternes[2]                 -->
+<!-- ============================================================ -->
 <ul style="list-style-type: none;">
   <li>
     <details>
@@ -95,12 +106,107 @@
 </ul>
 <p>&nbsp;</p>
 
-<!-- Template: bouton-action (Bouton d’appel à l’action) -->
+<!-- ============================================================ -->
+<!-- Template: bouton-action (Bouton d'appel à l'action)          -->
+<!-- Source: templates.js > mesModelesExternes[3]                 -->
+<!-- ============================================================ -->
 <div style="text-align: center; margin: 25px 0;">
     <a href="#" style="background-color: #0d6efd; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold; font-family: sans-serif; display: inline-block;">CLIQUEZ ICI</a>
 </div>
 <p>&nbsp;</p>
 
-<!-- Placeholders for future templates from templates.js -->
-<!-- Template slot 1 (currently empty in templates.js) -->
-<!-- Template slot 2 (currently empty in templates.js) -->
+<!-- ============================================================ -->
+<!-- Templates générés dynamiquement par index.html               -->
+<!-- (construits via JS, non-stockés en HTML brut)                -->
+<!-- ============================================================ -->
+
+<!-- Template: tableau (Insérer un tableau)                       -->
+<!-- Source: index.html > buildTableHtml() + table-modal          -->
+<!-- Style Notion (défaut) : bandeau gris, alternance lignes      -->
+<table style="border-collapse:collapse;width:100%;margin:16px 0;font-size:14px;">
+  <thead>
+    <tr>
+      <th style="padding:8px 10px;border:1px solid #e2e8f0;background:#f1f5f9;color:#0f172a;text-align:left;font-weight:600;">Colonne 1</th>
+      <th style="padding:8px 10px;border:1px solid #e2e8f0;background:#f1f5f9;color:#0f172a;text-align:left;font-weight:600;">Colonne 2</th>
+      <th style="padding:8px 10px;border:1px solid #e2e8f0;background:#f1f5f9;color:#0f172a;text-align:left;font-weight:600;">Colonne 3</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="">
+      <td style="padding:8px 10px;border:1px solid #e2e8f0;color:#0f172a;text-align:left;"></td>
+      <td style="padding:8px 10px;border:1px solid #e2e8f0;color:#0f172a;text-align:left;"></td>
+      <td style="padding:8px 10px;border:1px solid #e2e8f0;color:#0f172a;text-align:left;"></td>
+    </tr>
+    <tr style="background:#f9fafb;">
+      <td style="padding:8px 10px;border:1px solid #e2e8f0;color:#0f172a;text-align:left;"></td>
+      <td style="padding:8px 10px;border:1px solid #e2e8f0;color:#0f172a;text-align:left;"></td>
+      <td style="padding:8px 10px;border:1px solid #e2e8f0;color:#0f172a;text-align:left;"></td>
+    </tr>
+    <tr style="">
+      <td style="padding:8px 10px;border:1px solid #e2e8f0;color:#0f172a;text-align:left;"></td>
+      <td style="padding:8px 10px;border:1px solid #e2e8f0;color:#0f172a;text-align:left;"></td>
+      <td style="padding:8px 10px;border:1px solid #e2e8f0;color:#0f172a;text-align:left;"></td>
+    </tr>
+  </tbody>
+</table>
+<p>&nbsp;</p>
+
+<!-- Template: tableau compact (Style compact)                     -->
+<!-- Source: index.html > buildTableHtml() styleKey='compact'     -->
+<table style="border-collapse:collapse;width:100%;margin:16px 0;font-size:14px;">
+  <thead>
+    <tr>
+      <th style="padding:6px 8px;border:1px solid #d4d4d8;background:#f4f4f5;color:#18181b;font-weight:600;">Colonne 1</th>
+      <th style="padding:6px 8px;border:1px solid #d4d4d8;background:#f4f4f5;color:#18181b;font-weight:600;">Colonne 2</th>
+      <th style="padding:6px 8px;border:1px solid #d4d4d8;background:#f4f4f5;color:#18181b;font-weight:600;">Colonne 3</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="padding:6px 8px;border:1px solid #e4e4e7;color:#18181b;"></td>
+      <td style="padding:6px 8px;border:1px solid #e4e4e7;color:#18181b;"></td>
+      <td style="padding:6px 8px;border:1px solid #e4e4e7;color:#18181b;"></td>
+    </tr>
+    <tr>
+      <td style="padding:6px 8px;border:1px solid #e4e4e7;color:#18181b;"></td>
+      <td style="padding:6px 8px;border:1px solid #e4e4e7;color:#18181b;"></td>
+      <td style="padding:6px 8px;border:1px solid #e4e4e7;color:#18181b;"></td>
+    </tr>
+    <tr>
+      <td style="padding:6px 8px;border:1px solid #e4e4e7;color:#18181b;"></td>
+      <td style="padding:6px 8px;border:1px solid #e4e4e7;color:#18181b;"></td>
+      <td style="padding:6px 8px;border:1px solid #e4e4e7;color:#18181b;"></td>
+    </tr>
+  </tbody>
+</table>
+<p>&nbsp;</p>
+
+<!-- Template: tableau zébré (Style zebra)                        -->
+<!-- Source: index.html > buildTableHtml() styleKey='zebra'       -->
+<table style="border-collapse:collapse;width:100%;margin:16px 0;font-size:14px;">
+  <thead>
+    <tr>
+      <th style="padding:8px 10px;border-bottom:2px solid #e2e8f0;background:#f9fafb;color:#111827;font-weight:600;">Colonne 1</th>
+      <th style="padding:8px 10px;border-bottom:2px solid #e2e8f0;background:#f9fafb;color:#111827;font-weight:600;">Colonne 2</th>
+      <th style="padding:8px 10px;border-bottom:2px solid #e2e8f0;background:#f9fafb;color:#111827;font-weight:600;">Colonne 3</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="">
+      <td style="padding:8px 10px;border-bottom:1px solid #e5e7eb;color:#111827;"></td>
+      <td style="padding:8px 10px;border-bottom:1px solid #e5e7eb;color:#111827;"></td>
+      <td style="padding:8px 10px;border-bottom:1px solid #e5e7eb;color:#111827;"></td>
+    </tr>
+    <tr style="background:#f9fafb;">
+      <td style="padding:8px 10px;border-bottom:1px solid #e5e7eb;color:#111827;"></td>
+      <td style="padding:8px 10px;border-bottom:1px solid #e5e7eb;color:#111827;"></td>
+      <td style="padding:8px 10px;border-bottom:1px solid #e5e7eb;color:#111827;"></td>
+    </tr>
+    <tr style="">
+      <td style="padding:8px 10px;border-bottom:1px solid #e5e7eb;color:#111827;"></td>
+      <td style="padding:8px 10px;border-bottom:1px solid #e5e7eb;color:#111827;"></td>
+      <td style="padding:8px 10px;border-bottom:1px solid #e5e7eb;color:#111827;"></td>
+    </tr>
+  </tbody>
+</table>
+<p>&nbsp;</p>
