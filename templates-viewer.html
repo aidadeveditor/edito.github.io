@@ -185,6 +185,9 @@
 
 <main class="content-area">
 
+  <!-- ═══════════════════════════════════════════════
+       Template 1 : menu-toggle
+  ════════════════════════════════════════════════ -->
   <div class="tab-panel active" id="p-menu" role="tabpanel" aria-labelledby="t-menu">
     <div class="tcard">
       <div class="tcard-header">
@@ -212,6 +215,9 @@
     </div>
   </div>
 
+  <!-- ═══════════════════════════════════════════════
+       Template 2 : faq-accordeon
+  ════════════════════════════════════════════════ -->
   <div class="tab-panel" id="p-faq" role="tabpanel" aria-labelledby="t-faq">
     <div class="tcard">
       <div class="tcard-header">
@@ -239,6 +245,9 @@
     </div>
   </div>
 
+  <!-- ═══════════════════════════════════════════════
+       Template 3 : toggle-liste-options-details
+  ════════════════════════════════════════════════ -->
   <div class="tab-panel" id="p-toggle" role="tabpanel" aria-labelledby="t-toggle">
     <div class="tcard">
       <div class="tcard-header">
@@ -266,6 +275,9 @@
     </div>
   </div>
 
+  <!-- ═══════════════════════════════════════════════
+       Template 4 : bouton-action
+  ════════════════════════════════════════════════ -->
   <div class="tab-panel" id="p-bouton" role="tabpanel" aria-labelledby="t-bouton">
     <div class="tcard">
       <div class="tcard-header">
@@ -317,7 +329,13 @@ document.querySelectorAll('.tab-btn').forEach(btn=>{
   });
 });
 
+/* ─────────────────────────────────────────────
+   TEMPLATES — source: templates-raw.html
+   Tous les templates présents dans le fichier raw
+   sont enregistrés ici avec leur ID exact.
+───────────────────────────────────────────── */
 const T={
+
 'menu-toggle':`<div style="max-width:500px;margin:30px auto;border-radius:15px;padding:30px;box-shadow:0 6px 20px rgba(0,0,0,0.1);text-align:center;">
 
     <img src="https://img.grouponcdn.com/editorial/2AfJKw1YvJz2ZXUdaaxTWJFfx4M2/local-menu-groupon-6000x3375" alt="Carte du menu" style="width:25%;display:block;margin:0 auto 10px;">
@@ -359,7 +377,7 @@ const T={
 
             <div style="border-bottom:1px solid #e0e0e0;margin:25px 50px;"></div>
 
-            <p style="font-size:12px;color:#888;font-style:italic;">Les plats sont susceptibles de varier selon le march\u00e9, la saison et l'humeur du chef. Le cas \u00e9ch\u00e9ant, ils sont remplac\u00e9s par des produits de gamme et de qualit\u00e9 \u00e9quivalentes.</p>
+            <p style="font-size:12px;color:#888;font-style:italic;">Les plats sont susceptibles de varier selon le march\u00e9, la saison et l\u2019humeur du chef. Le cas \u00e9ch\u00e9ant, ils sont remplac\u00e9s par des produits de gamme et de qualit\u00e9 \u00e9quivalentes.</p>
 
         </div>
     </details>
@@ -370,7 +388,7 @@ const T={
 'faq-accordeon':`<details style="background-color: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 10px; border: 1px solid #ddd;">
     <summary style="font-weight: bold; cursor: pointer; color: #333;">Cliquez ici pour lire la question ?</summary>
     <div style="margin-top: 10px; padding-top: 10px; border-top: 1px dashed #ccc; color: #555;">
-        <p style="margin: 0; text-align: justify;">Voici la r\u00e9ponse d\u00e9taill\u00e9e \u00e0 la question. Vous pouvez la modifier directement dans l'\u00e9diteur visuel.</p>
+        <p style="margin: 0; text-align: justify;">Voici la r\u00e9ponse d\u00e9taill\u00e9e \u00e0 la question. Vous pouvez la modifier directement dans l\u2019\u00e9diteur visuel.</p>
     </div>
 </details>
 <p>&nbsp;</p>`,
@@ -413,6 +431,7 @@ const T={
     <a href="#" style="background-color: #0d6efd; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold; font-family: sans-serif; display: inline-block;">CLIQUEZ ICI</a>
 </div>
 <p>&nbsp;</p>`
+
 };
 
 Object.entries(T).forEach(([k,v])=>{
@@ -428,7 +447,7 @@ document.querySelectorAll('.copy-btn').forEach(btn=>{
     navigator.clipboard.writeText(T[k]||'').then(()=>{
       const orig=btn.innerHTML;
       btn.classList.add('copied');
-      btn.innerHTML='<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Copi\u00e9 !';
+      btn.innerHTML='<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Copi\u00e9\u00a0!';
       setTimeout(()=>{btn.classList.remove('copied');btn.innerHTML=orig;},2000);
     });
   });
