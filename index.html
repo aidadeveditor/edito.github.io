@@ -98,6 +98,7 @@
     <button onmousedown="event.preventDefault(); formatText('insertUnorderedList');" title="Liste à puces">Liste</button>
     <button onmousedown="event.preventDefault(); formatText('indent');" title="Créer une sous-liste">➡️ Sous-liste</button>
     <button onmousedown="event.preventDefault(); formatText('outdent');" title="Annuler la sous-liste">⬅️ Retour</button>
+    <button onmousedown="event.preventDefault(); event.stopPropagation(); document.getElementById('table-modal').showModal();" title="Insérer un tableau">🧾 Tableau</button>
 </div>
 
 <main>
@@ -132,11 +133,46 @@
     <h3>Importer du Markdown</h3>
     <p style="font-size:0.9em;color:#666;margin-top:0;">Collez votre code Markdown ci-dessous.</p>
     <div class="form-group">
-        <textarea id="md-input" rows="10" placeholder="## Titre\n\n- Élément 1" style="font-family:monospace;"></textarea>
+        <textarea id="md-input" rows="10" placeholder="## Titre
+
+- Élément 1" style="font-family:monospace;"></textarea>
     </div>
     <div class="dialog-buttons">
         <button class="btn-secondary" onclick="closeModal('markdown-modal')">Annuler</button>
         <button onclick="importMarkdown()">Convertir &amp; Insérer</button>
+    </div>
+</dialog>
+
+<!-- MODALE TABLEAU -->
+<dialog id="table-modal">
+    <h3>Insérer un tableau</h3>
+    <p style="font-size:0.9em;color:#666;margin-top:0;">Choisissez la structure du tableau, puis remplissez les entêtes. Les cellules resteront vides pour édition dans Tiptap.</p>
+    <div class="form-group">
+        <label>Nombre de colonnes :</label>
+        <input type="number" id="tbl-cols" value="3" min="1" max="8">
+    </div>
+    <div class="form-group">
+        <label>Nombre de lignes (hors entête) :</label>
+        <input type="number" id="tbl-rows" value="3" min="1" max="20">
+    </div>
+    <div class="form-group">
+        <label><input type="checkbox" id="tbl-has-header" checked> Première ligne en entête (&lt;thead&gt;)</label>
+    </div>
+    <div class="form-group">
+        <label>Style :</label>
+        <select id="tbl-style">
+            <option value="notion">Tableau type Notion (bandeau gris, alternance lignes)</option>
+            <option value="compact">Compact (borders fines)</option>
+            <option value="zebra">Zébré simple</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label>Entêtes de colonnes (séparées par |) :</label>
+        <input type="text" id="tbl-headers" placeholder="Colonne 1 | Colonne 2 | Colonne 3">
+    </div>
+    <div class="dialog-buttons">
+        <button class="btn-secondary" onclick="closeModal('table-modal')">Annuler</button>
+        <button onclick="insertTableFromModal()">Insérer le tableau</button>
     </div>
 </dialog>
 
@@ -325,6 +361,63 @@
 </dialog>
 
 <script>
+// ============================================================
+// TABLEAUX : génération HTML pour Tiptap
+// ============================================================
+function buildTableHtml(cols, rows, headersLine, withHeader, styleKey) {
+    cols = Math.max(1, parseInt(cols) || 1);
+    rows = Math.max(1, parseInt(rows) || 1);
+    const headers = (headersLine || '').split('|').map(h => h.trim());
+
+    let tableStyle = 'border-collapse:collapse;width:100%;margin:16px 0;font-size:14px;';
+    let thStyle = 'padding:8px 10px;border:1px solid #e2e8f0;background:#f1f5f9;color:#0f172a;text-align:left;font-weight:600;';
+    let tdStyle = 'padding:8px 10px;border:1px solid #e2e8f0;color:#0f172a;text-align:left;';
+    let zebra = false;
+
+    if (styleKey === 'compact') {
+        thStyle = 'padding:6px 8px;border:1px solid #d4d4d8;background:#f4f4f5;color:#18181b;font-weight:600;';
+        tdStyle = 'padding:6px 8px;border:1px solid #e4e4e7;color:#18181b;';
+    } else if (styleKey === 'zebra') {
+        zebra = true;
+        thStyle = 'padding:8px 10px;border-bottom:2px solid #e2e8f0;background:#f9fafb;color:#111827;font-weight:600;';
+        tdStyle = 'padding:8px 10px;border-bottom:1px solid #e5e7eb;color:#111827;';
+    }
+
+    let html = `<table style="${tableStyle}">`;
+
+    if (withHeader) {
+        html += '<thead><tr>';
+        for (let c = 0; c < cols; c++) {
+            const label = headers[c] || `Colonne ${c + 1}`;
+            html += `<th style="${thStyle}">${label}</th>`;
+        }
+        html += '</tr></thead>';
+    }
+
+    html += '<tbody>';
+    for (let r = 0; r < rows; r++) {
+        const rowStyle = zebra && (r % 2 === 1) ? 'background:#f9fafb;' : '';
+        html += `<tr style="${rowStyle}">`;
+        for (let c = 0; c < cols; c++) {
+            html += `<td style="${tdStyle}"></td>`;
+        }
+        html += '</tr>';
+    }
+    html += '</tbody></table><p>&nbsp;</p>';
+    return html;
+}
+
+function insertTableFromModal() {
+    const cols = document.getElementById('tbl-cols').value;
+    const rows = document.getElementById('tbl-rows').value;
+    const headersLine = document.getElementById('tbl-headers').value;
+    const withHeader = document.getElementById('tbl-has-header').checked;
+    const styleKey = document.getElementById('tbl-style').value;
+    const html = buildTableHtml(cols, rows, headersLine, withHeader, styleKey);
+    closeModal('table-modal');
+    insertHtmlAtCursor(html);
+}
+
 // ============================================================
 // FORMATS SPECIAUX : pas d'options universelles
 // FORMATS SANS DISPLAY : ont leurs propres règles d'alignement
@@ -623,7 +716,7 @@ function buildImageSnippet(fmt, url) {
         case 'css-polygon':          return figBlock(`width:${size};clip-path:polygon(0 10%, 100% 0, 100% 90%, 0 100%);`);
         case 'css-losange':          return figBlock(`width:${size};height:${size};object-fit:cover;clip-path:polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);`);
         case 'css-dessous':          return figBlock(`width:${size};clip-path:ellipse(100% 85% at 50% 15%);`);
-        case 'css-hexagone':         return figBlock(`width:${size};height:${size};object-fit:cover;clip-path:polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);`);
+        case 'css-hexagone':         return figBlock(`width:${size};height:${size};object-fit:cover;clip-path:polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0 50%);`);
         case 'css-ecran':            return figBlock(`width:${size};border-radius:10px;clip-path:polygon(0% 10%, 100% 0%, 100% 100%, 0% 100%);`);
         case 'css-grise':            return figBlock(`width:${size};filter:grayscale(90%);`);
 
@@ -676,4 +769,156 @@ function buildImageSnippet(fmt, url) {
             const urls   = [...document.querySelectorAll('#galerie-urls-container input')].map(i=>i.value.trim()).filter(Boolean);
             if (!urls.length) return '';
             const colsMob = Math.min(2, parseInt(cols));
-            return `<div style="display:grid;grid-template-columns:repeat(${cols},1fr);gap:${gap};margin-bottom:24px;"><!-- responsive: passez à repeat(${colsMob},1fr) sur mobile -->${urls.map(u=>`\n  <img src="${u}" alt="" style="width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:${gr};display:block;" loading="lazy">`).join('`}},
+            return `<div style="display:grid;grid-template-columns:repeat(${cols},1fr);gap:${gap};margin-bottom:24px;"><!-- responsive: passez à repeat(${colsMob},1fr) sur mobile -->${urls.map(u=>`\n  <img src="${u}" alt="" style="width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:${gr};display:block;" loading="lazy">`).join('')}
+</div><p>&nbsp;</p>`;
+        }
+    }
+    return '';
+}
+
+// ============================================================
+// EDITION / SYNCHRO VISUEL ↔ HTML ↔ PREVIEW
+// ============================================================
+function updateFromVisual() {
+    const visual = document.getElementById('visual-editor');
+    const htmlOutput = document.getElementById('html-output');
+    const preview = document.getElementById('preview-output');
+    const content = visual.innerHTML;
+    htmlOutput.value = content;
+    preview.innerHTML = content;
+    saveToLocalStorage(content);
+}
+
+function copyHtml() {
+    const html = document.getElementById('html-output').value;
+    if (!html.trim()) return;
+    navigator.clipboard.writeText(html).then(() => {
+        const s = document.getElementById('save-status');
+        s.textContent = '✓ Copié';
+        s.style.opacity = '1';
+        clearTimeout(window._copyTimeout);
+        window._copyTimeout = setTimeout(() => { s.textContent = '✓ Sauvegardé'; s.style.opacity = '0'; }, 1500);
+    });
+}
+
+function insertHtmlAtCursor(html) {
+    const sel = window.getSelection();
+    if (!sel || sel.rangeCount === 0) {
+        document.getElementById('visual-editor').insertAdjacentHTML('beforeend', html);
+        updateFromVisual();
+        return;
+    }
+    const range = sel.getRangeAt(0);
+    range.deleteContents();
+    const temp = document.createElement('div');
+    temp.innerHTML = html;
+    const frag = document.createDocumentFragment();
+    let node, lastNode;
+    while ((node = temp.firstChild)) {
+        lastNode = frag.appendChild(node);
+    }
+    range.insertNode(frag);
+    if (lastNode) {
+        range.setStartAfter(lastNode);
+        range.collapse(true);
+        sel.removeAllRanges();
+        sel.addRange(range);
+    }
+    updateFromVisual();
+}
+
+function setDeviceView(cls) {
+    const preview = document.getElementById('preview-output');
+    preview.classList.remove('mobile-view','tablet-view','desktop-view');
+    preview.classList.add(cls);
+}
+
+function toggleTheme() {
+    const preview = document.getElementById('preview-output');
+    const btn = document.getElementById('theme-toggle');
+    if (preview.classList.contains('theme-light')) {
+        preview.classList.remove('theme-light');
+        preview.classList.add('theme-dark');
+        btn.textContent = '🌞 Thème';
+    } else {
+        preview.classList.remove('theme-dark');
+        preview.classList.add('theme-light');
+        btn.textContent = '🌓 Thème';
+    }
+}
+
+document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
+
+const visualEditor = document.getElementById('visual-editor');
+['input','keyup','blur','paste'].forEach(evt => {
+    visualEditor.addEventListener(evt, () => {
+        setTimeout(updateFromVisual, 0);
+    });
+});
+
+window.addEventListener('load', () => {
+    try {
+        const saved = localStorage.getItem('editor_saved_data');
+        if (saved) {
+            document.getElementById('visual-editor').innerHTML = saved;
+            updateFromVisual();
+        }
+    } catch(e) {}
+});
+
+function formatText(cmd, value = null) {
+    if (cmd === 'formatBlock') {
+        document.execCommand('formatBlock', false, value);
+    } else {
+        document.execCommand(cmd, false, value);
+    }
+    updateFromVisual();
+}
+
+function insertMedia(type) {
+    let html = '';
+    if (type === 'image') {
+        const fmt = document.getElementById('img-format').value;
+        const url = fmt === 'instagram' || fmt === 'galerie'
+            ? ''
+            : document.getElementById('img-url').value.trim();
+        if (!url && fmt !== 'instagram' && fmt !== 'galerie') {
+            alert('Merci de renseigner une URL d\'image.');
+            return;
+        }
+        html = buildImageSnippet(fmt, url);
+        closeModal('image-modal');
+    } else if (type === 'video') {
+        const url = document.getElementById('vid-url').value.trim();
+        if (!url) { alert('Merci de renseigner une URL de vidéo.'); return; }
+        const alt = document.getElementById('vid-alt').value || 'Vidéo';
+        const caption = document.getElementById('vid-caption').value || '';
+        const size = document.getElementById('vid-size').value || '100%';
+        const radius = document.getElementById('vid-radius').value || '8px';
+        const align = document.getElementById('vid-align').value;
+        const autoplay = document.getElementById('vid-autoplay').checked;
+        const rawText = document.getElementById('vid-text').value;
+        const txt = rawText.trim()
+            ? rawText.split('\n').filter(p=>p.trim()).map(p=>`<p style="margin:0 0 10px;">${p}</p>`).join('')
+            : '';
+        const yt = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
+        const autoplayParams = autoplay ? '?autoplay=1&mute=1' : '';
+        const media = yt
+            ? `<iframe title="${alt}" style="width:100%;aspect-ratio:16/9;border-radius:${radius};" src="https://www.youtube-nocookie.com/embed/${yt[1]}${autoplayParams}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`
+            : `<video src="${url}" title="${alt}" style="width:100%;border-radius:${radius};" ${autoplay ? 'autoplay muted loop' : 'controls'}></video>`;
+        const fig = caption
+            ? `<figure style="margin:0;">${media}<figcaption style="font-size:13px;color:#64748b;text-align:center;margin-top:6px;">${caption}</figcaption></figure>`
+            : media;
+        if (align === 'center') {
+            html = `<div style="text-align:center;margin:16px 0;"><div style="display:inline-block;width:${size};max-width:100%;">${fig}</div>${txt}</div><p>&nbsp;</p>`;
+        } else {
+            const isRight = align === 'right';
+            html = `<div style="display:flex;flex-wrap:wrap;gap:16px;margin:16px 0;flex-direction:${isRight ? 'row-reverse' : 'row'};"><div style="flex:1 1 ${size};min-width:220px;">${fig}</div><div style="flex:1 1 220px;font-size:15px;line-height:1.7;color:#333;">${txt || '<p>Votre texte descriptif ici.</p>'}</div></div><p>&nbsp;</p>`;
+        }
+        closeModal('video-modal');
+    }
+    insertHtmlAtCursor(html);
+}
+</script>
+</body>
+</html>
