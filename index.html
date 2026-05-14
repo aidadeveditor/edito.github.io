@@ -89,11 +89,12 @@
     <button onmousedown="event.preventDefault(); formatText('italic');" title="Italique"><i>I</i></button>
     <button onmousedown="event.preventDefault(); formatText('underline');" title="Souligné"><u>U</u></button>
     <span style="border-left:1px solid #ccc;margin:0 8px;"></span>
-    <button onmousedown="event.preventDefault(); formatText('formatBlock','H1');">H1</button>
-    <button onmousedown="event.preventDefault(); formatText('formatBlock','H2');">H2</button>
-    <button onmousedown="event.preventDefault(); formatText('formatBlock','H3');">H3</button>
-    <button onmousedown="event.preventDefault(); formatText('formatBlock','H4');">H4</button>
-    <button onmousedown="event.preventDefault(); formatText('formatBlock','P');" title="Paragraphe normal">P</button>
+    <!-- FIX: formatBlock en minuscules pour compatibilité Chrome/Edge -->
+    <button onmousedown="event.preventDefault(); formatText('formatBlock','h1');">H1</button>
+    <button onmousedown="event.preventDefault(); formatText('formatBlock','h2');">H2</button>
+    <button onmousedown="event.preventDefault(); formatText('formatBlock','h3');">H3</button>
+    <button onmousedown="event.preventDefault(); formatText('formatBlock','h4');">H4</button>
+    <button onmousedown="event.preventDefault(); formatText('formatBlock','p');" title="Paragraphe normal">P</button>
     <span style="border-left:1px solid #ccc;margin:0 8px;"></span>
     <button onmousedown="event.preventDefault(); formatText('insertUnorderedList');" title="Liste à puces">Liste</button>
     <button onmousedown="event.preventDefault(); formatText('indent');" title="Créer une sous-liste">➡️ Sous-liste</button>
@@ -133,9 +134,7 @@
     <h3>Importer du Markdown</h3>
     <p style="font-size:0.9em;color:#666;margin-top:0;">Collez votre code Markdown ci-dessous.</p>
     <div class="form-group">
-        <textarea id="md-input" rows="10" placeholder="## Titre
-
-- Élément 1" style="font-family:monospace;"></textarea>
+        <textarea id="md-input" rows="10" placeholder="## Titre&#10;&#10;- Élément 1" style="font-family:monospace;"></textarea>
     </div>
     <div class="dialog-buttons">
         <button class="btn-secondary" onclick="closeModal('markdown-modal')">Annuler</button>
@@ -407,6 +406,7 @@ function buildTableHtml(cols, rows, headersLine, withHeader, styleKey) {
     return html;
 }
 
+// FIX: focus sur l'éditeur avant fermeture de la modale pour conserver le range de sélection
 function insertTableFromModal() {
     const cols = document.getElementById('tbl-cols').value;
     const rows = document.getElementById('tbl-rows').value;
@@ -414,6 +414,7 @@ function insertTableFromModal() {
     const withHeader = document.getElementById('tbl-has-header').checked;
     const styleKey = document.getElementById('tbl-style').value;
     const html = buildTableHtml(cols, rows, headersLine, withHeader, styleKey);
+    document.getElementById('visual-editor').focus();
     closeModal('table-modal');
     insertHtmlAtCursor(html);
 }
@@ -436,7 +437,6 @@ const FORMAT_EXTRA = {
 
 const OPT_SPECIFIC_IDS = ['opt-text','opt-hero','opt-promo','opt-instagram','opt-galerie'];
 const OPT_SPECIFIC_MAP = { 'opt-text':'text','opt-hero':'hero','opt-promo':'promo','opt-instagram':'instagram','opt-galerie':'galerie' };
-// Options universelles sauf display (géré séparément)
 const OPT_UNIVERSAL_IDS = ['opt-alt','opt-caption','opt-link','opt-size','opt-radius'];
 
 function getDisplayValue() {
@@ -449,18 +449,13 @@ function onFormatChange() {
     const noDisplay = FORMATS_SANS_DISPLAY.has(fmt);
     const extra     = FORMAT_EXTRA[fmt] || {};
 
-    // URL image : masquée pour instagram et galerie
     document.getElementById('img-url-group').style.display = isSpecial ? 'none' : 'block';
-
-    // Display : masqué pour formats spéciaux ET float-left/float-right
     document.getElementById('opt-display').classList.toggle('show', !noDisplay);
 
-    // Autres options universelles : masquées seulement pour les formats spéciaux
     OPT_UNIVERSAL_IDS.forEach(id => {
         document.getElementById(id).classList.toggle('show', !isSpecial);
     });
 
-    // Options spécifiques
     OPT_SPECIFIC_IDS.forEach(id => {
         const key = OPT_SPECIFIC_MAP[id];
         document.getElementById(id).classList.toggle('show', !!extra[key]);
@@ -511,9 +506,13 @@ function openImageModal() {
     document.getElementById('image-modal').showModal();
 }
 
+// FIX: bouton Modèles désactivé visuellement si templates.js absent
 function openTemplates() {
-    if (typeof showTemplatesModal === 'function') showTemplatesModal();
-    else alert('Le fichier templates.js n\'est pas chargé.');
+    if (typeof showTemplatesModal === 'function') {
+        showTemplatesModal();
+    } else {
+        alert('Le fichier templates.js n\'est pas chargé.\nVeuillez ajouter <script src="templates.js"><\/script> dans le <head>.');
+    }
 }
 
 function saveToLocalStorage(content) {
@@ -541,12 +540,18 @@ function exportHtml() {
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
 }
 
+// FIX: fallback si marked n'est pas chargé (CDN inaccessible)
 function importMarkdown() {
     const txt = document.getElementById('md-input').value;
     if (!txt.trim()) { closeModal('markdown-modal'); return; }
+    if (typeof marked === 'undefined') {
+        alert('La librairie Marked n\'a pas pu être chargée (vérifiez votre connexion internet).');
+        return;
+    }
     const html = marked.parse(txt, { breaks: true, gfm: true });
     closeModal('markdown-modal');
     document.getElementById('md-input').value = '';
+    document.getElementById('visual-editor').focus();
     insertHtmlAtCursor(String(html));
 }
 
@@ -625,7 +630,6 @@ function buildImageSnippet(fmt, url) {
     const linkUrl = document.getElementById('img-link-url')?.value.trim() || '';
     const display = getDisplayValue();
 
-    // figcaption stylisé
     const captFig = caption
         ? `<figcaption style="font-size:13px;color:#64748b;text-align:center;margin-top:6px;font-style:italic;">${caption}</figcaption>`
         : '';
@@ -637,7 +641,6 @@ function buildImageSnippet(fmt, url) {
         if (!linkUrl) return inner;
         return `<a href="${linkUrl}" target="_blank" rel="noopener noreferrer" style="display:block;line-height:0;">${inner}</a>`;
     }
-    // Bloc image + légende + display universel
     function figBlock(imgStyle) {
         const img    = imgTag(imgStyle);
         const linked = withLink(img);
@@ -649,22 +652,18 @@ function buildImageSnippet(fmt, url) {
 
     switch (fmt) {
 
-        // ─── MISE EN PAGE ───
         case 'center':
         case 'left':
         case 'right':
             return figBlock(`width:${size};border-radius:${radius};display:block;`);
 
-        // ─── FLOAT : la légende est DANS la figure flottante, le texte à côté est indépendant
         case 'float-left': {
             const rawText = document.getElementById('img-text').value;
             const txt = rawText.trim()
                 ? rawText.split('\n').filter(p=>p.trim()).map(p=>`<p style="margin:0 0 10px;">${p}</p>`).join('')
                 : '<p>Votre texte descriptif ici.</p>';
-            const floatSide = 'left';
-            const floatStyle = `float:${floatSide};width:${size};margin:0 20px 12px 0;`;
+            const floatStyle = `float:left;width:${size};margin:0 20px 12px 0;`;
             const imgHtml = imgTag(`width:100%;border-radius:${radius};display:block;`);
-            // Légende intégrée dans la figure flottante
             const figHtml = captFig
                 ? `<figure style="${floatStyle}margin-bottom:0;">${imgHtml}${captFig}</figure>`
                 : `<figure style="${floatStyle}">${imgHtml}</figure>`;
@@ -697,7 +696,6 @@ function buildImageSnippet(fmt, url) {
             return applyDisplay(withLink(inner), display, size);
         }
 
-        // ─── FORMES CSS ───
         case 'css-normal':           return figBlock(`width:${size};`);
         case 'css-arrondis':         return figBlock(`width:${size};border-radius:25px;`);
         case 'css-arrondis-hb':      return figBlock(`width:${size};border-radius:50% / 30%;`);
@@ -720,7 +718,6 @@ function buildImageSnippet(fmt, url) {
         case 'css-ecran':            return figBlock(`width:${size};border-radius:10px;clip-path:polygon(0% 10%, 100% 0%, 100% 100%, 0% 100%);`);
         case 'css-grise':            return figBlock(`width:${size};filter:grayscale(90%);`);
 
-        // ─── STYLES GRAPHIQUES ───
         case 'hero': {
             const title    = document.getElementById('img-hero-title').value    || 'Titre principal';
             const subtitle = document.getElementById('img-hero-subtitle').value || 'Sous-titre · Détail · Lieu';
@@ -754,14 +751,12 @@ function buildImageSnippet(fmt, url) {
         case 'sepia':        return figBlock(`filter:sepia(80%);display:block;width:${size};border-radius:${radius};`);
         case 'opaque':       return figBlock(`opacity:0.6;display:block;width:${size};border-radius:${radius};`);
 
-        // ─── INSTAGRAM ───
         case 'instagram': {
             const iu = document.getElementById('img-insta-url').value.trim() || 'URLINSTA';
             const nm = document.getElementById('img-insta-nom').value.trim() || 'NomMarchand';
             return `<div style="text-align:center;margin:20px auto;"><a href="${iu}" rel="nofollow noreferrer" target="_blank" style="display:inline-flex;align-items:center;gap:10px;text-decoration:none;color:#E1306C;font-family:sans-serif;font-size:15px;font-weight:600;"><img src="https://img.grouponcdn.com/editorial/Q6qS1c4xBikscgJTzmXff1/logo-instagram-550x550" alt="Instagram" style="width:32px;height:32px;display:inline-block;vertical-align:middle;"><span>${nm}</span></a></div><p>&nbsp;</p>`;
         }
 
-        // ─── GALERIE ───
         case 'galerie': {
             const cols   = document.getElementById('galerie-cols').value;
             const gap    = document.getElementById('galerie-gap').value;
@@ -875,6 +870,7 @@ function formatText(cmd, value = null) {
     updateFromVisual();
 }
 
+// FIX: focus avant fermeture des modales image et vidéo
 function insertMedia(type) {
     let html = '';
     if (type === 'image') {
@@ -887,6 +883,7 @@ function insertMedia(type) {
             return;
         }
         html = buildImageSnippet(fmt, url);
+        document.getElementById('visual-editor').focus();
         closeModal('image-modal');
     } else if (type === 'video') {
         const url = document.getElementById('vid-url').value.trim();
@@ -915,6 +912,7 @@ function insertMedia(type) {
             const isRight = align === 'right';
             html = `<div style="display:flex;flex-wrap:wrap;gap:16px;margin:16px 0;flex-direction:${isRight ? 'row-reverse' : 'row'};"><div style="flex:1 1 ${size};min-width:220px;">${fig}</div><div style="flex:1 1 220px;font-size:15px;line-height:1.7;color:#333;">${txt || '<p>Votre texte descriptif ici.</p>'}</div></div><p>&nbsp;</p>`;
         }
+        document.getElementById('visual-editor').focus();
         closeModal('video-modal');
     }
     insertHtmlAtCursor(html);
