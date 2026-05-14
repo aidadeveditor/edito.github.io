@@ -1,0 +1,298 @@
+﻿Bloc,HTML Code
+header_1,"<header>
+<div class=""toolbar-group"">
+<button onclick=""openImageModal()"">🖼️ Image</button>
+<button onclick=""document.getElementById('video-modal').showModal()"">🎥 Vidéo</button>
+<button class=""btn-secondary"" onclick=""openTemplates()"">📄 Modèles</button>
+<button class=""btn-secondary"" onclick=""document.getElementById('markdown-modal').showModal()"">📝 Markdown</button>
+<button class=""btn-danger"" onclick=""resetEditor()"" title=""Tout effacer"">🗑️ Reset</button>
+<span id=""save-status"">✓ Sauvegardé</span>
+</div>
+<div class=""toolbar-group"">
+<span>Rendu :</span>
+<button class=""btn-secondary"" onclick=""setDeviceView('mobile-view')"" title=""Mobile"">📱</button>
+<button class=""btn-secondary"" onclick=""setDeviceView('tablet-view')"" title=""Tablette"">💻</button>
+<button class=""btn-secondary"" onclick=""setDeviceView('desktop-view')"" title=""Bureau"">🖥️</button>
+<button class=""btn-secondary"" id=""theme-toggle"" title=""Thème"">🌓 Thème</button>
+</div>
+</header>"
+main_1,"<main>
+<section class=""panel"">
+<div class=""panel-header"">1. Éditeur Visuel</div>
+<div class=""panel-content"">
+<div contenteditable=""true"" data-placeholder=""Tapez votre texte ici..."" id=""visual-editor""></div>
+</div>
+</section>
+<section class=""panel"">
+<div class=""panel-header"">
+            2. Code HTML
+            <div>
+<button class=""btn-secondary"" onclick=""copyHtml()"" style=""padding:2px 8px;font-size:0.8rem;"">📋 Copier</button>
+<button class=""btn-secondary"" onclick=""exportHtml()"" style=""padding:2px 8px;font-size:0.8rem;background:#198754;"">💾 Exporter (.txt)</button>
+</div>
+</div>
+<div class=""panel-content"">
+<textarea id=""html-output"" placeholder=""Le code HTML se générera ici...""></textarea>
+</div>
+</section>
+<section class=""panel"">
+<div class=""panel-header"">3. Aperçu Rendu (Appareil)</div>
+<div class=""panel-content preview-container"">
+<div class=""desktop-view theme-light"" id=""preview-output""></div>
+</div>
+</section>
+</main>"
+markdown-modal,"<dialog id=""markdown-modal"">
+<h3>Importer du Markdown</h3>
+<p style=""font-size:0.9em;color:#666;margin-top:0;"">Collez votre code Markdown ci-dessous.</p>
+<div class=""form-group"">
+<textarea id=""md-input"" placeholder=""## Titre
+
+- Élément 1"" rows=""10"" style=""font-family:monospace;""></textarea>
+</div>
+<div class=""dialog-buttons"">
+<button class=""btn-secondary"" onclick=""closeModal('markdown-modal')"">Annuler</button>
+<button onclick=""importMarkdown()"">Convertir &amp; Insérer</button>
+</div>
+</dialog>"
+table-modal,"<dialog id=""table-modal"">
+<h3>Insérer un tableau</h3>
+<p style=""font-size:0.9em;color:#666;margin-top:0;"">Choisissez la structure du tableau, puis remplissez les entêtes. Les cellules resteront vides pour édition dans Tiptap.</p>
+<div class=""form-group"">
+<label>Nombre de colonnes :</label>
+<input id=""tbl-cols"" max=""8"" min=""1"" type=""number"" value=""3""/>
+</div>
+<div class=""form-group"">
+<label>Nombre de lignes (hors entête) :</label>
+<input id=""tbl-rows"" max=""20"" min=""1"" type=""number"" value=""3""/>
+</div>
+<div class=""form-group"">
+<label><input checked="""" id=""tbl-has-header"" type=""checkbox""/> Première ligne en entête (&lt;thead&gt;)</label>
+</div>
+<div class=""form-group"">
+<label>Style :</label>
+<select id=""tbl-style"">
+<option value=""notion"">Tableau type Notion (bandeau gris, alternance lignes)</option>
+<option value=""compact"">Compact (borders fines)</option>
+<option value=""zebra"">Zébré simple</option>
+</select>
+</div>
+<div class=""form-group"">
+<label>Entêtes de colonnes (séparées par |) :</label>
+<input id=""tbl-headers"" placeholder=""Colonne 1 | Colonne 2 | Colonne 3"" type=""text""/>
+</div>
+<div class=""dialog-buttons"">
+<button class=""btn-secondary"" onclick=""closeModal('table-modal')"">Annuler</button>
+<button onclick=""insertTableFromModal()"">Insérer le tableau</button>
+</div>
+</dialog>"
+image-modal,"<dialog id=""image-modal"">
+<h3 style=""margin-bottom:14px;"">Insérer une Image</h3>
+<p class=""img-section-title"">1 · Format</p>
+<div class=""form-group"">
+<label>Format de l'image :</label>
+<select id=""img-format"" onchange=""onFormatChange(); updateModalPreview('image');"">
+<optgroup label=""— Mise en page —"">
+<option value=""center"">Centrée</option>
+<option value=""left"">Alignée à gauche</option>
+<option value=""right"">Alignée à droite</option>
+<option value=""float-left"">Flottante gauche (+ texte)</option>
+<option value=""float-right"">Flottante droite (+ texte)</option>
+<option value=""full"">Pleine largeur (100%)</option>
+<option value=""ratio169"">Pleine largeur 16/9</option>
+<option value=""figure"">Figure avec légende centrée</option>
+</optgroup>
+<optgroup label=""— Formes CSS —"">
+<option value=""css-normal"">Normal (centré 25%)</option>
+<option value=""css-arrondis"">Angles arrondis</option>
+<option value=""css-arrondis-hb"">Arrondis haut-bas</option>
+<option value=""css-ovale-penche"">Ovale penché</option>
+<option value=""css-ovale-fluide"">Ovale fluide (clip)</option>
+<option value=""css-blob-soft"">Blob soft</option>
+<option value=""css-blob-classique"">Blob classique</option>
+<option value=""css-blob-ample"">Blob ample</option>
+<option value=""css-arrondis-bas"">Arrondis en bas</option>
+<option value=""css-dome"">Dôme</option>
+<option value=""css-nuage"">Nuage</option>
+<option value=""css-pinces-1"">Effet pinces 1</option>
+<option value=""css-pinces-2"">Effet pinces 2</option>
+<option value=""css-rond-ombre"">Rond parfait avec ombre</option>
+<option value=""css-rond"">Rond parfait</option>
+<option value=""css-polygon"">Polygon</option>
+<option value=""css-losange"">Losange</option>
+<option value=""css-dessous"">Dessous arrondi</option>
+<option value=""css-hexagone"">Hexagone</option>
+<option value=""css-ecran"">Polygon écran</option>
+<option value=""css-grise"">Image grisée (90%)</option>
+</optgroup>
+<optgroup label=""— Styles graphiques —"">
+<option value=""hero"">Hero (texte superposé)</option>
+<option value=""polaroid"">Polaroid</option>
+<option value=""promo"">Bandeau promo</option>
+<option value=""degrade"">Bordure dégradé</option>
+<option value=""ronde"">Image ronde (portrait)</option>
+<option value=""carre-ombre"">Carrée avec ombre</option>
+<option value=""miniature"">Miniature fixe (250×250)</option>
+<option value=""zoom-hover"">Zoom au survol</option>
+<option value=""fixed-height"">Hauteur fixe (object-fit)</option>
+<option value=""sepia"">Sépia</option>
+<option value=""opaque"">Semi-transparente</option>
+</optgroup>
+<optgroup label=""— Réseaux sociaux —"">
+<option value=""instagram"">Logo Instagram + lien marchand</option>
+</optgroup>
+<optgroup label=""— Galeries —"">
+<option value=""galerie"">Galerie responsive (multi-images)</option>
+</optgroup>
+</select>
+</div>
+<div class=""form-group"" id=""img-url-group"">
+<label>URL de l'image :</label>
+<input id=""img-url"" oninput=""updateModalPreview('image')"" placeholder=""https://..."" type=""text""/>
+</div>
+<hr class=""img-section-sep""/>
+<p class=""img-section-title"">2 · Options</p>
+<!-- Display : masqué pour instagram, galerie, float-left, float-right -->
+<div class=""img-opt"" id=""opt-display"">
+<div class=""form-group"">
+<label>Display :</label>
+<div class=""display-group"">
+<label><input checked="""" name=""img-display"" onchange=""updateModalPreview('image')"" type=""radio"" value=""center""/> ▤ Centre</label>
+<label><input name=""img-display"" onchange=""updateModalPreview('image')"" type=""radio"" value=""left""/> ▧ Gauche</label>
+<label><input name=""img-display"" onchange=""updateModalPreview('image')"" type=""radio"" value=""right""/> ▦ Droite</label>
+</div>
+</div>
+</div>
+<div class=""img-opt"" id=""opt-alt"">
+<div class=""form-group""><label>Alt (accessibilité) :</label><input id=""img-alt"" placeholder=""Description courte de l'image..."" type=""text""/></div>
+</div>
+<div class=""img-opt"" id=""opt-caption"">
+<div class=""form-group""><label>Légende :</label><input id=""img-caption"" oninput=""updateModalPreview('image')"" placeholder=""Légende sous l'image..."" type=""text""/></div>
+</div>
+<div class=""img-opt"" id=""opt-link"">
+<div class=""form-group""><label>URL du lien (clic sur l'image) :</label><input id=""img-link-url"" oninput=""updateModalPreview('image')"" placeholder=""https://..."" type=""text""/></div>
+</div>
+<div class=""img-opt"" id=""opt-size"">
+<div class=""form-group""><label>Taille (ex : 100%, 300px) :</label><input id=""img-size"" oninput=""updateModalPreview('image')"" type=""text"" value=""100%""/></div>
+</div>
+<div class=""img-opt"" id=""opt-radius"">
+<div class=""form-group""><label>Arrondi (ex : 8px, 50%) :</label><input id=""img-radius"" oninput=""updateModalPreview('image')"" type=""text"" value=""8px""/></div>
+</div>
+<!-- Texte descriptif (float uniquement) -->
+<div class=""img-opt"" id=""opt-text"">
+<div class=""form-group"">
+<label>Texte descriptif :</label>
+<textarea id=""img-text"" oninput=""updateModalPreview('image')"" placeholder=""Votre texte accompagnant l'image..."" rows=""4"" style=""resize:vertical;min-height:80px;""></textarea>
+</div>
+</div>
+<div class=""img-opt"" id=""opt-hero"">
+<div class=""form-group""><label>Titre superposé :</label><input id=""img-hero-title"" oninput=""updateModalPreview('image')"" placeholder=""Titre principal"" type=""text""/></div>
+<div class=""form-group""><label>Sous-titre :</label><input id=""img-hero-subtitle"" oninput=""updateModalPreview('image')"" placeholder=""Sous-titre · Détail · Lieu"" type=""text""/></div>
+</div>
+<div class=""img-opt"" id=""opt-promo"">
+<div class=""form-group""><label>Texte promo (ex : -40%) :</label><input id=""img-promo-value"" oninput=""updateModalPreview('image')"" placeholder=""-40%"" type=""text""/></div>
+<div class=""form-group""><label>Libellé au-dessus :</label><input id=""img-promo-top"" oninput=""updateModalPreview('image')"" placeholder=""Jusqu'à"" type=""text""/></div>
+<div class=""form-group""><label>Libellé en-dessous :</label><input id=""img-promo-bottom"" oninput=""updateModalPreview('image')"" placeholder=""sur vos entrées"" type=""text""/></div>
+</div>
+<div class=""img-opt"" id=""opt-instagram"">
+<div class=""form-group""><label>URL Instagram du marchand :</label><input id=""img-insta-url"" oninput=""updateModalPreview('image')"" placeholder=""https://www.instagram.com/nommerchant"" type=""text""/></div>
+<div class=""form-group""><label>Nom du marchand :</label><input id=""img-insta-nom"" oninput=""updateModalPreview('image')"" placeholder=""@NomMarchand"" type=""text""/></div>
+</div>
+<div class=""img-opt"" id=""opt-galerie"">
+<div class=""form-group"">
+<label>URLs des images (min. 2, max. 12) :</label>
+<div id=""galerie-urls-container"">
+<div class=""galerie-url-row""><input placeholder=""URL image 1..."" type=""text""/><button onclick=""removeGalerieRow(this)"" type=""button"">✕</button></div>
+<div class=""galerie-url-row""><input placeholder=""URL image 2..."" type=""text""/><button onclick=""removeGalerieRow(this)"" type=""button"">✕</button></div>
+<div class=""galerie-url-row""><input placeholder=""URL image 3..."" type=""text""/><button onclick=""removeGalerieRow(this)"" type=""button"">✕</button></div>
+</div>
+<button id=""galerie-add-btn"" onclick=""addGalerieRow()"" type=""button"">+ Ajouter une image</button>
+</div>
+<div class=""form-group"">
+<label>Colonnes (desktop) :</label>
+<select id=""galerie-cols""><option value=""2"">2</option><option selected="""" value=""3"">3</option><option value=""4"">4</option></select>
+</div>
+<div class=""form-group"">
+<label>Espacement :</label>
+<select id=""galerie-gap""><option value=""4px"">Serré (4px)</option><option selected="""" value=""8px"">Normal (8px)</option><option value=""16px"">Aéré (16px)</option></select>
+</div>
+<div class=""form-group""><label>Arrondi des images :</label><input id=""galerie-radius"" type=""text"" value=""6px""/></div>
+</div>
+<div class=""modal-media-preview"" id=""img-modal-preview""><div class=""preview-placeholder"">Aperçu (entrez une URL)</div></div>
+<div class=""dialog-buttons"">
+<button class=""btn-secondary"" onclick=""closeModal('image-modal')"">Annuler</button>
+<button onclick=""insertMedia('image')"">Valider</button>
+</div>
+</dialog>"
+video-modal,"<dialog id=""video-modal"">
+<h3>Insérer une Vidéo</h3>
+<div class=""form-group"">
+<label>Alignement &amp; Mise en page :</label>
+<select id=""vid-align"" onchange=""document.getElementById('vid-size').value = this.value === 'center' ? '100%' : '50%'; updateModalPreview('video');"">
+<option value=""center"">Centré (Défaut)</option>
+<option value=""left"">Média à Gauche, Texte à Droite</option>
+<option value=""right"">Média à Droite, Texte à Gauche</option>
+</select>
+</div>
+<div class=""form-group""><label>Lien (YouTube ou .mp4) :</label><input id=""vid-url"" oninput=""updateModalPreview('video')"" placeholder=""https://..."" type=""text""/></div>
+<div class=""form-group""><label>Texte descriptif (Optionnel) :</label><textarea id=""vid-text"" oninput=""updateModalPreview('video')"" rows=""4"" style=""resize:vertical;min-height:80px;""></textarea></div>
+<div class=""form-group""><label>Titre (Alt) :</label><input id=""vid-alt"" placeholder=""Titre..."" type=""text""/></div>
+<div class=""form-group""><label>Légende :</label><input id=""vid-caption"" placeholder=""Légende..."" type=""text""/></div>
+<div class=""form-group""><label>Taille :</label><input id=""vid-size"" oninput=""updateModalPreview('video')"" type=""text"" value=""100%""/></div>
+<div class=""form-group""><label>Arrondi :</label><input id=""vid-radius"" oninput=""updateModalPreview('video')"" type=""text"" value=""8px""/></div>
+<div class=""form-group checkbox-group"">
+<input id=""vid-autoplay"" type=""checkbox""/>
+<label for=""vid-autoplay"">Lancer automatiquement (sans le son)</label>
+</div>
+<div class=""modal-media-preview"" id=""vid-modal-preview""><div class=""preview-placeholder"">Aperçu intégral (Entrez une URL)</div></div>
+<div class=""dialog-buttons"">
+<button class=""btn-secondary"" onclick=""closeModal('video-modal')"">Annuler</button>
+<button onclick=""insertMedia('video')"">Valider</button>
+</div>
+</dialog>"
+JS_Snippet_1,"`<table style=""${tableStyle}"">`"
+JS_Snippet_2,"`<th style=""${thStyle}"">${label}</th>`"
+JS_Snippet_3,"`<tr style=""${rowStyle}"">`"
+JS_Snippet_4,"`<td style=""${tdStyle}""></td>`"
+JS_Snippet_5,"`<input type=""text"" placeholder=""URL image ${n}...""><button type=""button"" onclick=""removeGalerieRow(this)"">✕</button>`"
+JS_Snippet_6,"`<input type=""text"" placeholder=""URL image ${i}...""><button type=""button"" onclick=""removeGalerieRow(this)"">✕</button>`"
+JS_Snippet_7,"`<p style=""margin:0 0 10px;color:#222;"">${p}</p>`"
+JS_Snippet_8,"`<iframe style=""${ms}aspect-ratio:16/9;max-height:200px;"" src=""https://www.youtube-nocookie.com/embed/${yt[1]}?rel=0"" frameborder=""0""></iframe>`"
+JS_Snippet_9,"`<video src=""${url}"" style=""${ms}max-height:200px;"" controls></video>`"
+JS_Snippet_10,"`<div style=""margin-bottom:20px;text-align:center;""><figure style=""margin:0 auto 10px;width:${size};max-width:100%;"">${media}</figure>${txt}</div>`"
+JS_Snippet_11,"`<div style=""display:flex;flex-wrap:wrap;gap:12px;flex-direction:${align==='right'?'row-reverse':'row'};""><figure style=""margin:0;flex:1 1 ${size};min-width:120px;"">${media}</figure><div style=""flex:1 1 120px;"">${txt}</div></div>`"
+JS_Snippet_12,"`<div style=""text-align:center;padding:10px;""><a href=""${iu}"" style=""display:inline-flex;align-items:center;gap:10px;text-decoration:none;color:#E1306C;font-size:15px;font-weight:600;""><img src=""https://img.grouponcdn.com/editorial/Q6qS1c4xBikscgJTzmXff1/logo-instagram-550x550"" alt=""Instagram"" style=""width:32px;height:32px;""><span>${nm}</span></a></div>`"
+JS_Snippet_13,"`<div style=""display:grid;grid-template-columns:repeat(${cols},1fr);gap:${gap};"">${urls.map(u=>`"
+JS_Snippet_14,"`<div style=""float:left;width:${size};margin:0 20px 12px 0;"">${inner}</div><div style=""clear:both;""></div><p>&nbsp;</p>`"
+JS_Snippet_15,"`<div style=""float:right;width:${size};margin:0 0 12px 20px;"">${inner}</div><div style=""clear:both;""></div><p>&nbsp;</p>`"
+JS_Snippet_16,"`<div style=""text-align:center;margin-bottom:20px;"">${inner}</div><p>&nbsp;</p>`"
+JS_Snippet_17,"`<figcaption style=""font-size:13px;color:#64748b;text-align:center;margin-top:6px;font-style:italic;"">${caption}</figcaption>`"
+JS_Snippet_18,"`<img src=""${url}"" alt=""${alt}"" style=""${extraStyle}"" loading=""lazy"">`"
+JS_Snippet_19,"`<a href=""${linkUrl}"" target=""_blank"" rel=""noopener noreferrer"" style=""display:block;line-height:0;"">${inner}</a>`"
+JS_Snippet_20,"`<figure style=""margin:0;"">${linked}${captFig}</figure>`"
+JS_Snippet_21,"`<p style=""margin:0 0 10px;"">${p}</p>`"
+JS_Snippet_22,"`<figure style=""${floatStyle}margin-bottom:0;"">${imgHtml}${captFig}</figure>`"
+JS_Snippet_23,"`<figure style=""${floatStyle}"">${imgHtml}</figure>`"
+JS_Snippet_24,"`<div style=""overflow:hidden;margin-bottom:24px;"">${figHtml}<div style=""font-size:15px;line-height:1.7;color:#333;"">${txt}</div></div><div style=""clear:both;""></div><p>&nbsp;</p>`"
+JS_Snippet_25,"`<p style=""margin:0 0 10px;"">${p}</p>`"
+JS_Snippet_26,"`<figure style=""${floatStyle}margin-bottom:0;"">${imgHtml}${captFig}</figure>`"
+JS_Snippet_27,"`<figure style=""${floatStyle}"">${imgHtml}</figure>`"
+JS_Snippet_28,"`<div style=""overflow:hidden;margin-bottom:24px;"">${figHtml}<div style=""font-size:15px;line-height:1.7;color:#333;"">${txt}</div></div><div style=""clear:both;""></div><p>&nbsp;</p>`"
+JS_Snippet_29,"`<div style=""width:${size};aspect-ratio:16/9;border-radius:${radius};overflow:hidden;"">${imgTag('width:100%;height:100%;object-fit:cover;object-position:center;display:block;')}</div>`"
+JS_Snippet_30,"`<figure style=""margin:0;"">${inner}${captFig}</figure>`"
+JS_Snippet_31,"`<figure style=""margin:0;border-radius:${radius};overflow:hidden;box-shadow:0 6px 20px rgba(0,0,0,0.15);"">${imgTag('width:100%;display:block;')}${captFig}</figure>`"
+JS_Snippet_32,"`<div style=""position:relative;width:${size};border-radius:${radius};overflow:hidden;"">${imgTag('width:100%;display:block;height:320px;object-fit:cover;')}<div style=""position:absolute;bottom:0;left:0;right:0;padding:20px 24px;background:linear-gradient(transparent,rgba(0,0,0,0.65));""><p style=""margin:0;color:#fff;font-size:22px;font-weight:bold;"">${title}</p><p style=""margin:4px 0 0;color:#f0f0f0;font-size:14px;"">${subtitle}</p></div></div>`"
+JS_Snippet_33,"`<div style=""background:#fff;padding:12px 12px 40px;box-shadow:0 8px 30px rgba(0,0,0,0.18);border-radius:4px;transform:rotate(-1.5deg);width:${size};max-width:480px;"">${imgTag('width:100%;display:block;border-radius:2px;')}<p style=""text-align:center;font-family:'Georgia',serif;font-size:15px;color:#888;margin:12px 0 0;letter-spacing:1px;"">${leg}</p></div>`"
+JS_Snippet_34,"`<div style=""display:flex;align-items:stretch;border-radius:${radius};overflow:hidden;box-shadow:0 6px 24px rgba(0,0,0,0.12);min-height:200px;width:${size};""><div style=""flex:1.5;overflow:hidden;"">${imgTag('width:100%;height:100%;object-fit:cover;display:block;')}</div><div style=""flex:1;background:#1a5e3a;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:24px;text-align:center;""><p style=""color:#fff;font-size:13px;text-transform:uppercase;letter-spacing:2px;margin:0 0 8px;"">${lt}</p><p style=""color:#f5c842;font-size:48px;font-weight:900;margin:0;line-height:1;"">${pv}</p><p style=""color:#fff;font-size:14px;margin:8px 0 0;"">${lb}</p></div></div>`"
+JS_Snippet_35,"`<div style=""padding:4px;background:linear-gradient(135deg,#f5a623,#2ecc71,#3498db);border-radius:calc(${radius} + 4px);width:${size};"">${imgTag(`"
+JS_Snippet_36,"`<figure style=""margin:0;"">${inner}${captFig}</figure>`"
+JS_Snippet_37,"`<div style=""overflow:hidden;border-radius:${radius};width:${size};"">${imgTag(`"
+JS_Snippet_38,"`<figure style=""margin:0;"">${inner}${captFig}</figure>`"
+JS_Snippet_39,"`<div style=""text-align:center;margin:20px auto;""><a href=""${iu}"" rel=""nofollow noreferrer"" target=""_blank"" style=""display:inline-flex;align-items:center;gap:10px;text-decoration:none;color:#E1306C;font-family:sans-serif;font-size:15px;font-weight:600;""><img src=""https://img.grouponcdn.com/editorial/Q6qS1c4xBikscgJTzmXff1/logo-instagram-550x550"" alt=""Instagram"" style=""width:32px;height:32px;display:inline-block;vertical-align:middle;""><span>${nm}</span></a></div><p>&nbsp;</p>`"
+JS_Snippet_40,"`<div style=""display:grid;grid-template-columns:repeat(${cols},1fr);gap:${gap};margin-bottom:24px;""><!-- responsive: passez à repeat(${colsMob},1fr) sur mobile -->${urls.map(u=>`"
+JS_Snippet_41,"`<p style=""margin:0 0 10px;"">${p}</p>`"
+JS_Snippet_42,"`<iframe title=""${alt}"" style=""width:100%;aspect-ratio:16/9;border-radius:${radius};"" src=""https://www.youtube-nocookie.com/embed/${yt[1]}${autoplayParams}"" frameborder=""0"" allow=""accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"" allowfullscreen></iframe>`"
+JS_Snippet_43,"`<video src=""${url}"" title=""${alt}"" style=""width:100%;border-radius:${radius};"" ${autoplay ? 'autoplay muted loop' : 'controls'}></video>`"
+JS_Snippet_44,"`<figure style=""margin:0;"">${media}<figcaption style=""font-size:13px;color:#64748b;text-align:center;margin-top:6px;"">${caption}</figcaption></figure>`"
+JS_Snippet_45,"`<div style=""text-align:center;margin:16px 0;""><div style=""display:inline-block;width:${size};max-width:100%;"">${fig}</div>${txt}</div><p>&nbsp;</p>`"
+JS_Snippet_46,"`<div style=""display:flex;flex-wrap:wrap;gap:16px;margin:16px 0;flex-direction:${isRight ? 'row-reverse' : 'row'};""><div style=""flex:1 1 ${size};min-width:220px;"">${fig}</div><div style=""flex:1 1 220px;font-size:15px;line-height:1.7;color:#333;"">${txt || '<p>Votre texte descriptif ici.</p>'}</div></div><p>&nbsp;</p>`"
