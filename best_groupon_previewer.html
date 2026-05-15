@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Prévisualisation Groupon</title>
+<style>
+body {
+font-family: 'Segoe UI', Arial, sans-serif;
+margin: 0;
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+height: 100vh;
+background-color: #f8f9fa;
+}
+.card {
+background: white;
+padding: 30px;
+border-radius: 12px;
+box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+text-align: center;
+max-width: 500px;
+width: 100%;
+box-sizing: border-box;
+}
+h2 { color: #53a318; margin-bottom: 20px; }
+p { color: #666; font-size: 14px; margin-bottom: 20px; }
+input {
+width: 100%;
+padding: 12px;
+border: 2px solid #ddd;
+border-radius: 8px;
+font-size: 15px;
+margin-bottom: 20px;
+outline: none;
+box-sizing: border-box;
+}
+input:focus { border-color: #53a318; }
+button {
+padding: 12px 24px;
+background: #53a318;
+color: white;
+border: none;
+border-radius: 8px;
+cursor: pointer;
+font-size: 16px;
+font-weight: bold;
+transition: background 0.2s;
+}
+button:hover { background: #458a14; }
+.note { font-size: 11px; color: #999; margin-top: 15px; }
+</style>
+</head>
+<body>
+<div class="card">
+<h2>Prévisualisation Groupon</h2>
+<p>Collez l’URL du deal pour afficher simultanément les aperçus mobile et web.</p>
+
+<input type="text" id="urlInput" placeholder="https://www.groupon.fr/deals/...">
+<br>
+<button onclick="openPreviews()">Lancer la prévisualisation</button>
+
+<div class="note">
+Remarque : si aucune fenêtre ne s'ouvre, vérifiez que les fenêtres pop-up sont autorisées dans votre navigateur.
+</div>
+</div>
+
+<script>
+function openPreviews() {
+const url = document.getElementById('urlInput').value;
+
+if (!url || !url.startsWith('http')) {
+  alert("Veuillez saisir une URL valide commençant par http ou https.");
+  return;
+}
+
+// Fenêtre Format App (iPhone)
+const appWidth = 375;
+const appHeight = 667;
+const appLeft = (screen.width / 2) - (appWidth + 20); // À gauche du centre
+const appTop = (screen.height / 2) - (appHeight / 2);
+
+window.open(
+  url, 
+  'AppView', 
+  `width=${appWidth},height=${appHeight},top=${appTop},left=${appLeft},resizable=yes,scrollbars=yes`
+);
+
+// Fenêtre Format Web
+const webWidth = 1024;
+const webHeight = 800;
+const webLeft = (screen.width / 2) + 20; // À droite du centre
+const webTop = (screen.height / 2) - (webHeight / 2);
+
+window.open(
+  url, 
+  'WebView', 
+  `width=${webWidth},height=${webHeight},top=${webTop},left=${webLeft},resizable=yes,scrollbars=yes`
+);
+}
+</script>
+</body>
+</html>
