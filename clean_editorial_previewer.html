@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Prévisualisation Éditoriale - Groupon</title>
+<style>
+    body {
+        font-family: 'Segoe UI', Arial, sans-serif;
+        background-color: #f8f9fa;
+        margin: 0;
+        padding: 20px;
+        text-align: center;
+        color: #333;
+    }
+    .header-card {
+        background: white;
+        padding: 20px 40px;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        display: inline-block;
+        margin-bottom: 30px;
+    }
+    h2 { 
+        color: #53a318; 
+        margin: 0 0 10px 0; 
+    }
+    p { 
+        color: #666; 
+        font-size: 14px; 
+        margin: 0 0 20px 0; 
+    }
+    .search-bar {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+    }
+    input {
+        width: 450px;
+        padding: 12px;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        font-size: 15px;
+        outline: none;
+        transition: border-color 0.2s;
+    }
+    input:focus { border-color: #53a318; }
+    button {
+        padding: 12px 24px;
+        background: #53a318;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: bold;
+        transition: background 0.2s;
+    }
+    button:hover { background: #458a14; }
+
+    .devices-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 25px;
+        display: none; /* Masqué au chargement */
+    }
+
+    .device-card {
+        background: white;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    }
+
+    .device-title {
+        font-weight: bold;
+        color: #53a318;
+        font-size: 18px;
+        margin-bottom: 5px;
+    }
+    .device-sub {
+        font-size: 12px;
+        color: #888;
+        margin-bottom: 15px;
+    }
+
+    /* Styles pour les iframes mobiles */
+    .mobile-frame {
+        border: 2px solid #f0f0f0;
+        border-radius: 12px;
+        background: #fff;
+    }
+
+    /* Styles pour simuler la réduction Desktop sans casser le design */
+    .desktop-wrapper {
+        width: 546px; /* 1366 * 0.4 */
+        height: 307px; /* 768 * 0.4 */
+        overflow: hidden;
+        border: 2px solid #f0f0f0;
+        border-radius: 8px;
+        margin: 0 auto;
+        background: #fff;
+    }
+    .desktop-frame {
+        width: 1366px;
+        height: 768px;
+        transform: scale(0.4);
+        transform-origin: 0 0;
+        border: none;
+    }
+
+    .mac-wrapper {
+        width: 576px; /* 1440 * 0.4 */
+        height: 360px; /* 900 * 0.4 */
+        overflow: hidden;
+        border: 2px solid #f0f0f0;
+        border-radius: 8px;
+        margin: 0 auto;
+        background: #fff;
+    }
+    .mac-frame {
+        width: 1440px;
+        height: 900px;
+        transform: scale(0.4);
+        transform-origin: 0 0;
+        border: none;
+    }
+</style>
+</head>
+<body>
+
+<div class="header-card">
+    <h2>Prévisualisation Éditoriale Multisupports</h2>
+    <p>Vérifiez l'affichage de vos textes, images et vidéos sur les 4 systèmes principaux.</p>
+    <div class="search-bar">
+        <input type="text" id="urlInput" placeholder="Collez l'URL de l'offre ici...">
+        <button onclick="loadPreviews()">Afficher le rendu</button>
+    </div>
+</div>
+
+<div class="devices-container" id="devicesContainer">
+
+    <!-- iOS -->
+    <div class="device-card">
+        <div class="device-title"> iOS (iPhone)</div>
+        <div class="device-sub">Format 390 x 844</div>
+        <iframe id="frame-ios" class="mobile-frame" width="390" height="844" src=""></iframe>
+    </div>
+
+    <!-- Android -->
+    <div class="device-card">
+        <div class="device-title">🤖 Android</div>
+        <div class="device-sub">Format 360 x 800</div>
+        <iframe id="frame-and" class="mobile-frame" width="360" height="800" src=""></iframe>
+    </div>
+
+    <!-- Mac -->
+    <div class="device-card">
+        <div class="device-title">💻 Mac (Safari)</div>
+        <div class="device-sub">Format 1440 x 900 (Vue réduite à 40%)</div>
+        <div class="mac-wrapper">
+            <iframe id="frame-mac" class="mac-frame" src=""></iframe>
+        </div>
+    </div>
+
+    <!-- Windows -->
+    <div class="device-card">
+        <div class="device-title">🖥️ Windows (PC)</div>
+        <div class="device-sub">Format 1366 x 768 (Vue réduite à 40%)</div>
+        <div class="desktop-wrapper">
+            <iframe id="frame-win" class="desktop-frame" src=""></iframe>
+        </div>
+    </div>
+
+</div>
+
+<script>
+function loadPreviews() {
+    const url = document.getElementById('urlInput').value;
+    if (!url || (!url.startsWith('http') && !url.startsWith('https'))) {
+        alert("Veuillez saisir une URL valide commençant par http:// ou https://");
+        return;
+    }
+
+    // Afficher le conteneur
+    document.getElementById('devicesContainer').style.display = 'flex';
+
+    // Charger les URLs
+    document.getElementById('frame-ios').src = url;
+    document.getElementById('frame-and').src = url;
+    document.getElementById('frame-mac').src = url;
+    document.getElementById('frame-win').src = url;
+}
+</script>
+</body>
+</html>
