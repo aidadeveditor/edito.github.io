@@ -1,0 +1,1294 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Éditeur Sémantique Pro</title>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="templates.js"></script>
+    <style>
+        :root {
+            --bg-color: #f8f9fa; --panel-bg: #ffffff; --text-color: #212529;
+            --border-color: #dee2e6; --header-bg: #e9ecef;
+            --btn-bg: #0d6efd; --btn-text: #ffffff; --btn-hover: #0b5ed7;
+            --btn-danger: #dc3545; --btn-danger-hover: #c82333; --modal-bg: #ffffff;
+        }
+        body { font-family: system-ui, -apple-system, sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+        header { background-color: var(--header-bg); padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); flex-wrap: wrap; gap: 10px; }
+        .toolbar-group { display: flex; gap: 8px; align-items: center; }
+        button { background-color: var(--btn-bg); color: var(--btn-text); border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 0.9rem; transition: 0.2s; }
+        button:hover { background-color: var(--btn-hover); }
+        .btn-secondary { background-color: #6c757d; }
+        .btn-secondary:hover { background-color: #5c636a; }
+        .btn-danger { background-color: var(--btn-danger); }
+        .btn-danger:hover { background-color: var(--btn-danger-hover); }
+        .text-format-toolbar { display: flex; gap: 4px; flex-wrap: wrap; background-color: #ffffff; padding: 8px 20px; border-bottom: 1px solid var(--border-color); width: 100%; box-sizing: border-box; box-shadow: 0 2px 4px rgba(0,0,0,0.05); z-index: 10; }
+        .text-format-toolbar button { background-color: #f1f3f5; color: #333; border: 1px solid #ced4da; padding: 5px 10px; font-size: 0.85rem; font-weight: bold; border-radius: 3px; }
+        .text-format-toolbar button:hover { background-color: #e2e6ea; }
+        main { display: flex; flex-direction: row; flex-grow: 1; gap: 6px; padding: 10px; overflow: hidden; width: 100%; box-sizing: border-box; }
+        .panel { background-color: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 6px; display: flex; flex-direction: column; overflow: hidden; flex: 1 1 0; min-width: 150px; }
+        .resizer { width: 8px; cursor: col-resize; background-color: transparent; position: relative; z-index: 10; border-radius: 4px; transition: background-color 0.2s; }
+        .resizer:hover, .resizer.active { background-color: #0d6efd; }
+        .panel-header { background-color: var(--header-bg); padding: 8px 12px; font-weight: bold; font-size: 0.9rem; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
+        .panel-content { flex-grow: 1; padding: 15px; overflow-y: auto; width: 100%; box-sizing: border-box; }
+        #visual-editor { width: 100%; height: 100%; outline: none; line-height: 1.5; }
+        #visual-editor:empty:before { content: attr(data-placeholder); color: #888; }
+        #visual-editor iframe, #visual-editor video { pointer-events: none; }
+        textarea { width: 100%; height: 100%; border: none; resize: none; background: transparent; color: inherit; font-family: 'Courier New', monospace; outline: none; line-height: 1.4; }
+        .preview-container { display: flex; justify-content: center; background-color: #555; padding: 10px; }
+        #preview-output { width: 100%; height: 100%; transition: width 0.3s ease, background-color 0.3s, color 0.3s; box-shadow: 0 4px 8px rgba(0,0,0,0.4); overflow-y: auto; padding: 20px; box-sizing: border-box; }
+        #preview-output.mobile-view { width: 375px; }
+        #preview-output.tablet-view { width: 768px; }
+        #preview-output.desktop-view { width: 100%; }
+        #preview-output.theme-light { background-color: #ffffff; color: #000000; }
+        #preview-output.theme-dark { background-color: #121212; color: #f0f0f0; }
+        dialog { background-color: var(--modal-bg); color: var(--text-color); border: 1px solid var(--border-color); border-radius: 8px; padding: 20px; width: 560px; max-width: 95%; box-shadow: 0 10px 30px rgba(0,0,0,0.5); max-height: 90vh; overflow-y: auto; }
+        dialog::backdrop { background: rgba(0,0,0,0.6); }
+        .form-group { margin-bottom: 12px; display: flex; flex-direction: column; gap: 4px; }
+        .form-group label { font-size: 0.85rem; font-weight: 600; color: #495057; }
+        .form-group input[type="text"], .form-group select, .form-group textarea { padding: 7px 9px; border: 1px solid var(--border-color); border-radius: 4px; font-family: inherit; font-size: 0.9rem; width: 100%; box-sizing: border-box; }
+        .form-group textarea { resize: vertical; min-height: 70px; }
+        .checkbox-group { display: flex; flex-direction: row; align-items: center; gap: 10px; cursor: pointer; }
+        .dialog-buttons { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+        #save-status { font-size: 0.8rem; color: #28a745; margin-left: 10px; opacity: 0; transition: opacity 0.5s; }
+        .modal-media-preview { margin-top: 12px; padding: 10px; background-color: var(--header-bg); border: 1px dashed var(--border-color); border-radius: 6px; min-height: 90px; display: block; overflow: hidden; color: #888; font-size: 0.9rem; }
+        .modal-media-preview:has(div.preview-placeholder) { display: flex; align-items: center; justify-content: center; text-align: center; }
+        .img-section-sep { border: none; border-top: 1px dashed #ced4da; margin: 10px 0 12px; }
+        .img-section-title { font-size: 0.78rem; font-weight: 700; color: #6c757d; text-transform: uppercase; letter-spacing: .06em; margin: 14px 0 6px; }
+        .img-opt { display: none; }
+        .img-opt.show { display: block; }
+        .galerie-url-row { display: flex; gap: 6px; margin-bottom: 8px; }
+        .galerie-url-row input { flex: 1; }
+        .galerie-url-row button { padding: 4px 10px; font-size: 0.8rem; background: #dc3545; flex-shrink: 0; }
+        #galerie-add-btn { font-size: 0.82rem; padding: 5px 10px; background: #198754; }
+        .display-group { display: flex; gap: 8px; margin-top: 4px; }
+        .display-group label { display: flex; align-items: center; gap: 5px; font-size: 0.88rem; font-weight: normal; color: #333; cursor: pointer; padding: 5px 10px; border: 1px solid #ced4da; border-radius: 4px; background: #f8f9fa; transition: 0.15s; }
+        .display-group label:has(input:checked) { background: #0d6efd; color: #fff; border-color: #0d6efd; }
+        .display-group input[type="radio"] { accent-color: #0d6efd; }
+    
+        /* FULLSCREEN LOGIC */
+        .panel.fullscreen {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            width: 100vw; height: 100vh;
+            z-index: 9999;
+            border-radius: 0;
+            border: none;
+            margin: 0;
+            max-width: none !important;
+            flex: none !important;
+        }
+        body.has-fullscreen main {
+            display: none !important; 
+        }
+        /* Bring toolbar along if Visual Editor is full screen? 
+           Actually no, visual editor fullscreen will cover the toolbar unless we fix it. 
+           Wait, toolbar should probably stay visible! */
+        body.has-fullscreen header,
+        body.has-fullscreen .text-format-toolbar {
+            /* Keep them? If we hide main, and panel becomes fixed, it covers everything. */
+        }
+
+        /* Better approach for panel fullscreen: Instead of fixed over everything, 
+           we just hide the other panels and resizers! */
+        .panel.maximized {
+            flex: 1 1 100% !important;
+            max-width: 100% !important;
+        }
+        .hidden-by-max {
+            display: none !important;
+        }
+
+        .btn-maximize {
+            background: none; border: none; font-size: 1.1rem; cursor: pointer; color: #555; padding: 0 4px;
+        }
+        .btn-maximize:hover { color: #000; background: none; transform: scale(1.1); }
+</style>
+</head>
+<body>
+
+<header>
+    <div class="toolbar-group">
+        <button onclick="openLinkModal()">🔗 Lien</button>
+        <button onclick="openImageModal()">🖼️ Image</button>
+        <button onclick="document.getElementById('video-modal').showModal()">🎥 Vidéo</button>
+        <button onclick="openTemplates()" class="btn-secondary">📄 Modèles</button>
+        <button onclick="document.getElementById('markdown-modal').showModal()" class="btn-secondary">📝 Markdown</button>
+        <button onclick="resetEditor()" class="btn-danger" title="Tout effacer">🗑️ Reset</button>
+        <span id="save-status">✓ Sauvegardé</span>
+    </div>
+    <div class="toolbar-group">
+        <span>Rendu :</span>
+        <button class="btn-secondary" onclick="setDeviceView('mobile-view')" title="Mobile">📱</button>
+        <button class="btn-secondary" onclick="setDeviceView('tablet-view')" title="Tablette">💻</button>
+        <button class="btn-secondary" onclick="setDeviceView('desktop-view')" title="Bureau">🖥️</button>
+        <button class="btn-secondary" onclick="resetPanelsWidth()" title="Réinitialiser la largeur des panneaux">📏 Auto</button>
+        <button id="theme-toggle" class="btn-secondary" title="Thème">🌓 Thème</button>
+    </div>
+</header>
+
+<div class="text-format-toolbar">
+    <button onmousedown="event.preventDefault(); formatText('bold');" title="Gras"><b>G</b></button>
+    <button onmousedown="event.preventDefault(); formatText('italic');" title="Italique"><i>I</i></button>
+    <button onmousedown="event.preventDefault(); formatText('underline');" title="Souligné"><u>U</u></button>
+    <span style="border-left:1px solid #ccc;margin:0 8px;"></span>
+    <button onmousedown="event.preventDefault(); formatText('formatBlock','h1');">H1</button>
+    <button onmousedown="event.preventDefault(); formatText('formatBlock','h2');">H2</button>
+    <button onmousedown="event.preventDefault(); formatText('formatBlock','h3');">H3</button>
+    <button onmousedown="event.preventDefault(); formatText('formatBlock','h4');">H4</button>
+    <button onmousedown="event.preventDefault(); formatText('formatBlock','p');" title="Paragraphe normal">P</button>
+    <span style="border-left:1px solid #ccc;margin:0 8px;"></span>
+    <button onmousedown="event.preventDefault(); formatText('insertUnorderedList');" title="Liste à puces">Liste</button>
+    <button onmousedown="event.preventDefault(); formatText('indent');" title="Créer une sous-liste">➡️ Sous-liste</button>
+    <button onmousedown="event.preventDefault(); formatText('outdent');" title="Annuler la sous-liste">⬅️ Retour</button>
+    <button onmousedown="event.preventDefault(); event.stopPropagation(); document.getElementById('table-modal').showModal();" title="Insérer un tableau">🧾 Tableau</button>
+</div>
+
+<main>
+    <section class="panel">
+        <div class="panel-header" style="display:flex; justify-content:space-between; align-items:center; width:100%;"><span>1. Éditeur Visuel</span><button class="btn-maximize" onclick="toggleMaximize(0)" title="Plein écran">🗖</button></div>
+        <div class="panel-content">
+            <div id="visual-editor" contenteditable="true" data-placeholder="Tapez votre texte ici..."></div>
+        </div>
+    </section>
+    <div class="resizer" id="resizer-1"></div>
+    <section class="panel">
+        <div class="panel-header" style="display:flex; justify-content:space-between; align-items:center; width:100%;">
+            <span>2. Code HTML</span>
+            <div style="display:flex; gap:6px; align-items:center;">
+                <button onclick="copyHtml()" class="btn-secondary" style="padding:2px 8px;font-size:0.8rem;">📋 Copier</button>
+                <button onclick="exportHtml()" class="btn-secondary" style="padding:2px 8px;font-size:0.8rem;background:#198754;">💾 Exporter (.txt)</button>
+                <button class="btn-maximize" onclick="toggleMaximize(1)" title="Plein écran">🗖</button>
+            </div>
+        </div>
+        <div class="panel-content">
+            <textarea id="html-output" placeholder="Le code HTML se générera ici..."></textarea>
+        </div>
+    </section>
+    <div class="resizer" id="resizer-2"></div>
+    <section class="panel">
+        <div class="panel-header" style="display:flex; justify-content:space-between; align-items:center; width:100%;"><span>3. Aperçu Rendu (Appareil)</span><button class="btn-maximize" onclick="toggleMaximize(2)" title="Plein écran">🗖</button></div>
+        <div class="panel-content preview-container">
+            <div id="preview-output" class="desktop-view theme-light"></div>
+        </div>
+    </section>
+</main>
+
+<!-- MODALE MARKDOWN -->
+
+<!-- MODALE LIENS -->
+<dialog id="link-modal" style="max-width: 500px; width: 90vw;">
+    <h3 style="margin-bottom:14px;">Insérer un Lien</h3>
+
+    <div class="form-group">
+        <label>1. Type de lien :</label>
+        <select id="link-type" onchange="updateLinkModal()">
+            <option value="web">🌐 Lien Web (URL)</option>
+            <option value="tel">📞 Téléphone</option>
+            <option value="email">✉️ E-mail</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label id="link-target-label">2. URL du lien :</label>
+        <input type="text" id="link-target" placeholder="https://...">
+    </div>
+
+    <div class="form-group">
+        <label>3. Texte à afficher :</label>
+        <input type="text" id="link-text" placeholder="Texte du lien...">
+        <small style="color:#666; font-size: 0.8em; margin-top:4px; display:block;">(Si vous aviez surligné du texte, il est pré-rempli ici)</small>
+    </div>
+
+    <div class="form-group" id="link-warning-group">
+        <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+            <input type="checkbox" id="link-warning" style="width:18px; height:18px;">
+            Ajouter l'avertissement de site tiers
+        </label>
+        <small style="color:#666; font-size: 0.8em; display:block; margin-left:26px; margin-top:4px;">
+            (Ajoute le message au survol : "En cliquant sur ce lien, vous accédez à un site tiers non affilié à Groupon")
+        </small>
+    </div>
+
+    <div class="dialog-buttons">
+        <button class="btn-secondary" onclick="closeModal('link-modal')">Annuler</button>
+        <button onclick="insertLink()">Insérer</button>
+    </div>
+</dialog>
+
+<dialog id="markdown-modal">
+    <h3>Importer du Markdown</h3>
+    <p style="font-size:0.9em;color:#666;margin-top:0;">Collez votre code Markdown ci-dessous.</p>
+    <div class="form-group">
+        <textarea id="md-input" rows="10" placeholder="## Titre&#10;&#10;- Élément 1" style="font-family:monospace;"></textarea>
+    </div>
+    <div class="dialog-buttons">
+        <button class="btn-secondary" onclick="closeModal('markdown-modal')">Annuler</button>
+        <button onclick="importMarkdown()">Convertir &amp; Insérer</button>
+    </div>
+</dialog>
+
+<!-- MODALE TABLEAU -->
+<dialog id="table-modal">
+    <h3>Insérer un tableau</h3>
+    <p style="font-size:0.9em;color:#666;margin-top:0;">Choisissez la structure du tableau, puis remplissez les entêtes. Les cellules resteront vides pour édition dans Tiptap.</p>
+    <div class="form-group">
+        <label>Nombre de colonnes :</label>
+        <input type="number" id="tbl-cols" value="3" min="1" max="8">
+    </div>
+    <div class="form-group">
+        <label>Nombre de lignes (hors entête) :</label>
+        <input type="number" id="tbl-rows" value="3" min="1" max="20">
+    </div>
+    <div class="form-group">
+        <label><input type="checkbox" id="tbl-has-header" checked> Première ligne en entête (&lt;thead&gt;)</label>
+    </div>
+    <div class="form-group">
+        <label>Style :</label>
+        <select id="tbl-style">
+            <option value="notion">Tableau type Notion (bandeau gris, alternance lignes)</option>
+            <option value="compact">Compact (borders fines)</option>
+            <option value="zebra">Zébré simple</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label>Entêtes de colonnes (séparées par |) :</label>
+        <input type="text" id="tbl-headers" placeholder="Colonne 1 | Colonne 2 | Colonne 3">
+    </div>
+    <div class="dialog-buttons">
+        <button class="btn-secondary" onclick="closeModal('table-modal')">Annuler</button>
+        <button onclick="insertTableFromModal()">Insérer le tableau</button>
+    </div>
+</dialog>
+
+<!-- MODALE IMAGE -->
+<dialog id="image-modal" style="max-width: 900px; width: 90vw;">
+    <h3 style="margin-bottom:14px;">Insérer une Image</h3>
+
+    <div id="img-url-group" class="form-group">
+        <label>1. URL de l'image :</label>
+        <input type="text" id="img-url" placeholder="https://..." oninput="updateModalPreview('image')">
+    </div>
+
+    <div id="opt-display" class="img-opt">
+        <div class="form-group">
+            <label>2. Display :</label>
+            <div class="display-group">
+                <label><input type="radio" name="img-display" value="center" checked onchange="document.getElementById('img-size').value='100%'; updateModalPreview('image')"> ▤ Centre</label>
+                <label><input type="radio" name="img-display" value="left" onchange="document.getElementById('img-size').value='50%'; updateModalPreview('image')"> ▧ Gauche</label>
+                <label><input type="radio" name="img-display" value="right" onchange="document.getElementById('img-size').value='50%'; updateModalPreview('image')"> ▦ Droite</label>
+            </div>
+        </div>
+    </div>
+
+    <div id="opt-alt" class="img-opt">
+        <div class="form-group"><label>3. Accessibilité (Alt) :</label><input type="text" id="img-alt" placeholder="Description courte de l'image..."></div>
+    </div>
+
+    <div id="opt-caption" class="img-opt">
+        <div class="form-group"><label>4. Option - Légende :</label><input type="text" id="img-caption" placeholder="Légende sous l'image..." oninput="updateModalPreview('image')"></div>
+    </div>
+
+    <div id="opt-link" class="img-opt">
+        <div class="form-group"><label>5. Option - Lien cliquable :</label><input type="text" id="img-link-url" placeholder="https://..." oninput="updateModalPreview('image')">
+        <small style="color:#666; font-size: 0.8em;">(Ajoute automatiquement target="_blank" rel="noopener noreferrer")</small>
+        </div>
+    </div>
+
+    <div class="form-group" id="opt-text">
+        <label>6. Texte libre (pour l'option Image + Texte) :</label>
+        <textarea id="img-text" rows="4" placeholder="Saisissez votre texte ici..." style="resize:vertical;min-height:80px;" oninput="updateModalPreview('image')"></textarea>
+        <div style="margin-top:8px; display:flex; gap:16px; font-size:0.9em; align-items:center;">
+            <span>Alignement du texte :</span>
+            <label><input type="radio" name="img-text-align" value="left" checked onchange="updateModalPreview('image')"> Gauche</label>
+            <label><input type="radio" name="img-text-align" value="center" onchange="updateModalPreview('image')"> Centré</label>
+            <label><input type="radio" name="img-text-align" value="right" onchange="updateModalPreview('image')"> Droite</label>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label>7. Option - Format de l'image :</label>
+        <select id="img-format" onchange="onFormatChange(); updateModalPreview('image');">
+            <optgroup label="— Standard —">
+                <option value="standard" selected>Standard (utilise les options Display/Taille/Arrondi)</option>
+            </optgroup>
+            <optgroup label="— Templates Groupon Images —">
+                <option value="tpl-arrondis-haut-bas">Arrondis haut-bas</option>
+                <option value="tpl-ovale-penche">Ovale penché</option>
+                <option value="tpl-ovale-fluide">Ovale fluide</option>
+                <option value="tpl-blob-soft">Blob soft</option>
+                <option value="tpl-blob-ample">Blob ample</option>
+                <option value="tpl-arrondis-bas">Arrondis en bas</option>
+                <option value="tpl-dome">Dôme</option>
+                <option value="tpl-nuage">Nuage</option>
+                <option value="tpl-pinces-1">Effet pinces 1</option>
+                <option value="tpl-pinces-2">Effet pinces 2</option>
+                <option value="tpl-rond-ombre">Rond parfait + ombre</option>
+                <option value="tpl-rond">Rond parfait</option>
+                <option value="tpl-polygon">Polygon (5 côtés)</option>
+                <option value="tpl-losange">Losange</option>
+                <option value="tpl-dessous-arrondi">Dessous arrondi</option>
+                <option value="tpl-polygon6">Polygon 6 côtés</option>
+                <option value="tpl-polygon-ecran">Polygon écran</option>
+                <option value="tpl-grise">Griser image</option>
+                <option value="tpl-enroulement">Enroulement image + texte</option>
+            </optgroup>
+            <optgroup label="— Styles graphiques —">
+                <option value="hero">Hero (texte superposé)</option>
+                <option value="polaroid">Polaroid</option>
+                <option value="promo">Bandeau promo</option>
+                <option value="degrade">Bordure dégradé</option>
+                <option value="ronde">Image ronde (portrait)</option>
+                <option value="carre-ombre">Carrée avec ombre</option>
+                <option value="miniature">Miniature fixe (250×250)</option>
+                <option value="zoom-hover">Zoom au survol</option>
+                <option value="fixed-height">Hauteur fixe (object-fit)</option>
+                <option value="sepia">Sépia</option>
+                <option value="opaque">Semi-transparente</option>
+            </optgroup>
+            <optgroup label="— Réseaux sociaux —">
+                <option value="instagram">Logo Instagram + lien marchand</option>
+            </optgroup>
+            <optgroup label="— Galeries —">
+                <option value="galerie">Galerie responsive (multi-images)</option>
+            </optgroup>
+        </select>
+    </div>
+
+    <div id="opt-size" class="img-opt">
+        <div class="form-group"><label>8. Option - Taille (ex&nbsp;: 100%, 300px) :</label><input type="text" id="img-size" value="100%" oninput="updateModalPreview('image')"></div>
+    </div>
+
+    <div id="opt-radius" class="img-opt">
+        <div class="form-group"><label>9. Option - Border radius (ex&nbsp;: 8px, 50%) :</label><input type="text" id="img-radius" value="8px" oninput="updateModalPreview('image')"></div>
+    </div>
+
+<!-- Champs spécifiques aux templates Groupon -->
+    <div id="opt-tpl-alt" class="img-opt" style="display:none;">
+        <div class="form-group"><label>Alt / Titre image :</label><input type="text" id="img-tpl-alt" placeholder="Description courte de l'image..." oninput="updateModalPreview('image')"></div>
+    </div>
+    <div id="opt-tpl-link" class="img-opt" style="display:none;">
+        <div class="form-group"><label>URL du lien (clic sur l'image) :</label><input type="text" id="img-tpl-link-url" placeholder="https://..." oninput="updateModalPreview('image')"></div>
+    </div>
+    <div id="opt-tpl-text" class="img-opt" style="display:none;">
+        <div class="form-group">
+            <label>Texte d'accompagnement :</label>
+            <textarea id="img-tpl-text" rows="4" placeholder="Votre texte accompagnant l'image..." oninput="updateModalPreview('image')" style="resize:vertical;min-height:80px;"></textarea>
+        </div>
+    </div>
+
+    
+
+    <div id="opt-hero" class="img-opt">
+        <div class="form-group"><label>Titre superposé :</label><input type="text" id="img-hero-title" placeholder="Titre principal" oninput="updateModalPreview('image')"></div>
+        <div class="form-group"><label>Sous-titre :</label><input type="text" id="img-hero-subtitle" placeholder="Sous-titre · Détail · Lieu" oninput="updateModalPreview('image')"></div>
+    </div>
+
+    <div id="opt-promo" class="img-opt">
+        <div class="form-group"><label>Texte promo (ex&nbsp;: -40%) :</label><input type="text" id="img-promo-value" placeholder="-40%" oninput="updateModalPreview('image')"></div>
+        <div class="form-group"><label>Libellé au-dessus :</label><input type="text" id="img-promo-top" placeholder="Jusqu'à" oninput="updateModalPreview('image')"></div>
+        <div class="form-group"><label>Libellé en-dessous :</label><input type="text" id="img-promo-bottom" placeholder="sur vos entrées" oninput="updateModalPreview('image')"></div>
+    </div>
+
+    <div id="opt-instagram" class="img-opt">
+        <div class="form-group"><label>URL Instagram du marchand :</label><input type="text" id="img-insta-url" placeholder="https://www.instagram.com/nommerchant" oninput="updateModalPreview('image')"></div>
+        <div class="form-group"><label>Nom du marchand :</label><input type="text" id="img-insta-nom" placeholder="@NomMarchand" oninput="updateModalPreview('image')"></div>
+    </div>
+
+    <div id="opt-galerie" class="img-opt">
+        <div class="form-group">
+            <label>URLs des images (min. 2, max. 12) :</label>
+            <div id="galerie-urls-container">
+                <div class="galerie-url-row"><input type="text" placeholder="URL image 1..."><button type="button" onclick="removeGalerieRow(this)">✕</button></div>
+                <div class="galerie-url-row"><input type="text" placeholder="URL image 2..."><button type="button" onclick="removeGalerieRow(this)">✕</button></div>
+                <div class="galerie-url-row"><input type="text" placeholder="URL image 3..."><button type="button" onclick="removeGalerieRow(this)">✕</button></div>
+            </div>
+            <button type="button" id="galerie-add-btn" onclick="addGalerieRow()">+ Ajouter une image</button>
+        </div>
+        <div class="form-group">
+            <label>Colonnes (desktop) :</label>
+            <select id="galerie-cols"><option value="2">2</option><option value="3" selected>3</option><option value="4">4</option></select>
+        </div>
+        <div class="form-group">
+            <label>Espacement :</label>
+            <select id="galerie-gap"><option value="4px">Serré (4px)</option><option value="8px" selected>Normal (8px)</option><option value="16px">Aéré (16px)</option></select>
+        </div>
+        <div class="form-group"><label>Arrondi des images :</label><input type="text" id="galerie-radius" value="6px"></div>
+    </div>
+
+    
+
+    <hr class="img-section-sep">
+    <p class="img-section-title">10. Prévisualisation</p>
+    <div id="img-modal-preview" class="modal-preview-box" style="min-height: 250px;"></div>
+
+    <div class="dialog-buttons">
+        <button class="btn-secondary" onclick="closeModal('image-modal')">Annuler</button>
+        <button onclick="insertMedia('image')">Insérer</button>
+    </div>
+</dialog>
+
+<!-- MODALE VIDÉO -->
+<dialog id="video-modal" style="max-width: 900px; width: 90vw;">
+    <h3 style="margin-bottom:14px;">Insérer une Vidéo</h3>
+
+    <div class="form-group">
+        <label>1. URL de la vidéo (YouTube ou .mp4) :</label>
+        <input type="text" id="vid-url" placeholder="https://..." oninput="updateModalPreview('video')">
+    </div>
+
+    <div class="form-group">
+        <label>2. Display :</label>
+        <div class="display-group">
+            <label><input type="radio" name="vid-display" value="center" checked onchange="document.getElementById('vid-align').value='center'; document.getElementById('vid-size').value='100%'; updateModalPreview('video')"> ▤ Centre</label>
+            <label><input type="radio" name="vid-display" value="left" onchange="document.getElementById('vid-align').value='left'; document.getElementById('vid-size').value='50%'; updateModalPreview('video')"> ▧ Gauche (+ Texte)</label>
+            <label><input type="radio" name="vid-display" value="right" onchange="document.getElementById('vid-align').value='right'; document.getElementById('vid-size').value='50%'; updateModalPreview('video')"> ▦ Droite (+ Texte)</label>
+        </div>
+        <input type="hidden" id="vid-align" value="center">
+    </div>
+
+    <div class="form-group">
+        <label>3. Accessibilité (Titre/Alt) :</label>
+        <input type="text" id="vid-alt" placeholder="Titre de la vidéo">
+    </div>
+
+    <div class="form-group">
+        <label>4. Option - Texte descriptif :</label>
+        <textarea id="vid-text" rows="4" oninput="updateModalPreview('video')" style="resize:vertical;min-height:80px;"></textarea>
+    </div>
+
+    <div class="form-group">
+        <label>5. Option - Taille :</label>
+        <input type="text" id="vid-size" value="100%" oninput="updateModalPreview('video')">
+    </div>
+
+    <div class="form-group">
+        <label>6. Option - Border radius :</label>
+        <input type="text" id="vid-radius" value="8px" oninput="updateModalPreview('video')">
+    </div>
+
+    <hr class="img-section-sep">
+    <p class="img-section-title">7. Prévisualisation</p>
+    <div id="vid-modal-preview" class="modal-preview-box" style="min-height: 250px;"></div>
+
+    <div class="dialog-buttons">
+        <button class="btn-secondary" onclick="closeModal('video-modal')">Annuler</button>
+        <button onclick="insertMedia('video')">Insérer</button>
+    </div>
+</dialog>
+
+<script>
+// ============================================================
+// TABLEAUX
+// ============================================================
+function buildTableHtml(cols, rows, headersLine, withHeader, styleKey) {
+    cols = Math.max(1, parseInt(cols) || 1);
+    rows = Math.max(1, parseInt(rows) || 1);
+    const headers = (headersLine || '').split('|').map(h => h.trim());
+    let tableStyle = 'border-collapse:collapse;width:100%;margin:16px 0;font-size:14px;';
+    let thStyle = 'padding:8px 10px;border:1px solid #e2e8f0;background:#f1f5f9;color:#0f172a;text-align:left;font-weight:600;';
+    let tdStyle = 'padding:8px 10px;border:1px solid #e2e8f0;color:#0f172a;text-align:left;';
+    let zebra = false;
+    if (styleKey === 'compact') {
+        thStyle = 'padding:6px 8px;border:1px solid #d4d4d8;background:#f4f4f5;color:#18181b;font-weight:600;';
+        tdStyle = 'padding:6px 8px;border:1px solid #e4e4e7;color:#18181b;';
+    } else if (styleKey === 'zebra') {
+        zebra = true;
+        thStyle = 'padding:8px 10px;border-bottom:2px solid #e2e8f0;background:#f9fafb;color:#111827;font-weight:600;';
+        tdStyle = 'padding:8px 10px;border-bottom:1px solid #e5e7eb;color:#111827;';
+    }
+    let html = `<table style="${tableStyle}">`;
+    if (withHeader) {
+        html += '<thead><tr>';
+        for (let c = 0; c < cols; c++) {
+            const label = headers[c] || `Colonne ${c + 1}`;
+            html += `<th style="${thStyle}">${label}</th>`;
+        }
+        html += '</tr></thead>';
+    }
+    html += '<tbody>';
+    for (let r = 0; r < rows; r++) {
+        const rowStyle = zebra && (r % 2 === 1) ? 'background:#f9fafb;' : '';
+        html += `<tr style="${rowStyle}">`;
+        for (let c = 0; c < cols; c++) {
+            html += `<td style="${tdStyle}"></td>`;
+        }
+        html += '</tr>';
+    }
+    html += '</tbody></table><p>&nbsp;</p>';
+    return html;
+}
+
+function insertTableFromModal() {
+    const cols = document.getElementById('tbl-cols').value;
+    const rows = document.getElementById('tbl-rows').value;
+    const headersLine = document.getElementById('tbl-headers').value;
+    const withHeader = document.getElementById('tbl-has-header').checked;
+    const styleKey = document.getElementById('tbl-style').value;
+    const html = buildTableHtml(cols, rows, headersLine, withHeader, styleKey);
+    document.getElementById('visual-editor').focus();
+    closeModal('table-modal');
+    insertHtmlAtCursor(html);
+}
+
+// ============================================================
+// FORMATS SPECIAUX
+// ============================================================
+const FORMATS_SPECIAUX     = new Set(['instagram', 'galerie']);
+const FORMATS_SANS_DISPLAY = new Set(['instagram', 'galerie', 'float-left', 'float-right',
+    'tpl-normal','tpl-angles-arrondis','tpl-lien-cliquable','tpl-arrondis-haut-bas',
+    'tpl-ovale-penche','tpl-ovale-fluide','tpl-blob-soft','tpl-blob-ample',
+    'tpl-arrondis-bas','tpl-dome','tpl-nuage','tpl-pinces-1','tpl-pinces-2',
+    'tpl-rond-ombre','tpl-rond','tpl-polygon','tpl-losange','tpl-dessous-arrondi',
+    'tpl-polygon6','tpl-polygon-ecran','tpl-grise','tpl-enroulement']);
+
+const FORMATS_TPL = new Set([
+    'tpl-normal','tpl-angles-arrondis','tpl-lien-cliquable','tpl-arrondis-haut-bas',
+    'tpl-ovale-penche','tpl-ovale-fluide','tpl-blob-soft','tpl-blob-ample',
+    'tpl-arrondis-bas','tpl-dome','tpl-nuage','tpl-pinces-1','tpl-pinces-2',
+    'tpl-rond-ombre','tpl-rond','tpl-polygon','tpl-losange','tpl-dessous-arrondi',
+    'tpl-polygon6','tpl-polygon-ecran','tpl-grise','tpl-enroulement'
+]);
+
+const FORMAT_EXTRA = {
+    'float-left':    { text:1 },
+    'float-right':   { text:1 },
+    'hero':          { hero:1 },
+    'promo':         { promo:1 },
+    'instagram':     { instagram:1 },
+    'galerie':       { galerie:1 },
+    'tpl-lien-cliquable': { tplLink:1, tplAlt:1 },
+    'tpl-enroulement':    { tplText:1, tplAlt:1 }
+};
+
+const OPT_SPECIFIC_IDS = ['opt-text','opt-hero','opt-promo','opt-instagram','opt-galerie','opt-tpl-alt','opt-tpl-link','opt-tpl-text'];
+const OPT_SPECIFIC_MAP = {
+    'opt-text':'text','opt-hero':'hero','opt-promo':'promo',
+    'opt-instagram':'instagram','opt-galerie':'galerie',
+    'opt-tpl-alt':'tplAlt','opt-tpl-link':'tplLink','opt-tpl-text':'tplText'
+};
+const OPT_UNIVERSAL_IDS = ['opt-alt','opt-caption','opt-link','opt-size','opt-radius'];
+
+function getDisplayValue() {
+    return document.querySelector('input[name="img-display"]:checked')?.value || 'center';
+}
+
+function isTplFormat(fmt) {
+    return FORMATS_TPL.has(fmt);
+}
+
+function onFormatChange() {
+    const fmt       = document.getElementById('img-format').value;
+    const isSpecial = FORMATS_SPECIAUX.has(fmt);
+    const extra     = FORMAT_EXTRA[fmt] || {};
+
+    document.getElementById('img-url-group').style.display = isSpecial ? 'none' : 'block';
+
+    document.getElementById('opt-display').classList.add('show');
+
+    OPT_UNIVERSAL_IDS.forEach(id => {
+        document.getElementById(id).classList.add('show');
+    });
+
+    OPT_SPECIFIC_IDS.forEach(id => {
+        const el = document.getElementById(id);
+
+        if (id === 'opt-tpl-alt' || id === 'opt-tpl-link' || id === 'opt-tpl-text') {
+            el.classList.remove('show');
+            return;
+        }
+
+        const key = OPT_SPECIFIC_MAP[id];
+        el.classList.toggle('show', !!extra[key]);
+    });
+}
+
+// ── Galerie
+function addGalerieRow() {
+    const c = document.getElementById('galerie-urls-container');
+    if (c.children.length >= 12) return;
+    const n = c.children.length + 1;
+    const row = document.createElement('div');
+    row.className = 'galerie-url-row';
+    row.innerHTML = `<input type="text" placeholder="URL image ${n}..."><button type="button" onclick="removeGalerieRow(this)">✕</button>`;
+    c.appendChild(row);
+}
+function removeGalerieRow(btn) {
+    const c = document.getElementById('galerie-urls-container');
+    if (c.children.length <= 2) return;
+    btn.closest('.galerie-url-row').remove();
+}
+
+// ── Ouverture modale image
+function openImageModal() {
+    ['img-url','img-alt','img-caption','img-text','img-hero-title','img-hero-subtitle',
+     'img-promo-value','img-promo-top','img-promo-bottom','img-link-url',
+     'img-insta-url','img-insta-nom','img-tpl-alt','img-tpl-link-url','img-tpl-text'].forEach(id => {
+        const el = document.getElementById(id); if (el) el.value = '';
+    });
+    document.getElementById('img-size').value   = '100%';
+    document.getElementById('img-radius').value = '8px';
+    document.getElementById('img-format').value = 'standard';
+    const radioCenter = document.querySelector('input[name="img-display"][value="center"]');
+    if (radioCenter) radioCenter.checked = true;
+    const gc = document.getElementById('galerie-urls-container');
+    gc.innerHTML = '';
+    for (let i = 1; i <= 3; i++) {
+        const row = document.createElement('div');
+        row.className = 'galerie-url-row';
+        row.innerHTML = `<input type="text" placeholder="URL image ${i}..."><button type="button" onclick="removeGalerieRow(this)">✕</button>`;
+        gc.appendChild(row);
+    }
+    document.getElementById('galerie-cols').value   = '3';
+    document.getElementById('galerie-gap').value    = '8px';
+    document.getElementById('galerie-radius').value = '6px';
+    document.getElementById('img-modal-preview').innerHTML = '<div class="preview-placeholder">Aperçu (entrez une URL)</div>';
+    onFormatChange();
+    document.getElementById('image-modal').showModal();
+}
+
+function openTemplates() {
+    if (typeof showTemplatesModal === 'function') {
+        showTemplatesModal();
+    } else {
+        alert('Erreur : la fonction showTemplatesModal est introuvable.');
+    }
+}
+
+function showTemplatesModal() {
+    const listContainer = document.getElementById('templates-list');
+    listContainer.innerHTML = ''; 
+
+    const modeles = window.mesModelesExternes;
+    if (!modeles || !Array.isArray(modeles) || modeles.length === 0) {
+        listContainer.innerHTML = '<p style="color:var(--text-color);">Aucun modèle trouvé. Vérifiez que templates.js est bien chargé.</p>';
+    } else {
+        modeles.forEach(modele => {
+            const btn = document.createElement('button');
+            btn.textContent = modele.name;
+            btn.style.textAlign = 'left';
+            btn.style.width = '100%';
+            btn.style.padding = '10px';
+            btn.style.marginBottom = '5px';
+            btn.className = 'btn-secondary';
+
+            btn.onclick = () => {
+                insertHtmlAtCursor(modele.content);
+                closeModal('templates-modal');
+                updateFromVisual();
+            };
+
+            listContainer.appendChild(btn);
+        });
+    }
+
+    document.getElementById('templates-modal').showModal();
+}
+
+function saveToLocalStorage(content) {
+    try { localStorage.setItem('editor_saved_data', content); } catch(e) {}
+    const s = document.getElementById('save-status');
+    s.style.opacity = '1';
+    clearTimeout(window._saveTimeout);
+    window._saveTimeout = setTimeout(() => { s.style.opacity = '0'; }, 2000);
+}
+
+function resetEditor() {
+    if (confirm('Êtes-vous sûr de vouloir tout effacer ?')) {
+        document.getElementById('visual-editor').innerHTML = '';
+        try { localStorage.removeItem('editor_saved_data'); } catch(e) {}
+        updateFromVisual();
+    }
+}
+
+function exportHtml() {
+    const v = document.getElementById('html-output').value;
+    if (!v.trim()) { alert('Rien à exporter !'); return; }
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([v], { type: 'text/plain' }));
+    a.download = 'mon_code_html.txt';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+}
+
+function importMarkdown() {
+    const txt = document.getElementById('md-input').value;
+    if (!txt.trim()) { closeModal('markdown-modal'); return; }
+    if (typeof marked === 'undefined') {
+        alert('La librairie Marked n\'a pas pu être chargée (vérifiez votre connexion internet).');
+        return;
+    }
+    const html = marked.parse(txt, { breaks: true, gfm: true });
+    closeModal('markdown-modal');
+    document.getElementById('md-input').value = '';
+    document.getElementById('visual-editor').focus();
+    insertHtmlAtCursor(String(html));
+}
+
+function closeModal(id) {
+    document.getElementById(id).close();
+    if (id === 'video-modal')
+        document.getElementById('vid-modal-preview').innerHTML = '<div class="preview-placeholder">Aperçu intégral (Entrez une URL)</div>';
+}
+
+// ============================================================
+// PREVIEW MODALE
+// ============================================================
+function updateModalPreview(type) {
+    if (type !== 'image') {
+        const url   = document.getElementById('vid-url').value.trim();
+        const box   = document.getElementById('vid-modal-preview');
+        const size  = document.getElementById('vid-size').value;
+        const r     = document.getElementById('vid-radius').value;
+        const align = document.getElementById('vid-align').value;
+        if (!url) { box.innerHTML = '<div class="preview-placeholder">Aperçu intégral (Entrez une URL)</div>'; return; }
+        const ms  = `width:100%;border-radius:${r};display:block;object-fit:contain;`;
+        const raw = document.getElementById('vid-text').value;
+        const txt = raw.trim()
+            ? raw.split('\n').filter(p=>p.trim()).map(p=>`<p style="margin:0 0 10px;color:#222;">${p}</p>`).join('')
+            : '<p style="font-style:italic;color:#999;margin:0;">(Votre texte ici…)</p>';
+        const yt = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
+        const media = yt
+            ? `<iframe style="${ms}aspect-ratio:16/9;max-height:200px;" src="https://www.youtube-nocookie.com/embed/${yt[1]}?rel=0" frameborder="0"></iframe>`
+            : `<video src="${url}" style="${ms}max-height:200px;" controls></video>`;
+        box.innerHTML = align === 'center'
+            ? `<div style="margin-bottom:20px;text-align:center;"><figure style="margin:0 auto 10px;width:${size};max-width:100%;">${media}</figure>${txt}</div>`
+            : `<div style="display:flex;flex-wrap:wrap;gap:12px;flex-direction:${align==='right'?'row-reverse':'row'};"><figure style="margin:0;flex:1 1 ${size};min-width:120px;">${media}</figure><div style="flex:1 1 120px;">${txt}</div></div>`;
+        return;
+    }
+    const fmt = document.getElementById('img-format').value;
+    const box = document.getElementById('img-modal-preview');
+    if (fmt === 'instagram') {
+        const iu = document.getElementById('img-insta-url').value.trim() || 'URL';
+        const nm = document.getElementById('img-insta-nom').value.trim() || 'NomMarchand';
+        box.innerHTML = `<div style="text-align:center;padding:10px;"><a href="${iu}" style="display:inline-flex;align-items:center;gap:10px;text-decoration:none;color:#E1306C;font-size:15px;font-weight:600;"><img src="https://img.grouponcdn.com/editorial/Q6qS1c4xBikscgJTzmXff1/logo-instagram-550x550" alt="Instagram" style="width:32px;height:32px;"><span>${nm}</span></a></div>`;
+        return;
+    }
+    if (fmt === 'galerie') {
+        const cols=document.getElementById('galerie-cols').value, gap=document.getElementById('galerie-gap').value, radius=document.getElementById('galerie-radius').value;
+        const urls=[...document.querySelectorAll('#galerie-urls-container input')].map(i=>i.value.trim()).filter(Boolean);
+        if (!urls.length) { box.innerHTML='<div class="preview-placeholder">Ajoutez au moins une URL</div>'; return; }
+        box.innerHTML=`<div style="display:grid;grid-template-columns:repeat(${cols},1fr);gap:${gap};">${urls.map(u=>`<img src="${u}" alt="" style="width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:${radius};display:block;" loading="lazy">`).join('')}</div>`;
+        return;
+    }
+    const url = isTplFormat(fmt)
+        ? document.getElementById('img-url').value.trim()
+        : document.getElementById('img-url').value.trim();
+    if (!url && fmt !== 'instagram' && fmt !== 'galerie') { box.innerHTML = '<div class="preview-placeholder">Aperçu (entrez une URL)</div>'; return; }
+    box.innerHTML = buildImageSnippet(fmt, url);
+}
+
+// ============================================================
+// HELPER display
+// ============================================================
+function applyDisplay(inner, display, size) {
+    if (display === 'left') {
+        return `<div style="float:left;width:${size};margin:0 20px 12px 0;">${inner}</div><div style="clear:both;"></div><p>&nbsp;</p>`;
+    }
+    if (display === 'right') {
+        return `<div style="float:right;width:${size};margin:0 0 12px 20px;">${inner}</div><div style="clear:both;"></div><p>&nbsp;</p>`;
+    }
+    return `<div style="text-align:center;margin-bottom:20px;">${inner}</div><p>&nbsp;</p>`;
+}
+
+// ============================================================
+// GÉNÉRATION HTML PAR FORMAT
+// ============================================================
+
+function buildImageSnippet(fmt, url) {
+    const alt     = document.getElementById('img-alt')?.value     || 'image';
+    const caption = document.getElementById('img-caption')?.value || '';
+    let size      = document.getElementById('img-size')?.value    || '100%';
+    const radius  = document.getElementById('img-radius')?.value  || '8px';
+    const linkUrl = document.getElementById('img-link-url')?.value.trim() || '';
+    const display = getDisplayValue();
+    const textAlign = document.querySelector('input[name="img-text-align"]:checked')?.value || 'left';
+
+    const captFig = caption
+        ? `<figcaption style="font-size:13px;color:#64748b;text-align:center;margin-top:6px;font-style:italic;">${caption}</figcaption>`
+        : '';
+
+    let baseImgStyle = `width:100%; max-width:100%; height:auto; border-radius:${radius}; display:block;`;
+    let extraImgStyle = '';
+
+    // 1. Déterminer le style spécifique à l'image selon le format choisi
+    switch (fmt) {
+        case 'standard': 
+            extraImgStyle = ''; break;
+        case 'tpl-arrondis-haut-bas': 
+            extraImgStyle = 'border-radius:50% 50% 0 0 / 20% 20% 0 0;'; break;
+        case 'tpl-ovale-penche': 
+            extraImgStyle = 'border-radius:30% 70% 70% 30% / 30% 30% 70% 70%;'; break;
+        case 'tpl-ovale-fluide': 
+        case 'tpl-rond':
+        case 'ronde':
+            extraImgStyle = 'border-radius:50%;'; break;
+        case 'tpl-blob-soft': 
+            extraImgStyle = 'border-radius:60% 40% 30% 70% / 60% 30% 70% 40%;'; break;
+        case 'tpl-blob-ample': 
+            extraImgStyle = 'border-radius:40% 60% 60% 40% / 40% 40% 60% 60%;'; break;
+        case 'tpl-arrondis-bas': 
+            extraImgStyle = 'border-radius:0 0 50% 50% / 0 0 20% 20%;'; break;
+        case 'tpl-dome': 
+            extraImgStyle = 'border-radius:50% 50% 0 0;'; break;
+        case 'tpl-nuage': 
+            extraImgStyle = 'border-radius:50% 50% 50% 50% / 60% 60% 40% 40%;'; break;
+        case 'tpl-pinces-1': 
+            extraImgStyle = 'border-radius:100% 0% 100% 0% / 100% 0% 100% 0%;'; break;
+        case 'tpl-pinces-2': 
+            extraImgStyle = 'border-radius:0% 100% 0% 100% / 0% 100% 0% 100%;'; break;
+        case 'tpl-rond-ombre': 
+            extraImgStyle = 'border-radius:50%; box-shadow:0 8px 24px rgba(0,0,0,0.2);'; break;
+        case 'tpl-polygon': 
+            extraImgStyle = 'clip-path:polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%); border-radius:0;'; break;
+        case 'tpl-losange': 
+            extraImgStyle = 'clip-path:polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); border-radius:0;'; break;
+        case 'tpl-dessous-arrondi': 
+            extraImgStyle = 'border-radius:0 0 24px 24px;'; break;
+        case 'tpl-polygon6': 
+            extraImgStyle = 'clip-path:polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%); border-radius:0;'; break;
+        case 'tpl-polygon-ecran': 
+            extraImgStyle = 'clip-path:polygon(0% 5%, 5% 0%, 95% 0%, 100% 5%, 100% 95%, 95% 100%, 5% 100%, 0% 95%); border-radius:0;'; break;
+        case 'tpl-grise': 
+            extraImgStyle = 'filter:grayscale(100%);'; break;
+        case 'sepia':
+            extraImgStyle = 'filter:sepia(100%);'; break;
+        case 'opaque':
+            extraImgStyle = 'opacity:0.6;'; break;
+        case 'degrade':
+            extraImgStyle = 'padding:4px; background:linear-gradient(45deg, #ff007f, #ff7f00); border-radius:12px;'; break;
+        case 'carre-ombre':
+            extraImgStyle = 'box-shadow:0 10px 30px rgba(0,0,0,0.15);'; break;
+        case 'miniature':
+            extraImgStyle = 'width:250px; height:250px; object-fit:cover;'; size = '250px'; break;
+        case 'fixed-height':
+            extraImgStyle = 'height:300px; object-fit:cover;'; break;
+    }
+
+    // On combine le style final de l'image
+    const finalImgStyle = extraImgStyle.includes('width') || extraImgStyle.includes('padding') 
+        ? `${extraImgStyle} display:block;` 
+        : `${baseImgStyle} ${extraImgStyle}`;
+
+    let imgHtml = `<img src="${url}" alt="${alt}" loading="lazy" decoding="async" style="${finalImgStyle}">`;
+
+    // Gestion de formats très spéciaux qui remplacent tout
+    if (fmt === 'polaroid') {
+        imgHtml = `<div style="background:#fff; padding:12px 12px 40px; box-shadow:0 4px 15px rgba(0,0,0,0.1); border-radius:2px; transform:rotate(-2deg); display:inline-block; width:100%;"><img src="${url}" alt="${alt}" style="width:100%; display:block;"></div>`;
+    } else if (fmt === 'hero') {
+        const hTitle = document.getElementById('img-hero-title')?.value || 'Titre Hero';
+        const hSub   = document.getElementById('img-hero-subtitle')?.value || 'Sous-titre';
+        return `<div style="position:relative; width:${size}; max-width:100%; margin:24px auto; border-radius:${radius}; overflow:hidden; display:flex; align-items:center; justify-content:center; min-height:300px;"><img src="${url}" alt="${alt}" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; z-index:1;"><div style="position:absolute; inset:0; background:rgba(0,0,0,0.4); z-index:2;"></div><div style="position:relative; z-index:3; text-align:center; color:#fff; padding:20px;"><h2 style="margin:0 0 10px; font-size:2em; text-shadow:0 2px 4px rgba(0,0,0,0.5);">${hTitle}</h2><p style="margin:0; font-size:1.2em; text-shadow:0 1px 3px rgba(0,0,0,0.5);">${hSub}</p></div></div><p>&nbsp;</p>`;
+    } else if (fmt === 'promo') {
+        const pVal = document.getElementById('img-promo-value')?.value || '-40%';
+        const pTop = document.getElementById('img-promo-top')?.value || 'Jusqu\'à';
+        const pBot = document.getElementById('img-promo-bottom')?.value || 'de remise';
+        return `<div style="position:relative; width:${size}; max-width:100%; margin:24px auto; border-radius:${radius}; overflow:hidden;"><img src="${url}" alt="${alt}" style="width:100%; display:block;"><div style="position:absolute; bottom:20px; right:20px; background:#e53935; color:#fff; padding:15px; text-align:center; border-radius:50%; width:100px; height:100px; display:flex; flex-direction:column; justify-content:center; box-shadow:0 4px 10px rgba(0,0,0,0.3);"><span style="font-size:12px; font-weight:600; text-transform:uppercase;">${pTop}</span><span style="font-size:28px; font-weight:800; line-height:1;">${pVal}</span><span style="font-size:12px; font-weight:600; text-transform:uppercase;">${pBot}</span></div></div><p>&nbsp;</p>`;
+    } else if (fmt === 'zoom-hover') {
+        imgHtml = `<div style="overflow:hidden; border-radius:${radius};"><img src="${url}" alt="${alt}" style="width:100%; display:block; transition:transform 0.3s ease;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'"></div>`;
+    }
+
+    // Assemblage Figure
+    let figHtml = captFig ? `<figure style="margin:0;">${imgHtml}${captFig}</figure>` : imgHtml;
+
+    // Ajout du lien
+    if (linkUrl) {
+        figHtml = `<a href="${linkUrl}" target="_blank" rel="noopener noreferrer" title="En cliquant sur ce lien, vous accédez à un site tiers non affilié à Groupon" style="display:block;line-height:0;text-decoration:none;">${figHtml}</a>`;
+    }
+
+    // 2. Gestion du LAYOUT (Display et Texte) commune à tous les formats !
+    const rawText = document.getElementById('img-text') ? document.getElementById('img-text').value : '';
+    const txt = rawText.trim() ? rawText.split('\n').filter(p=>p.trim()).map(p=>`<p style="margin:0 0 10px; font-size:15px; line-height:1.7; color:#333;">${p}</p>`).join('') : '';
+
+    if (!txt) {
+        if (display === 'center') return `<div style="text-align:center; margin:16px 0;"><div style="display:inline-block; width:${size}; max-width:100%;">${figHtml}</div></div>`;
+        const floatStyle = display === 'left' ? `float:left; margin:0 20px 12px 0;` : `float:right; margin:0 0 12px 20px;`;
+        return `<div style="${floatStyle} width:${size};">${figHtml}</div><div style="clear:both;"></div>`;
+    } else {
+        if (display === 'center') {
+            return `<div style="text-align:center; margin:16px 0;"><div style="display:inline-block; width:${size}; max-width:100%;">${figHtml}</div><div style="margin-top:16px; text-align:${textAlign};">${txt}</div></div>`;
+        } else {
+            const floatStyle = display === 'left' ? `float:left; margin:0 20px 12px 0;` : `float:right; margin:0 0 12px 20px;`;
+            return `<div style="margin:20px 0; overflow:hidden;"><div style="${floatStyle} width:${size}; max-width:100%;">${figHtml}</div><div style="font-size:15px; color:#333; text-align:${textAlign};">${txt}</div><div style="clear:both;"></div></div>`;
+        }
+    }
+}
+
+
+// ============================================================
+// EDITION / SYNCHRO VISUEL ↔ HTML ↔ PREVIEW
+// ============================================================
+function updateFromVisual() {
+    const visual = document.getElementById('visual-editor');
+    const htmlOutput = document.getElementById('html-output');
+    const preview = document.getElementById('preview-output');
+    const content = visual.innerHTML;
+    htmlOutput.value = content;
+    preview.innerHTML = content;
+    saveToLocalStorage(content);
+}
+
+function copyHtml() {
+    const html = document.getElementById('html-output').value;
+    if (!html.trim()) return;
+    navigator.clipboard.writeText(html).then(() => {
+        const s = document.getElementById('save-status');
+        s.textContent = '✓ Copié';
+        s.style.opacity = '1';
+        clearTimeout(window._copyTimeout);
+        window._copyTimeout = setTimeout(() => { s.textContent = '✓ Sauvegardé'; s.style.opacity = '0'; }, 1500);
+    });
+}
+
+let savedEditorRange = null;
+
+function saveEditorSelection() {
+    const editor = document.getElementById('visual-editor');
+    const sel = window.getSelection();
+    if (!sel || sel.rangeCount === 0) return;
+
+    const range = sel.getRangeAt(0);
+    if (editor.contains(range.commonAncestorContainer)) {
+        savedEditorRange = range.cloneRange();
+    }
+}
+
+function restoreEditorSelection() {
+    const editor = document.getElementById('visual-editor');
+    const sel = window.getSelection();
+    editor.focus();
+    sel.removeAllRanges();
+
+    if (savedEditorRange) {
+        sel.addRange(savedEditorRange);
+        return true;
+    }
+    return false;
+}
+
+function insertHtmlAtCursor(html) {
+    const editor = document.getElementById('visual-editor');
+    const sel = window.getSelection();
+
+    const hasValidSavedRange = savedEditorRange && editor.contains(savedEditorRange.commonAncestorContainer);
+
+    if (!hasValidSavedRange) {
+        editor.insertAdjacentHTML('beforeend', html);
+        updateFromVisual();
+        saveEditorSelection();
+        return;
+    }
+
+    restoreEditorSelection();
+
+    if (!sel || sel.rangeCount === 0) {
+        editor.insertAdjacentHTML('beforeend', html);
+        updateFromVisual();
+        saveEditorSelection();
+        return;
+    }
+
+    const range = sel.getRangeAt(0);
+    range.deleteContents();
+
+    const temp = document.createElement('div');
+    temp.innerHTML = html;
+
+    const frag = document.createDocumentFragment();
+    let node, lastNode;
+    while ((node = temp.firstChild)) {
+        lastNode = frag.appendChild(node);
+    }
+
+    range.insertNode(frag);
+
+    if (lastNode) {
+        range.setStartAfter(lastNode);
+        range.collapse(true);
+        sel.removeAllRanges();
+        sel.addRange(range);
+        savedEditorRange = range.cloneRange();
+    }
+
+    updateFromVisual();
+}
+
+function setDeviceView(cls) {
+    const preview = document.getElementById('preview-output');
+    preview.classList.remove('mobile-view','tablet-view','desktop-view');
+    preview.classList.add(cls);
+}
+
+function toggleTheme() {
+    const preview = document.getElementById('preview-output');
+    const btn = document.getElementById('theme-toggle');
+    if (preview.classList.contains('theme-light')) {
+        preview.classList.remove('theme-light');
+        preview.classList.add('theme-dark');
+        btn.textContent = '🌞 Thème';
+    } else {
+        preview.classList.remove('theme-dark');
+        preview.classList.add('theme-light');
+        btn.textContent = '🌓 Thème';
+    }
+}
+
+document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
+
+const visualEditor = document.getElementById('visual-editor');
+['keyup', 'mouseup', 'input', 'focus'].forEach(evt => {
+    visualEditor.addEventListener(evt, saveEditorSelection);
+});
+
+['input','keyup','blur','paste'].forEach(evt => {
+    visualEditor.addEventListener(evt, () => {
+        setTimeout(updateFromVisual, 0);
+    });
+});
+
+window.addEventListener('load', () => {
+    try {
+        const saved = localStorage.getItem('editor_saved_data');
+        if (saved) {
+            document.getElementById('visual-editor').innerHTML = saved;
+            updateFromVisual();
+        }
+    } catch(e) {}
+});
+
+function formatText(cmd, value = null) {
+    if (cmd === 'formatBlock') {
+        document.execCommand('formatBlock', false, value);
+    } else {
+        document.execCommand(cmd, false, value);
+    }
+    updateFromVisual();
+}
+
+function insertMedia(type) {
+    let html = '';
+    if (type === 'image') {
+        const fmt = document.getElementById('img-format').value;
+        const url = fmt === 'instagram' || fmt === 'galerie'
+            ? ''
+            : document.getElementById('img-url').value.trim();
+        if (!url && fmt !== 'instagram' && fmt !== 'galerie') {
+            alert('Merci de renseigner une URL d\'image.');
+            return;
+        }
+        html = buildImageSnippet(fmt, url);
+        document.getElementById('visual-editor').focus();
+        closeModal('image-modal');
+    } else if (type === 'video') {
+        const url = document.getElementById('vid-url').value.trim();
+        if (!url) { alert('Merci de renseigner une URL de vidéo.'); return; }
+        const alt = document.getElementById('vid-alt').value || 'Vidéo';
+        const captionElem = document.getElementById('vid-caption');
+        const caption = captionElem ? captionElem.value : '';
+        const sizeElem = document.getElementById('vid-size');
+        const size = sizeElem ? sizeElem.value : '100%';
+        const radiusElem = document.getElementById('vid-radius');
+        const radius = radiusElem ? radiusElem.value : '8px';
+        const alignElem = document.getElementById('vid-align');
+        const align = alignElem ? alignElem.value : 'center';
+        const autoplayElem = document.getElementById('vid-autoplay');
+        const autoplay = autoplayElem ? autoplayElem.checked : false;
+        const rawText = document.getElementById('vid-text').value;
+        const txt = rawText.trim()
+            ? rawText.split('\n').filter(p=>p.trim()).map(p=>`<p style="margin:0 0 10px;">${p}</p>`).join('')
+            : '';
+        const yt = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
+        const autoplayParams = autoplay ? '?autoplay=1&mute=1' : '';
+        const media = yt
+            ? `<iframe title="${alt}" style="width:100%;aspect-ratio:16/9;border-radius:${radius};" src="https://www.youtube-nocookie.com/embed/${yt[1]}${autoplayParams}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`
+            : `<video src="${url}" title="${alt}" style="width:100%;border-radius:${radius};" ${autoplay ? 'autoplay muted loop' : 'controls'}></video>`;
+        const captionTag = caption ? `<figcaption style="font-size:13px;color:#64748b;text-align:center;margin-top:6px;">${caption}</figcaption>` : '';
+        const fig = captionTag ? `<figure style="margin:0;">${media}${captionTag}</figure>` : media;
+        if (align === 'center') {
+            html = `<div style="text-align:center;margin:16px 0;"><div style="display:inline-block;width:${size};max-width:100%;">${fig}</div>${txt}</div><p>&nbsp;</p>`;
+        } else {
+            const isRight = align === 'right';
+            html = `<div style="display:flex;flex-wrap:wrap;gap:16px;margin:16px 0;flex-direction:${isRight ? 'row-reverse' : 'row'};"><div style="flex:1 1 ${size};min-width:220px;">${fig}</div><div style="flex:1 1 220px;font-size:15px;line-height:1.7;color:#333;">${txt || '<p>Votre texte descriptif ici.</p>'}</div></div><p>&nbsp;</p>`;
+        }
+        document.getElementById('visual-editor').focus();
+        closeModal('video-modal');
+    }
+    insertHtmlAtCursor(html);
+}
+
+// ============================================================
+// DRAG & DROP RESIZE PANELS
+// ============================================================
+let activeResizer = null;
+const p1 = document.querySelectorAll('.panel')[0];
+const p2 = document.querySelectorAll('.panel')[1];
+const p3 = document.querySelectorAll('.panel')[2];
+const r1 = document.getElementById('resizer-1');
+const r2 = document.getElementById('resizer-2');
+const mainContainer = document.querySelector('main');
+
+if (r1 && r2) {
+    r1.addEventListener('mousedown', (e) => { activeResizer = 1; document.body.style.cursor = 'col-resize'; r1.classList.add('active'); e.preventDefault(); });
+    r2.addEventListener('mousedown', (e) => { activeResizer = 2; document.body.style.cursor = 'col-resize'; r2.classList.add('active'); e.preventDefault(); });
+
+    window.addEventListener('mousemove', (e) => {
+        if (!activeResizer) return;
+        const rect = mainContainer.getBoundingClientRect();
+        if (activeResizer === 1) {
+            let w = ((e.clientX - rect.left) / rect.width) * 100;
+            if (w > 10 && w < 80) p1.style.flex = `0 0 ${w}%`;
+        } else if (activeResizer === 2) {
+            let w = ((rect.right - e.clientX) / rect.width) * 100;
+            if (w > 10 && w < 80) p3.style.flex = `0 0 ${w}%`;
+        }
+    });
+
+    window.addEventListener('mouseup', () => {
+        if (activeResizer) {
+            activeResizer = null;
+            document.body.style.cursor = 'default';
+            r1.classList.remove('active');
+            r2.classList.remove('active');
+        }
+    });
+}
+
+function resetPanelsWidth() {
+    if(p1) p1.style.flex = '1 1 0';
+    if(p2) p2.style.flex = '1 1 0';
+    if(p3) p3.style.flex = '1 1 0';
+}
+
+
+// ============================================================
+// MAXIMIZE PANELS
+// ============================================================
+function toggleMaximize(index) {
+    const panels = document.querySelectorAll('.panel');
+    const resizers = document.querySelectorAll('.resizer');
+    const btn = panels[index].querySelector('.btn-maximize');
+
+    // Check if currently maximized
+    const isMax = panels[index].classList.contains('maximized');
+
+    if (isMax) {
+        // Restore
+        panels.forEach(p => p.classList.remove('hidden-by-max', 'maximized'));
+        resizers.forEach(r => r.classList.remove('hidden-by-max'));
+        btn.innerHTML = '🗖';
+        btn.title = "Plein écran";
+    } else {
+        // Maximize
+        panels.forEach((p, i) => {
+            if (i === index) {
+                p.classList.add('maximized');
+                p.classList.remove('hidden-by-max');
+            } else {
+                p.classList.add('hidden-by-max');
+            }
+        });
+        resizers.forEach(r => r.classList.add('hidden-by-max'));
+        btn.innerHTML = '🗗';
+        btn.title = "Réduire";
+
+        // Reset manual width
+        resetPanelsWidth();
+    }
+}
+
+
+// ============================================================
+// MODULE LIENS (WEB, TEL, EMAIL)
+// ============================================================
+function openLinkModal() {
+    document.getElementById('link-target').value = '';
+
+    // Récupérer le texte sélectionné s'il y en a un
+    let selectedText = '';
+    const selection = window.getSelection();
+    if (selection.rangeCount > 0 && selection.toString().length > 0) {
+        selectedText = selection.toString();
+    }
+
+    document.getElementById('link-text').value = selectedText;
+    document.getElementById('link-type').value = 'web';
+    document.getElementById('link-warning').checked = false;
+
+    updateLinkModal();
+    document.getElementById('link-modal').showModal();
+}
+
+function updateLinkModal() {
+    const type = document.getElementById('link-type').value;
+    const label = document.getElementById('link-target-label');
+    const input = document.getElementById('link-target');
+    const warningGroup = document.getElementById('link-warning-group');
+
+    if (type === 'web') {
+        label.textContent = '2. URL du lien :';
+        input.placeholder = 'https://...';
+        warningGroup.style.display = 'block';
+    } else if (type === 'tel') {
+        label.textContent = '2. Numéro de téléphone :';
+        input.placeholder = '+33 1 23 45 67 89';
+        warningGroup.style.display = 'none';
+    } else if (type === 'email') {
+        label.textContent = '2. Adresse e-mail :';
+        input.placeholder = 'contact@exemple.com';
+        warningGroup.style.display = 'none';
+    }
+}
+
+function insertLink() {
+    const type = document.getElementById('link-type').value;
+    let target = document.getElementById('link-target').value.trim();
+    let text = document.getElementById('link-text').value.trim();
+    const warning = document.getElementById('link-warning').checked;
+
+    if (!target) {
+        alert("Veuillez renseigner la cible du lien (URL, téléphone ou email).");
+        return;
+    }
+
+    // Gestion des préfixes obligatoires
+    if (type === 'tel') {
+        // Enlever les espaces éventuels pour le href
+        const cleanPhone = target.replace(/\s+/g, '');
+        if (!target.startsWith('tel:')) target = 'tel:' + cleanPhone;
+    } else if (type === 'email') {
+        if (!target.startsWith('mailto:')) target = 'mailto:' + target;
+    } else if (type === 'web') {
+        if (!target.match(/^https?:\/\//)) target = 'https://' + target;
+    }
+
+    // Si pas de texte, utiliser la cible brute comme texte d'affichage
+    if (!text) {
+        text = document.getElementById('link-target').value.trim();
+    }
+
+    let html = '';
+    if (type === 'web') {
+        const titleAttr = warning ? ` title="En cliquant sur ce lien, vous accédez à un site tiers non affilié à Groupon"` : '';
+        html = `<a href="${target}" target="_blank" rel="noopener noreferrer"${titleAttr}>${text}</a>`;
+    } else {
+        html = `<a href="${target}" rel="noopener noreferrer">${text}</a>`;
+    }
+
+    closeModal('link-modal');
+    document.getElementById('visual-editor').focus();
+    insertHtmlAtCursor(html);
+}
+
+</script>
+
+<!-- Modale Modèles -->
+<dialog id="templates-modal">
+    <h3 style="margin-bottom:14px;">Choisir un Modèle</h3>
+    <div id="templates-list" style="display:flex; flex-direction:column; gap:10px; margin:20px 0; max-height:400px; overflow-y:auto;">
+    </div>
+    <div style="text-align:right;">
+        <button onclick="closeModal('templates-modal')" class="btn-secondary">Annuler</button>
+    </div>
+</dialog>
+
+</body>
+</html>
