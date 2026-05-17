@@ -3,559 +3,514 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Templates Groupon — Placeholders & Aperçu Live</title>
+<title>Templates Groupon — Placeholders &amp; Aperçu Live</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f0f2f5; color: #1e293b; }
 
-  /* ══ LAYOUT ══ */
-  .app { display: grid; grid-template-columns: 370px 1fr; min-height: 100vh; }
+  .app { display: grid; grid-template-columns: 360px 1fr; min-height: 100vh; }
 
-  /* ══ PANNEAU GAUCHE ══ */
+  /* ── PANNEAU ── */
   .panel {
-    background: #0f172a;
-    color: #e2e8f0;
-    padding: 22px 18px;
-    position: sticky;
-    top: 0;
-    height: 100vh;
-    overflow-y: auto;
-    scrollbar-width: thin;
-    scrollbar-color: #1e40af #0f172a;
+    background: #0f172a; color: #e2e8f0;
+    padding: 20px 16px; position: sticky; top: 0;
+    height: 100vh; overflow-y: auto;
+    scrollbar-width: thin; scrollbar-color: #1e40af #0f172a;
   }
   .panel::-webkit-scrollbar { width: 4px; }
   .panel::-webkit-scrollbar-thumb { background: #1e40af; border-radius: 4px; }
-
-  .panel-title {
-    font-size: 14px; font-weight: 700; color: #3b82f6;
-    text-transform: uppercase; letter-spacing: 1.5px;
-    margin-bottom: 18px; display: flex; align-items: center; gap: 8px;
+  .panel-title { font-size: 13px; font-weight: 700; color: #3b82f6; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 16px; }
+  .section-sep { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #3b82f6; border-top: 1px solid #1e293b; padding-top: 10px; margin: 14px 0 8px; }
+  .field-group { margin-bottom: 10px; }
+  .field-group label { display: block; font-size: 10px; color: #64748b; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 3px; }
+  .field-group input, .field-group textarea {
+    width: 100%; padding: 7px 9px; background: #1e293b; border: 1px solid #334155;
+    color: #f1f5f9; border-radius: 6px; font-size: 11.5px; font-family: inherit; transition: border .2s;
   }
-  .section-sep {
-    font-size: 10px; font-weight: 700; text-transform: uppercase;
-    letter-spacing: 1px; color: #3b82f6;
-    border-top: 1px solid #1e293b;
-    padding-top: 12px; margin: 16px 0 10px;
-  }
-  .field-group { margin-bottom: 12px; }
-  .field-group label {
-    display: block; font-size: 10px; color: #64748b;
-    text-transform: uppercase; letter-spacing: .5px; margin-bottom: 4px;
-  }
-  .field-group input,
-  .field-group textarea {
-    width: 100%; padding: 8px 10px;
-    background: #1e293b; border: 1px solid #334155;
-    color: #f1f5f9; border-radius: 6px; font-size: 12px;
-    font-family: inherit; transition: border .2s;
-  }
-  .field-group input:focus,
-  .field-group textarea:focus {
-    border-color: #3b82f6; outline: none;
-    box-shadow: 0 0 0 2px rgba(59,130,246,.2);
-  }
-  .field-group textarea { resize: vertical; min-height: 64px; }
+  .field-group input:focus, .field-group textarea:focus { border-color: #3b82f6; outline: none; box-shadow: 0 0 0 2px rgba(59,130,246,.2); }
+  .field-group textarea { resize: vertical; min-height: 56px; }
   .field-hint { font-size: 10px; color: #475569; margin-top: 3px; }
-  .mini-prev {
-    margin-top: 5px; max-width: 100%; max-height: 64px;
-    border-radius: 5px; display: none; object-fit: cover;
-    border: 1px solid #334155;
-  }
-  .btn-reset {
-    width: 100%; margin-top: 18px; padding: 10px;
-    background: #1e293b; color: #94a3b8;
-    border: 1px solid #334155; border-radius: 7px;
-    cursor: pointer; font-size: 12px;
-    transition: all .2s; letter-spacing: .3px;
-  }
+  .mini-prev { margin-top: 4px; max-width: 100%; max-height: 60px; border-radius: 5px; display: none; object-fit: cover; border: 1px solid #334155; }
+  .btn-reset { width: 100%; margin-top: 16px; padding: 9px; background: #1e293b; color: #94a3b8; border: 1px solid #334155; border-radius: 7px; cursor: pointer; font-size: 11.5px; transition: all .2s; }
   .btn-reset:hover { background: #3b82f6; color: #fff; border-color: #3b82f6; }
 
-  /* ══ ZONE APERÇUS ══ */
-  .previews { padding: 28px 32px; overflow-y: auto; }
-  .previews > h1 {
-    font-size: 18px; color: #0f172a; margin-bottom: 24px;
-    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
-  }
-  .previews > h1 small { font-size: 12px; color: #94a3b8; font-weight: 400; }
+  /* ── APERÇUS ── */
+  .previews { padding: 24px 28px; overflow-y: auto; }
+  .previews > h1 { font-size: 17px; color: #0f172a; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .previews > h1 small { font-size: 11px; color: #94a3b8; font-weight: 400; }
+  .section-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px; color: #3b82f6; margin: 28px 0 10px; padding-bottom: 6px; border-bottom: 2px solid #e2e8f0; }
 
-  .tpl-block {
-    background: #fff; border-radius: 10px;
-    box-shadow: 0 1px 12px rgba(0,0,0,.07);
-    margin-bottom: 28px; overflow: hidden;
-  }
-  .tpl-header {
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 10px 16px;
-    background: #0f172a; color: #3b82f6;
-    font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
-  }
-  .btn-copy {
-    background: #1d4ed8; color: #fff; border: none;
-    padding: 4px 11px; border-radius: 5px;
-    cursor: pointer; font-size: 10px; font-weight: 600;
-    transition: background .2s;
-  }
+  .tpl-block { background: #fff; border-radius: 10px; box-shadow: 0 1px 10px rgba(0,0,0,.07); margin-bottom: 18px; overflow: hidden; }
+  .tpl-header { display: flex; justify-content: space-between; align-items: center; padding: 9px 14px; background: #0f172a; color: #3b82f6; font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+  .compat-tag { font-size: 9px; color: #475569; font-weight: 400; text-transform: none; letter-spacing: 0; margin-left: 6px; }
+  .btn-copy { background: #1d4ed8; color: #fff; border: none; padding: 4px 10px; border-radius: 5px; cursor: pointer; font-size: 9.5px; font-weight: 600; transition: background .2s; white-space: nowrap; }
   .btn-copy:hover { background: #2563eb; }
   .btn-copy.ok { background: #16a34a; }
-  .tpl-body { padding: 20px 22px; }
-
-  /* ══ TEMPLATE : IMAGE NORMALE ══ */
-  .t-img-normal figure { margin: 0 auto; text-align: center; }
-  .t-img-normal img { display: block; width: 100%; max-width: 320px; height: auto; margin: 0 auto; }
-  .t-img-normal .ph { width: 100%; max-width: 320px; height: 160px; background: #f1f5f9; border: 2px dashed #cbd5e1; border-radius: 4px; display: flex; align-items: center; justify-content: center; color: #94a3b8; font-size: 12px; margin: 0 auto; }
-
-  /* ══ TEMPLATE : IMAGE RONDE ══ */
-  .t-img-round figure { margin: 0 auto; text-align: center; }
-  .t-img-round img { display: block; width: 200px; height: 200px; object-fit: cover; border-radius: 50%; margin: 0 auto; }
-  .t-img-round .ph { width: 200px; height: 200px; background: #f1f5f9; border: 2px dashed #cbd5e1; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #94a3b8; font-size: 12px; margin: 0 auto; }
-
-  /* ══ TEMPLATE : IMAGE CLIQUABLE ══ */
-  .t-img-link figure { margin: 0 auto; text-align: center; }
-  .t-img-link a { display: block; text-decoration: none; line-height: 0; max-width: 320px; margin: 0 auto; }
-  .t-img-link img { display: block; width: 100%; height: auto; border-radius: 16px; }
-  .t-img-link .ph { width: 100%; max-width: 320px; height: 160px; background: #f1f5f9; border: 2px dashed #3b82f6; border-radius: 16px; display: flex; align-items: center; justify-content: center; color: #3b82f6; font-size: 12px; margin: 0 auto; }
-  .t-img-link .link-label { text-align: center; font-size: 11px; color: #3b82f6; margin-top: 6px; }
-
-  /* ══ TEMPLATE : ENROULEMENT IMAGE + TEXTE ══ */
-  .t-wrap-img .wrap { display: flex; align-items: flex-start; gap: 16px; }
-  .t-wrap-img figure { margin: 0; flex-shrink: 0; width: 160px; }
-  .t-wrap-img img { width: 100%; height: auto; border-radius: 8px; display: block; }
-  .t-wrap-img .ph { width: 160px; height: 110px; background: #f1f5f9; border: 2px dashed #cbd5e1; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #94a3b8; font-size: 11px; }
-  .t-wrap-img p { font-size: 14px; color: #475569; line-height: 1.7; }
-
-  /* ══ TEMPLATE : VIDÉO + TEXTE ══ */
-  .t-wrap-vid .wrap { display: flex; flex-wrap: wrap; align-items: center; gap: 20px; }
-  .t-wrap-vid .vid-box { flex: 1 1 200px; min-width: 200px; max-width: 360px; }
-  .t-wrap-vid video { width: 100%; max-height: 200px; border-radius: 20px; display: block; object-fit: cover; }
-  .t-wrap-vid .vid-ph { width: 100%; height: 160px; background: #0f172a; border-radius: 20px; display: flex; align-items: center; justify-content: center; color: #475569; font-size: 12px; border: 2px dashed #334155; }
-  .t-wrap-vid .txt-box { flex: 1 1 260px; }
-  .t-wrap-vid p { font-size: 14px; color: #475569; line-height: 1.7; }
-
-  /* ══ TEMPLATE : FAQ ══ */
-  .t-faq details { background: #f8fafc; padding: 14px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 8px; }
-  .t-faq summary { font-weight: 700; cursor: pointer; color: #1e293b; font-size: 14px; }
-  .t-faq .rep { margin-top: 10px; padding-top: 10px; border-top: 1px dashed #cbd5e1; color: #64748b; font-size: 13px; line-height: 1.6; }
-
-  /* ══ TEMPLATE : TOGGLE OPTIONS ══ */
-  .t-toggle ul { list-style: none; }
-  .t-toggle li { margin-bottom: 6px; }
-  .t-toggle details { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 7px; padding: 10px 14px; }
-  .t-toggle summary { cursor: pointer; font-weight: 600; color: #1d4ed8; font-size: 13px; text-decoration: underline; }
-  .t-toggle .details-list { margin-top: 8px; padding-left: 16px; }
-  .t-toggle .details-list li { list-style: disc; color: #64748b; font-size: 13px; margin-bottom: 3px; }
-
-  /* ══ TEMPLATE : MENU RESTAURANT ══ */
-  .t-menu .cat { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px 18px; }
-  .t-menu h3 { font-size: 15px; color: #0f172a; font-weight: 700; margin-bottom: 10px; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; }
-  .t-menu .item { padding: 5px 0; font-size: 13px; color: #475569; border-bottom: 1px dashed #f1f5f9; }
-  .t-menu .item:last-child { border-bottom: none; }
-
-  /* ══ TEMPLATE : BOUTON CTA ══ */
-  .t-cta { text-align: center; padding: 16px 0 6px; }
-  .t-cta a {
-    background: #0d6efd; color: #fff; padding: 12px 28px;
-    text-decoration: none; border-radius: 6px;
-    font-weight: 700; font-size: 14px; display: inline-block;
-  }
-  .t-cta .ph-btn {
-    background: #f1f5f9; color: #94a3b8;
-    padding: 12px 28px; border-radius: 6px;
-    font-size: 14px; display: inline-block;
-    border: 2px dashed #cbd5e1;
-  }
+  .tpl-body { padding: 18px 20px; }
+  .ph { background: #f1f5f9; border: 2px dashed #cbd5e1; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: #94a3b8; font-size: 11px; }
+  .vid-ph { background: #0f172a; border: 2px dashed #334155; border-radius: 16px; display: flex; align-items: center; justify-content: center; color: #475569; font-size: 11px; }
 </style>
 </head>
 <body>
-
 <div class="app">
 
-  <!-- ══════════════ PANNEAU SAISIE ══════════════ -->
-  <aside class="panel">
-    <div class="panel-title">🎛 Placeholders Live</div>
+<!-- ═══════════════ PANNEAU ═══════════════ -->
+<aside class="panel">
+  <div class="panel-title">🎛 Placeholders Live</div>
 
-    <div class="section-sep">🖼 Image</div>
-    <div class="field-group">
-      <label>URL image principale</label>
-      <input type="url" id="f-img" placeholder="https://cdn.groupon.com/image.jpg" oninput="updateAll(); showMini(this,'prev-img')">
-      <img id="prev-img" class="mini-prev" alt="">
-    </div>
-    <div class="field-group">
-      <label>Texte alternatif (alt)</label>
-      <input type="text" id="f-alt" placeholder="Description de l'image" oninput="updateAll()">
-    </div>
+  <div class="section-sep">🖼 Image</div>
+  <div class="field-group">
+    <label>URL image principale</label>
+    <input type="url" id="f-img" placeholder="https://cdn.groupon.com/image.jpg" oninput="updateAll();showMini(this,'prev-img')">
+    <img id="prev-img" class="mini-prev" alt="">
+  </div>
+  <div class="field-group">
+    <label>Texte alternatif (alt)</label>
+    <input type="text" id="f-alt" placeholder="Description de l'image" oninput="updateAll()">
+  </div>
 
-    <div class="section-sep">🔗 Lien cliquable</div>
-    <div class="field-group">
-      <label>URL du lien</label>
-      <input type="url" id="f-link" placeholder="https://www.groupon.fr/deals/..." oninput="updateAll()">
-    </div>
+  <div class="section-sep">🔗 Lien</div>
+  <div class="field-group">
+    <label>URL du lien</label>
+    <input type="url" id="f-link" placeholder="https://www.groupon.fr/deals/..." oninput="updateAll()">
+  </div>
 
-    <div class="section-sep">🎬 Vidéo</div>
-    <div class="field-group">
-      <label>URL vidéo (mp4)</label>
-      <input type="url" id="f-video" placeholder="https://cdn.groupon.com/video.mp4" oninput="updateAll()">
-      <div class="field-hint">Format mp4 recommandé</div>
-    </div>
+  <div class="section-sep">🎬 Vidéo</div>
+  <div class="field-group">
+    <label>URL vidéo (mp4)</label>
+    <input type="url" id="f-video" placeholder="https://cdn.groupon.com/video.mp4" oninput="updateAll()">
+    <div class="field-hint">Format mp4 recommandé</div>
+  </div>
 
-    <div class="section-sep">📝 Textes</div>
-    <div class="field-group">
-      <label>Texte d'accompagnement</label>
-      <textarea id="f-texte" placeholder="Profitez d'un moment de détente…" oninput="updateAll()"></textarea>
-    </div>
-    <div class="field-group">
-      <label>Question (FAQ)</label>
-      <input type="text" id="f-question" placeholder="Durée de validité du bon ?" oninput="updateAll()">
-    </div>
-    <div class="field-group">
-      <label>Réponse (FAQ)</label>
-      <textarea id="f-reponse" placeholder="Le bon est valable 6 mois…" oninput="updateAll()"></textarea>
-    </div>
+  <div class="section-sep">📝 Textes</div>
+  <div class="field-group">
+    <label>Texte d'accompagnement</label>
+    <textarea id="f-texte" placeholder="Profitez d'un moment de détente…" oninput="updateAll()"></textarea>
+  </div>
+  <div class="field-group">
+    <label>Question (FAQ)</label>
+    <input type="text" id="f-question" placeholder="Durée de validité du bon ?" oninput="updateAll()">
+  </div>
+  <div class="field-group">
+    <label>Réponse (FAQ)</label>
+    <textarea id="f-reponse" placeholder="Le bon est valable 6 mois…" oninput="updateAll()"></textarea>
+  </div>
 
-    <div class="section-sep">🍽 Menu Restaurant</div>
-    <div class="field-group">
-      <label>Catégorie</label>
-      <input type="text" id="f-cat" placeholder="Entrées" oninput="updateAll()">
-    </div>
-    <div class="field-group">
-      <label>Item 1</label>
-      <input type="text" id="f-item1" placeholder="Salade niçoise — 12€" oninput="updateAll()">
-    </div>
-    <div class="field-group">
-      <label>Item 2</label>
-      <input type="text" id="f-item2" placeholder="Soupe du jour — 8€" oninput="updateAll()">
-    </div>
-    <div class="field-group">
-      <label>Item 3</label>
-      <input type="text" id="f-item3" placeholder="Tartare de saumon — 15€" oninput="updateAll()">
-    </div>
+  <div class="section-sep">🍽 Menu Restaurant</div>
+  <div class="field-group"><label>Catégorie</label><input type="text" id="f-cat" placeholder="Entrées" oninput="updateAll()"></div>
+  <div class="field-group"><label>Item 1</label><input type="text" id="f-item1" placeholder="Salade niçoise — 12€" oninput="updateAll()"></div>
+  <div class="field-group"><label>Item 2</label><input type="text" id="f-item2" placeholder="Soupe du jour — 8€" oninput="updateAll()"></div>
+  <div class="field-group"><label>Item 3</label><input type="text" id="f-item3" placeholder="Tartare de saumon — 15€" oninput="updateAll()"></div>
 
-    <div class="section-sep">☰ Toggle Options</div>
-    <div class="field-group">
-      <label>Option 1</label>
-      <input type="text" id="f-opt1" placeholder="Option 1 personne" oninput="updateAll()">
-    </div>
-    <div class="field-group">
-      <label>Option 2</label>
-      <input type="text" id="f-opt2" placeholder="Option 2 personnes" oninput="updateAll()">
-    </div>
-    <div class="field-group">
-      <label>Option 3</label>
-      <input type="text" id="f-opt3" placeholder="Option 3 personnes" oninput="updateAll()">
-    </div>
-    <div class="field-group">
-      <label>Détail A</label>
-      <input type="text" id="f-det1" placeholder="1h de massage" oninput="updateAll()">
-    </div>
-    <div class="field-group">
-      <label>Détail B</label>
-      <input type="text" id="f-det2" placeholder="Accès hammam" oninput="updateAll()">
-    </div>
-    <div class="field-group">
-      <label>Détail C</label>
-      <input type="text" id="f-det3" placeholder="1 thé offert" oninput="updateAll()">
-    </div>
+  <div class="section-sep">☰ Toggle Options</div>
+  <div class="field-group"><label>Option 1</label><input type="text" id="f-opt1" placeholder="Option 1 personne" oninput="updateAll()"></div>
+  <div class="field-group"><label>Option 2</label><input type="text" id="f-opt2" placeholder="Option 2 personnes" oninput="updateAll()"></div>
+  <div class="field-group"><label>Option 3</label><input type="text" id="f-opt3" placeholder="Option 3 personnes" oninput="updateAll()"></div>
+  <div class="field-group"><label>Détail 1</label><input type="text" id="f-det1" placeholder="1h de massage" oninput="updateAll()"></div>
+  <div class="field-group"><label>Détail 2</label><input type="text" id="f-det2" placeholder="Accès hammam" oninput="updateAll()"></div>
+  <div class="field-group"><label>Détail 3</label><input type="text" id="f-det3" placeholder="1 thé offert" oninput="updateAll()"></div>
 
-    <div class="section-sep">🔘 Bouton CTA</div>
-    <div class="field-group">
-      <label>URL du bouton</label>
-      <input type="url" id="f-cta-url" placeholder="https://www.groupon.fr/deals/..." oninput="updateAll()">
+  <div class="section-sep">🔘 Bouton CTA</div>
+  <div class="field-group"><label>URL du bouton</label><input type="url" id="f-cta-url" placeholder="https://www.groupon.fr/deals/..." oninput="updateAll()"></div>
+  <div class="field-group"><label>Texte du bouton</label><input type="text" id="f-cta-text" placeholder="VOIR L'OFFRE" oninput="updateAll()"></div>
+
+  <button class="btn-reset" onclick="resetAll()">↺ Réinitialiser tous les champs</button>
+</aside>
+
+<!-- ═══════════════ APERÇUS ═══════════════ -->
+<main class="previews">
+  <h1>Aperçu des templates <small>— mis à jour en temps réel • 24 blocs</small></h1>
+
+  <!-- ══ IMAGES ══ -->
+  <div class="section-title">🖼 Images</div>
+
+  <div class="tpl-block">
+    <div class="tpl-header">NORMAL <span class="compat-tag">MBNXT ✓ Tiptap ✓</span><button class="btn-copy" onclick="copyCode(genNormal(),this)">Copier HTML</button></div>
+    <div class="tpl-body"><figure style="margin:0 auto;text-align:center;max-width:100%;"><div id="wrap-normal"><div class="ph" style="height:140px;">🖼 URL_IMAGE</div></div></figure></div>
+  </div>
+
+  <div class="tpl-block">
+    <div class="tpl-header">ANGLES ARRONDIS <span class="compat-tag">MBNXT ✓ Tiptap ✓</span><button class="btn-copy" onclick="copyCode(genImg('border-radius:16px'),this)">Copier HTML</button></div>
+    <div class="tpl-body"><figure style="margin:0 auto;text-align:center;max-width:100%;"><div id="wrap-arrondis"><div class="ph" style="height:140px;border-radius:16px;">🖼</div></div></figure></div>
+  </div>
+
+  <div class="tpl-block">
+    <div class="tpl-header">ARRONDIS HAUT-BAS <span class="compat-tag">MBNXT ✓ Tiptap ✓</span><button class="btn-copy" onclick="copyCode(genImg('border-radius:50% 50% 0 0 / 20% 20% 0 0'),this)">Copier HTML</button></div>
+    <div class="tpl-body"><figure style="margin:0 auto;text-align:center;max-width:100%;"><div id="wrap-hb"><div class="ph" style="height:140px;border-radius:50% 50% 0 0 / 20% 20% 0 0;">🖼</div></div></figure></div>
+  </div>
+
+  <div class="tpl-block">
+    <div class="tpl-header">DESSOUS ARRONDI <span class="compat-tag">MBNXT ✓ Tiptap ✓</span><button class="btn-copy" onclick="copyCode(genImg('border-radius:0 0 24px 24px'),this)">Copier HTML</button></div>
+    <div class="tpl-body"><figure style="margin:0 auto;text-align:center;max-width:100%;"><div id="wrap-bas"><div class="ph" style="height:140px;border-radius:0 0 24px 24px;">🖼</div></div></figure></div>
+  </div>
+
+  <div class="tpl-block">
+    <div class="tpl-header">DÔME <span class="compat-tag">MBNXT ✓ Tiptap ✓</span><button class="btn-copy" onclick="copyCode(genImg('border-radius:50% 50% 0 0'),this)">Copier HTML</button></div>
+    <div class="tpl-body"><figure style="margin:0 auto;text-align:center;max-width:100%;"><div id="wrap-dome"><div class="ph" style="height:140px;border-radius:50% 50% 0 0;">🖼</div></div></figure></div>
+  </div>
+
+  <div class="tpl-block">
+    <div class="tpl-header">NUAGE <span class="compat-tag">MBNXT ✓ Tiptap ✓</span><button class="btn-copy" onclick="copyCode(genImg('border-radius:50% 50% 50% 50% / 60% 60% 40% 40%'),this)">Copier HTML</button></div>
+    <div class="tpl-body"><figure style="margin:0 auto;text-align:center;max-width:100%;"><div id="wrap-nuage"><div class="ph" style="height:140px;border-radius:50% 50% 50% 50% / 60% 60% 40% 40%;">🖼</div></div></figure></div>
+  </div>
+
+  <div class="tpl-block">
+    <div class="tpl-header">OVALE PENCHÉ <span class="compat-tag">MBNXT ✓ Tiptap ✓</span><button class="btn-copy" onclick="copyCode(genImg('border-radius:30% 70% 70% 30% / 30% 30% 70% 70%'),this)">Copier HTML</button></div>
+    <div class="tpl-body"><figure style="margin:0 auto;text-align:center;max-width:100%;"><div id="wrap-ovale-p"><div class="ph" style="height:140px;border-radius:30% 70% 70% 30% / 30% 30% 70% 70%;">🖼</div></div></figure></div>
+  </div>
+
+  <div class="tpl-block">
+    <div class="tpl-header">OVALE FLUIDE <span class="compat-tag">MBNXT ✓ Tiptap ✓</span><button class="btn-copy" onclick="copyCode(genImg('border-radius:50%'),this)">Copier HTML</button></div>
+    <div class="tpl-body"><figure style="margin:0 auto;text-align:center;max-width:100%;"><div id="wrap-ovale-f"><div class="ph" style="height:140px;border-radius:50%;">🖼</div></div></figure></div>
+  </div>
+
+  <div class="tpl-block">
+    <div class="tpl-header">BLOB SOFT <span class="compat-tag">MBNXT ✓ Tiptap ✓</span><button class="btn-copy" onclick="copyCode(genImg('border-radius:60% 40% 30% 70% / 60% 30% 70% 40%'),this)">Copier HTML</button></div>
+    <div class="tpl-body"><figure style="margin:0 auto;text-align:center;max-width:100%;"><div id="wrap-blob-s"><div class="ph" style="height:140px;border-radius:60% 40% 30% 70% / 60% 30% 70% 40%;">🖼</div></div></figure></div>
+  </div>
+
+  <div class="tpl-block">
+    <div class="tpl-header">BLOB AMPLE <span class="compat-tag">MBNXT ✓ Tiptap ✓</span><button class="btn-copy" onclick="copyCode(genImg('border-radius:40% 60% 60% 40% / 40% 40% 60% 60%'),this)">Copier HTML</button></div>
+    <div class="tpl-body"><figure style="margin:0 auto;text-align:center;max-width:100%;"><div id="wrap-blob-a"><div class="ph" style="height:140px;border-radius:40% 60% 60% 40% / 40% 40% 60% 60%;">🖼</div></div></figure></div>
+  </div>
+
+  <div class="tpl-block">
+    <div class="tpl-header">ROND PARFAIT <span class="compat-tag">MBNXT ✓ Tiptap ✓</span><button class="btn-copy" onclick="copyCode(genImg('border-radius:50%'),this)">Copier HTML</button></div>
+    <div class="tpl-body"><figure style="margin:0 auto;text-align:center;"><div id="wrap-round"><div class="ph" style="width:200px;height:200px;border-radius:50%;margin:0 auto;">🖼</div></div></figure></div>
+  </div>
+
+  <div class="tpl-block">
+    <div class="tpl-header">ROND PARFAIT + OMBRE <span class="compat-tag">MBNXT ✓ Tiptap ✓</span><button class="btn-copy" onclick="copyCode(genImg('border-radius:50%;box-shadow:0 8px 24px rgba(0,0,0,0.2)'),this)">Copier HTML</button></div>
+    <div class="tpl-body"><figure style="margin:0 auto;text-align:center;"><div id="wrap-round-shadow"><div class="ph" style="width:200px;height:200px;border-radius:50%;margin:0 auto;box-shadow:0 8px 24px rgba(0,0,0,.15);">🖼</div></div></figure></div>
+  </div>
+
+  <div class="tpl-block">
+    <div class="tpl-header">EFFET PINCES 1 <span class="compat-tag">MBNXT ✓ Tiptap ✓</span><button class="btn-copy" onclick="copyCode(genImg('border-radius:100% 0% 100% 0% / 100% 0% 100% 0%'),this)">Copier HTML</button></div>
+    <div class="tpl-body"><figure style="margin:0 auto;text-align:center;max-width:100%;"><div id="wrap-pinces1"><div class="ph" style="height:140px;border-radius:100% 0% 100% 0% / 100% 0% 100% 0%;">🖼</div></div></figure></div>
+  </div>
+
+  <div class="tpl-block">
+    <div class="tpl-header">EFFET PINCES 2 <span class="compat-tag">MBNXT ✓ Tiptap ✓</span><button class="btn-copy" onclick="copyCode(genImg('border-radius:0% 100% 0% 100% / 0% 100% 0% 100%'),this)">Copier HTML</button></div>
+    <div class="tpl-body"><figure style="margin:0 auto;text-align:center;max-width:100%;"><div id="wrap-pinces2"><div class="ph" style="height:140px;border-radius:0% 100% 0% 100% / 0% 100% 0% 100%;">🖼</div></div></figure></div>
+  </div>
+
+  <div class="tpl-block">
+    <div class="tpl-header">GRISER IMAGE <span class="compat-tag">MBNXT ✓ Tiptap ✓</span><button class="btn-copy" onclick="copyCode(genImg('filter:grayscale(100%)'),this)">Copier HTML</button></div>
+    <div class="tpl-body"><figure style="margin:0 auto;text-align:center;max-width:100%;"><div id="wrap-griser"><div class="ph" style="height:140px;filter:grayscale(100%);">🖼 (Grayscale)</div></div></figure></div>
+  </div>
+
+  <div class="tpl-block">
+    <div class="tpl-header">POLYGON 5 CÔTÉS <span class="compat-tag">MBNXT ✓ Tiptap ⚠ preview</span><button class="btn-copy" onclick="copyCode(genImg('clip-path:polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%)'),this)">Copier HTML</button></div>
+    <div class="tpl-body"><figure style="margin:0 auto;text-align:center;max-width:100%;"><div id="wrap-poly5"><div class="ph" style="height:140px;clip-path:polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);">🖼</div></div></figure></div>
+  </div>
+
+  <div class="tpl-block">
+    <div class="tpl-header">POLYGON 6 CÔTÉS <span class="compat-tag">MBNXT ✓ Tiptap ⚠ preview</span><button class="btn-copy" onclick="copyCode(genImg('clip-path:polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)'),this)">Copier HTML</button></div>
+    <div class="tpl-body"><figure style="margin:0 auto;text-align:center;max-width:100%;"><div id="wrap-poly6"><div class="ph" style="height:140px;clip-path:polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);">🖼</div></div></figure></div>
+  </div>
+
+  <div class="tpl-block">
+    <div class="tpl-header">POLYGON ÉCRAN <span class="compat-tag">MBNXT ✓ Tiptap ⚠ preview</span><button class="btn-copy" onclick="copyCode(genImg('clip-path:polygon(0% 5%, 5% 0%, 95% 0%, 100% 5%, 100% 95%, 95% 100%, 5% 100%, 0% 95%)'),this)">Copier HTML</button></div>
+    <div class="tpl-body"><figure style="margin:0 auto;text-align:center;max-width:100%;"><div id="wrap-screen"><div class="ph" style="height:140px;clip-path:polygon(0% 5%, 5% 0%, 95% 0%, 100% 5%, 100% 95%, 95% 100%, 5% 100%, 0% 95%);">🖼</div></div></figure></div>
+  </div>
+
+  <div class="tpl-block">
+    <div class="tpl-header">LOSANGE <span class="compat-tag">MBNXT ✓ Tiptap ⚠ preview</span><button class="btn-copy" onclick="copyCode(genImg('clip-path:polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)'),this)">Copier HTML</button></div>
+    <div class="tpl-body"><figure style="margin:0 auto;text-align:center;max-width:100%;"><div id="wrap-losange"><div class="ph" style="height:140px;clip-path:polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);">🖼</div></div></figure></div>
+  </div>
+
+  <!-- ══ LIEN CLIQUABLE ══ -->
+  <div class="section-title">🔗 Lien Cliquable</div>
+  <div class="tpl-block">
+    <div class="tpl-header">IMAGE CLIQUABLE <span class="compat-tag">MBNXT ✓ Tiptap ✓</span><button class="btn-copy" onclick="copyCode(genLink(),this)">Copier HTML</button></div>
+    <div class="tpl-body" id="b-link">
+      <figure style="margin:0 auto;text-align:center;max-width:100%;">
+        <div id="wrap-link"><div class="ph" style="height:140px;">🖼 + 🔗 URL_IMAGE &amp; URL_LIEN</div></div>
+      </figure>
+      <div style="text-align:center;font-size:11px;color:#3b82f6;margin-top:6px;" id="link-label-preview">🔗 URL du lien non renseignée</div>
     </div>
-    <div class="field-group">
-      <label>Texte du bouton</label>
-      <input type="text" id="f-cta-text" placeholder="VOIR L'OFFRE" oninput="updateAll()">
-    </div>
+  </div>
 
-    <button class="btn-reset" onclick="resetAll()">↺ Réinitialiser tous les champs</button>
-  </aside>
-
-  <!-- ══════════════ APERÇUS ══════════════ -->
-  <main class="previews">
-    <h1>Aperçu des templates <small>— mis à jour en temps réel</small></h1>
-
-    <!-- IMAGE NORMALE -->
-    <div class="tpl-block t-img-normal">
-      <div class="tpl-header">
-        🖼 Image Normale
-        <button class="btn-copy" onclick="copyTpl('b-normal',this)">Copier HTML</button>
+  <!-- ══ ENROULEMENT ══ -->
+  <div class="section-title">📄 Enroulements</div>
+  <div class="tpl-block">
+    <div class="tpl-header">ENROULEMENT IMAGE + TEXTE <span class="compat-tag">MBNXT ✓ Tiptap ✓</span><button class="btn-copy" onclick="copyCode(genWrapImg(),this)">Copier HTML</button></div>
+    <div class="tpl-body" id="b-wrap-img">
+      <div style="overflow:hidden;">
+        <figure style="float:left;margin:0 16px 8px 0;max-width:160px;"><div id="wrap-float"><div class="ph" style="width:160px;height:110px;">🖼</div></div></figure>
+        <p id="p-texte-img" style="font-size:14px;color:#475569;line-height:1.7;">Texte d'accompagnement…</p>
+        <div style="clear:both;"></div>
       </div>
-      <div class="tpl-body" id="b-normal">
-        <figure style="margin:0 auto;text-align:center;max-width:100%;">
-          <div id="wrap-normal"><div class="ph">🖼 URL_IMAGE</div></div>
-        </figure>
+    </div>
+  </div>
+
+  <!-- ══ VIDÉO ══ -->
+  <div class="section-title">🎬 Vidéo</div>
+  <div class="tpl-block">
+    <div class="tpl-header">ENROULEMENT VIDÉO + TEXTE <span class="compat-tag">MBNXT ✓ Tiptap ✓</span><button class="btn-copy" onclick="copyCode(genVideo(),this)">Copier HTML</button></div>
+    <div class="tpl-body" id="b-wrap-vid">
+      <div style="display:flex;flex-wrap:wrap;align-items:center;gap:20px;">
+        <div style="flex:1 1 200px;min-width:200px;max-width:360px;"><div id="wrap-video"><div class="vid-ph" style="height:160px;">🎬 URL_VIDEO</div></div></div>
+        <div style="flex:1 1 260px;"><p id="p-texte-vid" style="font-size:14px;color:#475569;line-height:1.7;">Texte d'accompagnement…</p></div>
       </div>
     </div>
+  </div>
 
-    <!-- IMAGE ANGLES ARRONDIS -->
-    <div class="tpl-block t-img-normal">
-      <div class="tpl-header">
-        🖼 Angles Arrondis
-        <button class="btn-copy" onclick="copyTpl('b-arrondis',this)">Copier HTML</button>
-      </div>
-      <div class="tpl-body" id="b-arrondis">
-        <figure style="margin:0 auto;text-align:center;max-width:100%;">
-          <div id="wrap-arrondis"><div class="ph" style="border-radius:16px;">🖼 URL_IMAGE</div></div>
-        </figure>
+  <!-- ══ MENU ══ -->
+  <div class="section-title">🍽 Menu Restaurant</div>
+  <div class="tpl-block">
+    <div class="tpl-header">MENU RESTAURANT <span class="compat-tag">MBNXT ✓ Tiptap ✓</span><button class="btn-copy" onclick="copyCode(genMenu(),this)">Copier HTML</button></div>
+    <div class="tpl-body" id="b-menu">
+      <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:14px 18px;">
+        <h3 id="menu-cat" style="font-size:15px;color:#0f172a;font-weight:700;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid #e2e8f0;">{{NOM_CATEGORIE}}</h3>
+        <div id="menu-item1" style="padding:5px 0;font-size:13px;color:#475569;border-bottom:1px dashed #f1f5f9;">{{ITEM_1}}</div>
+        <div id="menu-item2" style="padding:5px 0;font-size:13px;color:#475569;border-bottom:1px dashed #f1f5f9;">{{ITEM_2}}</div>
+        <div id="menu-item3" style="padding:5px 0;font-size:13px;color:#475569;">{{ITEM_3}}</div>
       </div>
     </div>
+  </div>
 
-    <!-- IMAGE RONDE -->
-    <div class="tpl-block t-img-round">
-      <div class="tpl-header">
-        ⭕ Rond Parfait
-        <button class="btn-copy" onclick="copyTpl('b-round',this)">Copier HTML</button>
-      </div>
-      <div class="tpl-body" id="b-round">
-        <figure style="margin:0 auto;text-align:center;">
-          <div id="wrap-round"><div class="ph">🖼</div></div>
-        </figure>
-      </div>
-    </div>
-
-    <!-- IMAGE CLIQUABLE -->
-    <div class="tpl-block t-img-link">
-      <div class="tpl-header">
-        🔗 Lien Cliquable
-        <button class="btn-copy" onclick="copyTpl('b-link',this)">Copier HTML</button>
-      </div>
-      <div class="tpl-body" id="b-link">
-        <figure style="margin:0 auto;text-align:center;max-width:100%;">
-          <div id="wrap-link"><div class="ph">🖼 + 🔗 URL_IMAGE & URL_LIEN</div></div>
-        </figure>
-        <div class="link-label" id="link-label-preview">🔗 URL du lien non renseignée</div>
-      </div>
-    </div>
-
-    <!-- ENROULEMENT IMAGE + TEXTE -->
-    <div class="tpl-block t-wrap-img">
-      <div class="tpl-header">
-        📄 Enroulement Image + Texte
-        <button class="btn-copy" onclick="copyTpl('b-wrap-img',this)">Copier HTML</button>
-      </div>
-      <div class="tpl-body" id="b-wrap-img">
-        <div class="wrap">
-          <figure style="margin:0;flex-shrink:0;width:160px;">
-            <div id="wrap-float"><div class="ph">🖼</div></div>
-          </figure>
-          <p id="p-texte-img">Texte d'accompagnement…</p>
+  <!-- ══ FAQ & TOGGLE ══ -->
+  <div class="section-title">❓ FAQ &amp; Toggle</div>
+  <div class="tpl-block">
+    <div class="tpl-header">FAQ — ACCORDÉON <span class="compat-tag">MBNXT ✓ Tiptap ⚠ custom node</span><button class="btn-copy" onclick="copyCode(genFaq(),this)">Copier HTML</button></div>
+    <div class="tpl-body">
+      <details style="background-color:#f9f9f9;padding:15px;border-radius:8px;margin-bottom:10px;border:1px solid #ddd;">
+        <summary id="faq-question" style="font-weight:bold;cursor:pointer;color:#333;">{{QUESTION}}</summary>
+        <div style="margin-top:10px;padding-top:10px;border-top:1px dashed #ccc;color:#555;">
+          <p id="faq-reponse" style="margin:0;text-align:justify;">{{REPONSE}}</p>
         </div>
+      </details>
+    </div>
+  </div>
+
+  <div class="tpl-block">
+    <div class="tpl-header">TOGGLE — OPTIONS AVEC DÉTAILS <span class="compat-tag">MBNXT ✓ Tiptap ⚠ custom node</span><button class="btn-copy" onclick="copyCode(genToggle(),this)">Copier HTML</button></div>
+    <div class="tpl-body">
+      <ul style="list-style-type:none;">
+        <li style="margin-bottom:6px;"><details style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:7px;padding:10px 14px;">
+          <summary style="cursor:pointer;font-weight:600;color:#1d4ed8;font-size:13px;text-decoration:underline;" id="tog-opt1">{{OPTION_1}}</summary>
+          <ul style="list-style-type:disc;padding-left:16px;margin-top:8px;">
+            <li id="tog-det1a" style="color:#64748b;font-size:13px;">{{DETAIL_1}}</li>
+            <li id="tog-det1b" style="color:#64748b;font-size:13px;">{{DETAIL_2}}</li>
+            <li id="tog-det1c" style="color:#64748b;font-size:13px;">{{DETAIL_3}}</li>
+          </ul>
+        </details></li>
+        <li style="margin-bottom:6px;"><details style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:7px;padding:10px 14px;">
+          <summary style="cursor:pointer;font-weight:600;color:#1d4ed8;font-size:13px;text-decoration:underline;" id="tog-opt2">{{OPTION_2}}</summary>
+          <ul style="list-style-type:disc;padding-left:16px;margin-top:8px;">
+            <li id="tog-det2a" style="color:#64748b;font-size:13px;">{{DETAIL_1}}</li>
+            <li id="tog-det2b" style="color:#64748b;font-size:13px;">{{DETAIL_2}}</li>
+            <li id="tog-det2c" style="color:#64748b;font-size:13px;">{{DETAIL_3}}</li>
+          </ul>
+        </details></li>
+        <li><details style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:7px;padding:10px 14px;">
+          <summary style="cursor:pointer;font-weight:600;color:#1d4ed8;font-size:13px;text-decoration:underline;" id="tog-opt3">{{OPTION_3}}</summary>
+          <ul style="list-style-type:disc;padding-left:16px;margin-top:8px;">
+            <li id="tog-det3a" style="color:#64748b;font-size:13px;">{{DETAIL_1}}</li>
+            <li id="tog-det3b" style="color:#64748b;font-size:13px;">{{DETAIL_2}}</li>
+            <li id="tog-det3c" style="color:#64748b;font-size:13px;">{{DETAIL_3}}</li>
+          </ul>
+        </details></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ══ CTA ══ -->
+  <div class="section-title">🔘 Bouton CTA</div>
+  <div class="tpl-block">
+    <div class="tpl-header">BOUTON CTA <span class="compat-tag">MBNXT ✓ Tiptap ✓</span><button class="btn-copy" onclick="copyCode(genCta(),this)">Copier HTML</button></div>
+    <div class="tpl-body">
+      <div style="text-align:center;padding:14px 0 6px;">
+        <div id="wrap-cta"><span style="background:#f1f5f9;color:#94a3b8;padding:12px 28px;border-radius:6px;font-size:14px;display:inline-block;border:2px dashed #cbd5e1;">{{TEXTE_BOUTON}}</span></div>
       </div>
     </div>
+  </div>
 
-    <!-- VIDÉO + TEXTE -->
-    <div class="tpl-block t-wrap-vid">
-      <div class="tpl-header">
-        🎬 Vidéo + Texte
-        <button class="btn-copy" onclick="copyTpl('b-wrap-vid',this)">Copier HTML</button>
-      </div>
-      <div class="tpl-body" id="b-wrap-vid">
-        <div class="wrap">
-          <div class="vid-box">
-            <div id="wrap-video"><div class="vid-ph">🎬 URL_VIDEO</div></div>
-          </div>
-          <div class="txt-box">
-            <p id="p-texte-vid">Texte d'accompagnement…</p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- FAQ -->
-    <div class="tpl-block t-faq">
-      <div class="tpl-header">
-        ❓ FAQ — Accordéon
-        <button class="btn-copy" onclick="copyTpl('b-faq',this)">Copier HTML</button>
-      </div>
-      <div class="tpl-body" id="b-faq">
-        <details style="background:#f8fafc;padding:14px;border-radius:8px;border:1px solid #e2e8f0;">
-          <summary style="font-weight:700;cursor:pointer;color:#1e293b;font-size:14px;" id="faq-question">{{QUESTION}}</summary>
-          <div class="rep" id="faq-reponse">{{REPONSE}}</div>
-        </details>
-      </div>
-    </div>
-
-    <!-- TOGGLE OPTIONS -->
-    <div class="tpl-block t-toggle">
-      <div class="tpl-header">
-        ☰ Toggle — Options
-        <button class="btn-copy" onclick="copyTpl('b-toggle',this)">Copier HTML</button>
-      </div>
-      <div class="tpl-body" id="b-toggle">
-        <ul style="list-style:none;">
-          <li><details style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:7px;padding:10px 14px;margin-bottom:6px;">
-            <summary style="cursor:pointer;font-weight:600;color:#1d4ed8;font-size:13px;text-decoration:underline;" id="tog-opt1">{{OPTION_1}}</summary>
-            <ul class="details-list" style="margin-top:8px;padding-left:16px;">
-              <li id="tog-det1a" style="list-style:disc;color:#64748b;font-size:13px;">{{DETAIL_1}}</li>
-              <li id="tog-det1b" style="list-style:disc;color:#64748b;font-size:13px;">{{DETAIL_2}}</li>
-              <li id="tog-det1c" style="list-style:disc;color:#64748b;font-size:13px;">{{DETAIL_3}}</li>
-            </ul>
-          </details></li>
-          <li><details style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:7px;padding:10px 14px;margin-bottom:6px;">
-            <summary style="cursor:pointer;font-weight:600;color:#1d4ed8;font-size:13px;text-decoration:underline;" id="tog-opt2">{{OPTION_2}}</summary>
-            <ul class="details-list" style="margin-top:8px;padding-left:16px;">
-              <li id="tog-det2a" style="list-style:disc;color:#64748b;font-size:13px;">{{DETAIL_1}}</li>
-              <li id="tog-det2b" style="list-style:disc;color:#64748b;font-size:13px;">{{DETAIL_2}}</li>
-              <li id="tog-det2c" style="list-style:disc;color:#64748b;font-size:13px;">{{DETAIL_3}}</li>
-            </ul>
-          </details></li>
-          <li><details style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:7px;padding:10px 14px;">
-            <summary style="cursor:pointer;font-weight:600;color:#1d4ed8;font-size:13px;text-decoration:underline;" id="tog-opt3">{{OPTION_3}}</summary>
-            <ul class="details-list" style="margin-top:8px;padding-left:16px;">
-              <li id="tog-det3a" style="list-style:disc;color:#64748b;font-size:13px;">{{DETAIL_1}}</li>
-              <li id="tog-det3b" style="list-style:disc;color:#64748b;font-size:13px;">{{DETAIL_2}}</li>
-              <li id="tog-det3c" style="list-style:disc;color:#64748b;font-size:13px;">{{DETAIL_3}}</li>
-            </ul>
-          </details></li>
-        </ul>
-      </div>
-    </div>
-
-    <!-- MENU RESTAURANT -->
-    <div class="tpl-block t-menu">
-      <div class="tpl-header">
-        🍽 Menu Restaurant
-        <button class="btn-copy" onclick="copyTpl('b-menu',this)">Copier HTML</button>
-      </div>
-      <div class="tpl-body" id="b-menu">
-        <div class="cat">
-          <h3 id="menu-cat">{{NOM_CATEGORIE}}</h3>
-          <div class="item" id="menu-item1">{{ITEM_1}}</div>
-          <div class="item" id="menu-item2">{{ITEM_2}}</div>
-          <div class="item" id="menu-item3">{{ITEM_3}}</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- BOUTON CTA -->
-    <div class="tpl-block t-cta">
-      <div class="tpl-header">
-        🔘 Bouton CTA
-        <button class="btn-copy" onclick="copyTpl('b-cta',this)">Copier HTML</button>
-      </div>
-      <div class="tpl-body" id="b-cta">
-        <div style="text-align:center;padding:16px 0 6px;">
-          <div id="wrap-cta"><span class="ph-btn">{{TEXTE_BOUTON}}</span></div>
-        </div>
-      </div>
-    </div>
-
-  </main>
+</main>
 </div>
 
 <script>
   const g = id => document.getElementById(id);
   const v = id => { const e = g(id); return e ? e.value.trim() : ''; };
+  const ea = s => s.replace(/"/g,'&quot;');
+  const eh = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 
-  function updateAll() {
-    const img     = v('f-img');
-    const alt     = v('f-alt')     || 'Image Groupon';
-    const link    = v('f-link')    || '#';
-    const video   = v('f-video');
-    const texte   = v('f-texte')   || 'Texte d\'accompagnement…';
-    const quest   = v('f-question')|| '{{QUESTION}}';
-    const rep     = v('f-reponse') || '{{REPONSE}}';
-    const cat     = v('f-cat')     || '{{NOM_CATEGORIE}}';
-    const item1   = v('f-item1')   || '{{ITEM_1}}';
-    const item2   = v('f-item2')   || '{{ITEM_2}}';
-    const item3   = v('f-item3')   || '{{ITEM_3}}';
-    const opt1    = v('f-opt1')    || '{{OPTION_1}}';
-    const opt2    = v('f-opt2')    || '{{OPTION_2}}';
-    const opt3    = v('f-opt3')    || '{{OPTION_3}}';
-    const det1    = v('f-det1')    || '{{DETAIL_1}}';
-    const det2    = v('f-det2')    || '{{DETAIL_2}}';
-    const det3    = v('f-det3')    || '{{DETAIL_3}}';
-    const ctaUrl  = v('f-cta-url') || '#';
-    const ctaText = v('f-cta-text')|| '{{TEXTE_BOUTON}}';
-
-    /* ─ Image normale ─ */
-    g('wrap-normal').innerHTML = img
-      ? `<img src="${ea(img)}" alt="${ea(alt)}" loading="lazy" style="display:block;width:100%;max-width:320px;height:auto;margin:0 auto;">`
-      : `<div class="ph">🖼 URL_IMAGE</div>`;
-
-    /* ─ Arrondis ─ */
-    g('wrap-arrondis').innerHTML = img
-      ? `<img src="${ea(img)}" alt="${ea(alt)}" loading="lazy" style="display:block;width:100%;max-width:320px;height:auto;margin:0 auto;border-radius:16px;">`
-      : `<div class="ph" style="border-radius:16px;">🖼 URL_IMAGE</div>`;
-
-    /* ─ Rond ─ */
-    g('wrap-round').innerHTML = img
-      ? `<img src="${ea(img)}" alt="${ea(alt)}" loading="lazy" style="display:block;width:200px;height:200px;object-fit:cover;border-radius:50%;margin:0 auto;">`
-      : `<div class="ph">🖼</div>`;
-
-    /* ─ Cliquable ─ */
-    if (img) {
-      g('wrap-link').innerHTML = `<a href="${ea(link)}" target="_blank" rel="noopener" style="display:block;text-decoration:none;line-height:0;max-width:320px;margin:0 auto;"><img src="${ea(img)}" alt="${ea(alt)}" loading="lazy" style="display:block;width:100%;height:auto;border-radius:16px;"></a>`;
-    } else {
-      g('wrap-link').innerHTML = `<div class="ph">🖼 + 🔗 URL_IMAGE & URL_LIEN</div>`;
-    }
-    g('link-label-preview').textContent = link !== '#' ? `🔗 ${link}` : '🔗 URL du lien non renseignée';
-
-    /* ─ Enroulement image + texte ─ */
-    g('wrap-float').innerHTML = img
-      ? `<img src="${ea(img)}" alt="${ea(alt)}" loading="lazy" style="width:100%;height:auto;border-radius:8px;display:block;">`
-      : `<div class="ph">🖼</div>`;
-    g('p-texte-img').textContent = texte;
-
-    /* ─ Vidéo + texte ─ */
-    g('wrap-video').innerHTML = video
-      ? `<video src="${ea(video)}" style="width:100%;max-height:200px;border-radius:20px;display:block;object-fit:cover;" autoplay muted loop playsinline></video>`
-      : `<div class="vid-ph">🎬 URL_VIDEO</div>`;
-    g('p-texte-vid').textContent = texte;
-
-    /* ─ FAQ ─ */
-    g('faq-question').textContent = quest;
-    g('faq-reponse').textContent  = rep;
-
-    /* ─ Toggle ─ */
-    g('tog-opt1').textContent = opt1; g('tog-opt2').textContent = opt2; g('tog-opt3').textContent = opt3;
-    ['tog-det1a','tog-det2a','tog-det3a'].forEach(id => g(id).textContent = det1);
-    ['tog-det1b','tog-det2b','tog-det3b'].forEach(id => g(id).textContent = det2);
-    ['tog-det1c','tog-det2c','tog-det3c'].forEach(id => g(id).textContent = det3);
-
-    /* ─ Menu ─ */
-    g('menu-cat').textContent   = cat;
-    g('menu-item1').textContent = item1;
-    g('menu-item2').textContent = item2;
-    g('menu-item3').textContent = item3;
-
-    /* ─ CTA ─ */
-    g('wrap-cta').innerHTML = ctaText !== '{{TEXTE_BOUTON}}'
-      ? `<a href="${ea(ctaUrl)}" style="background:#0d6efd;color:#fff;padding:12px 28px;text-decoration:none;border-radius:5px;font-weight:700;font-size:14px;display:inline-block;">${eh(ctaText)}</a>`
-      : `<span class="ph-btn">{{TEXTE_BOUTON}}</span>`;
+  // ── Générateurs HTML (pour "Copier HTML") ──
+  function imgTag(extra) {
+    const img = v('f-img') || '{{URL_IMAGE}}';
+    const alt = v('f-alt') || '{{TITRE_IMAGE}}';
+    return `<figure style="margin:16px auto; text-align:center; max-width:100%;">\n  <img src="${ea(img)}" alt="${ea(alt)}" loading="lazy" decoding="async"\n    style="display:block; width:100%; max-width:320px; height:auto; margin:0 auto;${extra ? ' '+extra+';' : ''}">\n</figure>`;
+  }
+  function genNormal()  { return imgTag(''); }
+  function genImg(css)  { return imgTag(css); }
+  function genLink() {
+    const img  = v('f-img')  || '{{URL_IMAGE}}';
+    const alt  = v('f-alt')  || '{{TITRE_IMAGE}}';
+    const link = v('f-link') || '{{URL_LIEN}}';
+    return `<figure style="margin:16px auto; text-align:center; max-width:100%;">\n  <a href="${ea(link)}" target="_blank" rel="noopener noreferrer"\n    title="Cliquez sur l'image pour l'agrandir"\n    style="display:block; text-decoration:none; line-height:0;">\n    <img src="${ea(img)}" alt="${ea(alt)}" loading="lazy" decoding="async"\n      style="display:block; width:100%; max-width:320px; height:auto; margin:0 auto; border-radius:24px;">\n  </a>\n</figure>`;
+  }
+  function genWrapImg() {
+    const img   = v('f-img')   || '{{URL_IMAGE}}';
+    const alt   = v('f-alt')   || '{{TITRE_IMAGE}}';
+    const texte = v('f-texte') || '{{TEXTE_ACCOMPAGNEMENT}}';
+    return `<figure style="margin:16px auto; float:left; max-width:160px; margin-right:16px;">\n  <img src="${ea(img)}" alt="${ea(alt)}" loading="lazy" decoding="async"\n    style="display:block; width:100%; height:auto; border-radius:8px;">\n</figure>\n<p>${eh(texte)}</p>\n<div style="clear:both;"></div>`;
+  }
+  function genVideo() {
+    const vid   = v('f-video') || '{{URL_VIDEO}}';
+    const texte = v('f-texte') || '{{TEXTE_ACCOMPAGNEMENT}}';
+    return `<div style="display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:20px; margin-bottom:20px;">\n  <figure style="margin:0; flex:1 1 200px; min-width:200px; max-width:360px;">\n    <video src="${ea(vid)}"\n      style="width:100%; max-height:250px; border-radius:25px; display:block; object-fit:cover;"\n      autoplay muted loop playsinline>\n    </video>\n  </figure>\n  <div style="flex:1 1 300px; min-width:0; text-align:justify;">\n    <p>${eh(texte)}</p>\n  </div>\n</div>`;
+  }
+  function genMenu() {
+    const cat   = v('f-cat')   || '{{NOM_CATEGORIE}}';
+    const i1    = v('f-item1') || '{{ITEM_1}}';
+    const i2    = v('f-item2') || '{{ITEM_2}}';
+    const i3    = v('f-item3') || '{{ITEM_3}}';
+    return `<div class="template-menu">\n  <h3>${eh(cat)}</h3>\n  <div class="template-menu-item">${eh(i1)}</div>\n  <div class="template-menu-item">${eh(i2)}</div>\n  <div class="template-menu-item">${eh(i3)}</div>\n</div>`;
+  }
+  function genFaq() {
+    const q = v('f-question') || '{{QUESTION}}';
+    const r = v('f-reponse')  || '{{REPONSE}}';
+    return `<details style="background-color:#f9f9f9; padding:15px; border-radius:8px; margin-bottom:10px; border:1px solid #ddd;">\n  <summary style="font-weight:bold; cursor:pointer; color:#333;">${eh(q)}</summary>\n  <div style="margin-top:10px; padding-top:10px; border-top:1px dashed #ccc; color:#555;">\n    <p style="margin:0; text-align:justify;">${eh(r)}</p>\n  </div>\n</details>\n<p>&nbsp;</p>`;
+  }
+  function genToggle() {
+    const o1 = v('f-opt1')||'{{OPTION_1}}', o2 = v('f-opt2')||'{{OPTION_2}}', o3 = v('f-opt3')||'{{OPTION_3}}';
+    const d1 = v('f-det1')||'{{DETAIL_1}}', d2 = v('f-det2')||'{{DETAIL_2}}', d3 = v('f-det3')||'{{DETAIL_3}}';
+    const li = (o,d1v,d2v,d3v) => `  <li>\n    <details>\n      <summary><u>${eh(o)}</u></summary>\n      <ul style="list-style-type:disc;">\n        <li>${eh(d1v)}</li>\n        <li>${eh(d2v)}</li>\n        <li>${eh(d3v)}</li>\n      </ul>\n    </details>\n  </li>`;
+    return `<ul style="list-style-type:none;">\n${li(o1,d1,d2,d3)}\n${li(o2,d1,d2,d3)}\n${li(o3,d1,d2,d3)}\n</ul>\n<p>&nbsp;</p>`;
+  }
+  function genCta() {
+    const url  = v('f-cta-url')  || '{{URL_LIEN}}';
+    const text = v('f-cta-text') || '{{TEXTE_BOUTON}}';
+    return `<div style="text-align:center; margin:25px 0;">\n  <a href="${ea(url)}"\n    style="background-color:#0d6efd; color:white; padding:12px 24px;\n    text-decoration:none; border-radius:5px; font-weight:bold;\n    font-family:sans-serif; display:inline-block;">\n    ${eh(text)}\n  </a>\n</div>\n<p>&nbsp;</p>`;
   }
 
-  function showMini(input, id) {
-    const img = g(id);
-    if (!img) return;
-    if (input.value.trim()) {
-      img.src = input.value.trim();
-      img.style.display = 'block';
-      img.onerror = () => img.style.display = 'none';
-    } else {
-      img.style.display = 'none';
-    }
-  }
-
-  function copyTpl(blockId, btn) {
-    const html = g(blockId).innerHTML;
+  // ── Copier direct (pas innerHTML) ──
+  function copyCode(html, btn) {
     navigator.clipboard.writeText(html).then(() => {
-      btn.textContent = 'Copié ✓';
-      btn.classList.add('ok');
+      btn.textContent = 'Copié ✓'; btn.classList.add('ok');
       setTimeout(() => { btn.textContent = 'Copier HTML'; btn.classList.remove('ok'); }, 2200);
     }).catch(() => alert('Impossible de copier.'));
   }
 
-  function resetAll() {
-    ['f-img','f-alt','f-link','f-video','f-texte','f-question','f-reponse',
-     'f-cat','f-item1','f-item2','f-item3',
-     'f-opt1','f-opt2','f-opt3','f-det1','f-det2','f-det3',
-     'f-cta-url','f-cta-text'].forEach(id => { const e = g(id); if (e) e.value = ''; });
-    const prev = g('prev-img');
-    if (prev) prev.style.display = 'none';
-    updateAll();
+  // ── Live preview ──
+  const SHAPES = {
+    'wrap-normal':      '',
+    'wrap-arrondis':    'border-radius:16px',
+    'wrap-hb':          'border-radius:50% 50% 0 0 / 20% 20% 0 0',
+    'wrap-bas':         'border-radius:0 0 24px 24px',
+    'wrap-dome':        'border-radius:50% 50% 0 0',
+    'wrap-nuage':       'border-radius:50% 50% 50% 50% / 60% 60% 40% 40%',
+    'wrap-ovale-p':     'border-radius:30% 70% 70% 30% / 30% 30% 70% 70%',
+    'wrap-ovale-f':     'border-radius:50%',
+    'wrap-blob-s':      'border-radius:60% 40% 30% 70% / 60% 30% 70% 40%',
+    'wrap-blob-a':      'border-radius:40% 60% 60% 40% / 40% 40% 60% 60%',
+    'wrap-round':       'border-radius:50%;width:200px;height:200px;object-fit:cover',
+    'wrap-round-shadow':'border-radius:50%;box-shadow:0 8px 24px rgba(0,0,0,0.2);width:200px;height:200px;object-fit:cover',
+    'wrap-pinces1':     'border-radius:100% 0% 100% 0% / 100% 0% 100% 0%',
+    'wrap-pinces2':     'border-radius:0% 100% 0% 100% / 0% 100% 0% 100%',
+    'wrap-griser':      'filter:grayscale(100%)',
+    'wrap-poly5':       'clip-path:polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%)',
+    'wrap-poly6':       'clip-path:polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)',
+    'wrap-screen':      'clip-path:polygon(0% 5%, 5% 0%, 95% 0%, 100% 5%, 100% 95%, 95% 100%, 5% 100%, 0% 95%)',
+    'wrap-losange':     'clip-path:polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)',
+  };
+
+  function updateAll() {
+    const img   = v('f-img');
+    const alt   = v('f-alt')      || 'Image Groupon';
+    const link  = v('f-link')     || '#';
+    const video = v('f-video');
+    const texte = v('f-texte')    || "Texte d'accompagnement…";
+    const quest = v('f-question') || '{{QUESTION}}';
+    const rep   = v('f-reponse')  || '{{REPONSE}}';
+    const cat   = v('f-cat')      || '{{NOM_CATEGORIE}}';
+    const i1    = v('f-item1')    || '{{ITEM_1}}';
+    const i2    = v('f-item2')    || '{{ITEM_2}}';
+    const i3    = v('f-item3')    || '{{ITEM_3}}';
+    const o1    = v('f-opt1')     || '{{OPTION_1}}';
+    const o2    = v('f-opt2')     || '{{OPTION_2}}';
+    const o3    = v('f-opt3')     || '{{OPTION_3}}';
+    const d1    = v('f-det1')     || '{{DETAIL_1}}';
+    const d2    = v('f-det2')     || '{{DETAIL_2}}';
+    const d3    = v('f-det3')     || '{{DETAIL_3}}';
+    const ctaUrl  = v('f-cta-url')  || '#';
+    const ctaText = v('f-cta-text') || '{{TEXTE_BOUTON}}';
+
+    // Images formes
+    for (const [wrapId, css] of Object.entries(SHAPES)) {
+      const el = g(wrapId); if (!el) continue;
+      if (img) {
+        const isRound = wrapId.includes('round');
+        const base = 'display:block;width:100%;max-width:320px;height:auto;margin:0 auto;';
+        const rStyle = isRound ? 'display:block;width:200px;height:200px;object-fit:cover;margin:0 auto;' : base;
+        el.innerHTML = `<img src="${ea(img)}" alt="${ea(alt)}" loading="lazy" decoding="async" style="${rStyle}${css ? css+';' : ''}">`;
+      } else {
+        const cur = el.querySelector('.ph');
+        if (cur) cur.textContent = '🖼 URL_IMAGE';
+      }
+    }
+
+    // Lien cliquable
+    const wl = g('wrap-link');
+    if (wl) {
+      if (img) {
+        wl.innerHTML = `<a href="${ea(link)}" target="_blank" rel="noopener" style="display:block;text-decoration:none;line-height:0;max-width:320px;margin:0 auto;"><img src="${ea(img)}" alt="${ea(alt)}" loading="lazy" style="display:block;width:100%;height:auto;border-radius:16px;"></a>`;
+      } else {
+        wl.innerHTML = `<div class="ph" style="height:140px;">🖼 + 🔗 URL_IMAGE &amp; URL_LIEN</div>`;
+      }
+    }
+    const ll = g('link-label-preview');
+    if (ll) ll.textContent = link !== '#' ? `🔗 ${link}` : '🔗 URL du lien non renseignée';
+
+    // Enroulement image + texte
+    const wf = g('wrap-float');
+    if (wf) wf.innerHTML = img
+      ? `<img src="${ea(img)}" alt="${ea(alt)}" loading="lazy" style="width:100%;height:auto;border-radius:8px;display:block;">`
+      : `<div class="ph" style="width:160px;height:110px;">🖼</div>`;
+    const pt = g('p-texte-img'); if (pt) pt.textContent = texte;
+
+    // Vidéo
+    const wv = g('wrap-video');
+    if (wv) wv.innerHTML = video
+      ? `<video src="${ea(video)}" style="width:100%;max-height:200px;border-radius:20px;display:block;object-fit:cover;" autoplay muted loop playsinline></video>`
+      : `<div class="vid-ph" style="height:160px;">🎬 URL_VIDEO</div>`;
+    const pv = g('p-texte-vid'); if (pv) pv.textContent = texte;
+
+    // FAQ
+    const fq = g('faq-question'); if (fq) fq.textContent = quest;
+    const fr = g('faq-reponse');  if (fr) fr.textContent = rep;
+
+    // Toggle
+    const tmap = {
+      'tog-opt1':o1,'tog-opt2':o2,'tog-opt3':o3,
+      'tog-det1a':d1,'tog-det2a':d1,'tog-det3a':d1,
+      'tog-det1b':d2,'tog-det2b':d2,'tog-det3b':d2,
+      'tog-det1c':d3,'tog-det2c':d3,'tog-det3c':d3
+    };
+    for (const [id, val] of Object.entries(tmap)) { const e = g(id); if (e) e.textContent = val; }
+
+    // Menu
+    [['menu-cat',cat],['menu-item1',i1],['menu-item2',i2],['menu-item3',i3]].forEach(([id,val]) => { const e = g(id); if (e) e.textContent = val; });
+
+    // CTA
+    const wc = g('wrap-cta');
+    if (wc) wc.innerHTML = ctaText !== '{{TEXTE_BOUTON}}'
+      ? `<a href="${ea(ctaUrl)}" style="background-color:#0d6efd;color:white;padding:12px 24px;text-decoration:none;border-radius:5px;font-weight:bold;font-family:sans-serif;display:inline-block;">${eh(ctaText)}</a>`
+      : `<span style="background:#f1f5f9;color:#94a3b8;padding:12px 28px;border-radius:6px;font-size:14px;display:inline-block;border:2px dashed #cbd5e1;">{{TEXTE_BOUTON}}</span>`;
   }
 
-  const ea = s => s.replace(/"/g, '&quot;');
-  const eh = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  function showMini(input, id) {
+    const img = g(id); if (!img) return;
+    if (input.value.trim()) { img.src = input.value.trim(); img.style.display = 'block'; img.onerror = () => img.style.display = 'none'; }
+    else img.style.display = 'none';
+  }
+
+  function resetAll() {
+    document.querySelectorAll('.panel input, .panel textarea').forEach(e => e.value = '');
+    const prev = g('prev-img'); if (prev) prev.style.display = 'none';
+    updateAll();
+  }
 
   updateAll();
 </script>
