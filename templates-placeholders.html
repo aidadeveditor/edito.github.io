@@ -15,6 +15,8 @@
       --tag: #dbeafe;
       --tag-text: #1e40af;
       --success: #16a34a;
+      --note-bg: #fffbeb;
+      --note-border: #fcd34d;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: #1e293b; line-height: 1.6; }
@@ -43,6 +45,30 @@
     .btn-copy:hover { background: #1740a8; }
     .btn-copy.copied { background: var(--success); }
     .placeholder-highlight { color: #fbbf24; font-weight: bold; }
+
+    /* === ZONE NOTES === */
+    .note-zone { background: var(--note-bg); border-top: 1px solid var(--note-border); padding: 12px 20px; }
+    .note-label { font-size: .78rem; font-weight: 700; color: #92400e; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+    .note-textarea {
+      width: 100%;
+      min-height: 56px;
+      padding: 8px 12px;
+      font-size: .85rem;
+      font-family: inherit;
+      border: 1px solid var(--note-border);
+      border-radius: 7px;
+      background: #fff;
+      color: #1e293b;
+      resize: vertical;
+      outline: none;
+      transition: border-color .2s;
+      line-height: 1.5;
+    }
+    .note-textarea:focus { border-color: #f59e0b; box-shadow: 0 0 0 2px rgba(245,158,11,.15); }
+    .note-textarea::placeholder { color: #d1a64a; font-style: italic; }
+    .note-saved { font-size: .72rem; color: var(--success); margin-top: 4px; display: none; }
+    .note-saved.show { display: block; }
+
     /* Index table */
     .index-table { width: 100%; border-collapse: collapse; font-size: .88rem; }
     .index-table th { background: #f1f5f9; text-align: left; padding: 10px 14px; font-weight: 700; color: #475569; border-bottom: 2px solid var(--border); }
@@ -68,6 +94,7 @@
     <span class="badge">✅ Tiptap Compatible</span>
     <span class="badge">✅ HTML5 Simplifié</span>
     <span class="badge">✅ 24 Templates</span>
+    <span class="badge">📝 Notes sauvegardées</span>
   </div>
 </header>
 
@@ -213,7 +240,6 @@
   <section id="images">
     <h2><span class="section-icon">🖼️</span> Blocs Images</h2>
 
-    <!-- NORMAL -->
     <div class="bloc-card">
       <div class="bloc-header">
         <span class="bloc-title">NORMAL</span>
@@ -224,9 +250,13 @@
     style="display:block; width:100%; max-width:320px; height:auto; margin:0 auto;"&gt;
 &lt;/figure&gt;</pre>
       <div class="copy-bar"><button class="btn-copy" onclick="copyCode('code-normal', this)">📋 Copier</button></div>
+      <div class="note-zone">
+        <div class="note-label">📝 Mes notes</div>
+        <textarea class="note-textarea" data-key="note-normal" placeholder="Ajoute ta note ici… (sauvegarde automatique)"></textarea>
+        <div class="note-saved" id="saved-note-normal">✅ Note sauvegardée</div>
+      </div>
     </div>
 
-    <!-- ANGLES ARRONDIS -->
     <div class="bloc-card">
       <div class="bloc-header">
         <span class="bloc-title">ANGLES ARRONDIS</span>
@@ -237,9 +267,13 @@
     style="display:block; width:100%; max-width:320px; height:auto; margin:0 auto; border-radius:16px;"&gt;
 &lt;/figure&gt;</pre>
       <div class="copy-bar"><button class="btn-copy" onclick="copyCode('code-arrondis', this)">📋 Copier</button></div>
+      <div class="note-zone">
+        <div class="note-label">📝 Mes notes</div>
+        <textarea class="note-textarea" data-key="note-arrondis" placeholder="Ajoute ta note ici… (sauvegarde automatique)"></textarea>
+        <div class="note-saved" id="saved-note-arrondis">✅ Note sauvegardée</div>
+      </div>
     </div>
 
-    <!-- LIEN CLIQUABLE -->
     <div class="bloc-card">
       <div class="bloc-header">
         <span class="bloc-title">LIEN CLIQUABLE</span>
@@ -254,9 +288,13 @@
   &lt;/a&gt;
 &lt;/figure&gt;</pre>
       <div class="copy-bar"><button class="btn-copy" onclick="copyCode('code-lien', this)">📋 Copier</button></div>
+      <div class="note-zone">
+        <div class="note-label">📝 Mes notes</div>
+        <textarea class="note-textarea" data-key="note-lien" placeholder="Ajoute ta note ici… (sauvegarde automatique)"></textarea>
+        <div class="note-saved" id="saved-note-lien">✅ Note sauvegardée</div>
+      </div>
     </div>
 
-    <!-- ARRONDIS HAUT-BAS -->
     <div class="bloc-card">
       <div class="bloc-header">
         <span class="bloc-title">ARRONDIS HAUT-BAS</span>
@@ -268,9 +306,13 @@
            border-radius:50% 50% 0 0 / 20% 20% 0 0;"&gt;
 &lt;/figure&gt;</pre>
       <div class="copy-bar"><button class="btn-copy" onclick="copyCode('code-hb', this)">📋 Copier</button></div>
+      <div class="note-zone">
+        <div class="note-label">📝 Mes notes</div>
+        <textarea class="note-textarea" data-key="note-hb" placeholder="Ajoute ta note ici… (sauvegarde automatique)"></textarea>
+        <div class="note-saved" id="saved-note-hb">✅ Note sauvegardée</div>
+      </div>
     </div>
 
-    <!-- OVALE PENCHE -->
     <div class="bloc-card">
       <div class="bloc-header">
         <span class="bloc-title">OVALE PENCHÉ</span>
@@ -282,9 +324,13 @@
            border-radius:30% 70% 70% 30% / 30% 30% 70% 70%;"&gt;
 &lt;/figure&gt;</pre>
       <div class="copy-bar"><button class="btn-copy" onclick="copyCode('code-ovale-p', this)">📋 Copier</button></div>
+      <div class="note-zone">
+        <div class="note-label">📝 Mes notes</div>
+        <textarea class="note-textarea" data-key="note-ovale-p" placeholder="Ajoute ta note ici… (sauvegarde automatique)"></textarea>
+        <div class="note-saved" id="saved-note-ovale-p">✅ Note sauvegardée</div>
+      </div>
     </div>
 
-    <!-- OVALE FLUIDE -->
     <div class="bloc-card">
       <div class="bloc-header">
         <span class="bloc-title">OVALE FLUIDE</span>
@@ -295,9 +341,13 @@
     style="display:block; width:100%; max-width:320px; height:auto; margin:0 auto; border-radius:50%;"&gt;
 &lt;/figure&gt;</pre>
       <div class="copy-bar"><button class="btn-copy" onclick="copyCode('code-ovale-f', this)">📋 Copier</button></div>
+      <div class="note-zone">
+        <div class="note-label">📝 Mes notes</div>
+        <textarea class="note-textarea" data-key="note-ovale-f" placeholder="Ajoute ta note ici… (sauvegarde automatique)"></textarea>
+        <div class="note-saved" id="saved-note-ovale-f">✅ Note sauvegardée</div>
+      </div>
     </div>
 
-    <!-- BLOB SOFT -->
     <div class="bloc-card">
       <div class="bloc-header">
         <span class="bloc-title">BLOB SOFT</span>
@@ -309,9 +359,13 @@
            border-radius:60% 40% 30% 70% / 60% 30% 70% 40%;"&gt;
 &lt;/figure&gt;</pre>
       <div class="copy-bar"><button class="btn-copy" onclick="copyCode('code-blob-s', this)">📋 Copier</button></div>
+      <div class="note-zone">
+        <div class="note-label">📝 Mes notes</div>
+        <textarea class="note-textarea" data-key="note-blob-s" placeholder="Ajoute ta note ici… (sauvegarde automatique)"></textarea>
+        <div class="note-saved" id="saved-note-blob-s">✅ Note sauvegardée</div>
+      </div>
     </div>
 
-    <!-- BLOB AMPLE -->
     <div class="bloc-card">
       <div class="bloc-header">
         <span class="bloc-title">BLOB AMPLE</span>
@@ -323,9 +377,13 @@
            border-radius:40% 60% 60% 40% / 40% 40% 60% 60%;"&gt;
 &lt;/figure&gt;</pre>
       <div class="copy-bar"><button class="btn-copy" onclick="copyCode('code-blob-a', this)">📋 Copier</button></div>
+      <div class="note-zone">
+        <div class="note-label">📝 Mes notes</div>
+        <textarea class="note-textarea" data-key="note-blob-a" placeholder="Ajoute ta note ici… (sauvegarde automatique)"></textarea>
+        <div class="note-saved" id="saved-note-blob-a">✅ Note sauvegardée</div>
+      </div>
     </div>
 
-    <!-- ARRONDIS EN BAS -->
     <div class="bloc-card">
       <div class="bloc-header">
         <span class="bloc-title">ARRONDIS EN BAS</span>
@@ -337,9 +395,13 @@
            border-radius:0 0 50% 50% / 0 0 20% 20%;"&gt;
 &lt;/figure&gt;</pre>
       <div class="copy-bar"><button class="btn-copy" onclick="copyCode('code-bas', this)">📋 Copier</button></div>
+      <div class="note-zone">
+        <div class="note-label">📝 Mes notes</div>
+        <textarea class="note-textarea" data-key="note-bas" placeholder="Ajoute ta note ici… (sauvegarde automatique)"></textarea>
+        <div class="note-saved" id="saved-note-bas">✅ Note sauvegardée</div>
+      </div>
     </div>
 
-    <!-- DOME -->
     <div class="bloc-card">
       <div class="bloc-header">
         <span class="bloc-title">DÔME</span>
@@ -351,9 +413,13 @@
            border-radius:50% 50% 0 0;"&gt;
 &lt;/figure&gt;</pre>
       <div class="copy-bar"><button class="btn-copy" onclick="copyCode('code-dome', this)">📋 Copier</button></div>
+      <div class="note-zone">
+        <div class="note-label">📝 Mes notes</div>
+        <textarea class="note-textarea" data-key="note-dome" placeholder="Ajoute ta note ici… (sauvegarde automatique)"></textarea>
+        <div class="note-saved" id="saved-note-dome">✅ Note sauvegardée</div>
+      </div>
     </div>
 
-    <!-- NUAGE -->
     <div class="bloc-card">
       <div class="bloc-header">
         <span class="bloc-title">NUAGE</span>
@@ -365,9 +431,13 @@
            border-radius:50% 50% 50% 50% / 60% 60% 40% 40%;"&gt;
 &lt;/figure&gt;</pre>
       <div class="copy-bar"><button class="btn-copy" onclick="copyCode('code-nuage', this)">📋 Copier</button></div>
+      <div class="note-zone">
+        <div class="note-label">📝 Mes notes</div>
+        <textarea class="note-textarea" data-key="note-nuage" placeholder="Ajoute ta note ici… (sauvegarde automatique)"></textarea>
+        <div class="note-saved" id="saved-note-nuage">✅ Note sauvegardée</div>
+      </div>
     </div>
 
-    <!-- EFFET PINCES 1 -->
     <div class="bloc-card">
       <div class="bloc-header">
         <span class="bloc-title">EFFET PINCES 1</span>
@@ -379,9 +449,13 @@
            border-radius:100% 0% 100% 0% / 100% 0% 100% 0%;"&gt;
 &lt;/figure&gt;</pre>
       <div class="copy-bar"><button class="btn-copy" onclick="copyCode('code-pinces1', this)">📋 Copier</button></div>
+      <div class="note-zone">
+        <div class="note-label">📝 Mes notes</div>
+        <textarea class="note-textarea" data-key="note-pinces1" placeholder="Ajoute ta note ici… (sauvegarde automatique)"></textarea>
+        <div class="note-saved" id="saved-note-pinces1">✅ Note sauvegardée</div>
+      </div>
     </div>
 
-    <!-- EFFET PINCES 2 -->
     <div class="bloc-card">
       <div class="bloc-header">
         <span class="bloc-title">EFFET PINCES 2</span>
@@ -393,9 +467,13 @@
            border-radius:0% 100% 0% 100% / 0% 100% 0% 100%;"&gt;
 &lt;/figure&gt;</pre>
       <div class="copy-bar"><button class="btn-copy" onclick="copyCode('code-pinces2', this)">📋 Copier</button></div>
+      <div class="note-zone">
+        <div class="note-label">📝 Mes notes</div>
+        <textarea class="note-textarea" data-key="note-pinces2" placeholder="Ajoute ta note ici… (sauvegarde automatique)"></textarea>
+        <div class="note-saved" id="saved-note-pinces2">✅ Note sauvegardée</div>
+      </div>
     </div>
 
-    <!-- ROND PARFAIT OMBRE -->
     <div class="bloc-card">
       <div class="bloc-header">
         <span class="bloc-title">ROND PARFAIT + OMBRE</span>
@@ -407,9 +485,13 @@
            border-radius:50%; box-shadow:0 8px 24px rgba(0,0,0,0.2);"&gt;
 &lt;/figure&gt;</pre>
       <div class="copy-bar"><button class="btn-copy" onclick="copyCode('code-rond-ombre', this)">📋 Copier</button></div>
+      <div class="note-zone">
+        <div class="note-label">📝 Mes notes</div>
+        <textarea class="note-textarea" data-key="note-rond-ombre" placeholder="Ajoute ta note ici… (sauvegarde automatique)"></textarea>
+        <div class="note-saved" id="saved-note-rond-ombre">✅ Note sauvegardée</div>
+      </div>
     </div>
 
-    <!-- ROND PARFAIT -->
     <div class="bloc-card">
       <div class="bloc-header">
         <span class="bloc-title">ROND PARFAIT</span>
@@ -420,9 +502,13 @@
     style="display:block; width:100%; max-width:320px; height:auto; margin:0 auto; border-radius:50%;"&gt;
 &lt;/figure&gt;</pre>
       <div class="copy-bar"><button class="btn-copy" onclick="copyCode('code-rond', this)">📋 Copier</button></div>
+      <div class="note-zone">
+        <div class="note-label">📝 Mes notes</div>
+        <textarea class="note-textarea" data-key="note-rond" placeholder="Ajoute ta note ici… (sauvegarde automatique)"></textarea>
+        <div class="note-saved" id="saved-note-rond">✅ Note sauvegardée</div>
+      </div>
     </div>
 
-    <!-- POLYGON -->
     <div class="bloc-card">
       <div class="bloc-header">
         <span class="bloc-title">POLYGON</span>
@@ -434,9 +520,13 @@
            clip-path:polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);"&gt;
 &lt;/figure&gt;</pre>
       <div class="copy-bar"><button class="btn-copy" onclick="copyCode('code-polygon', this)">📋 Copier</button></div>
+      <div class="note-zone">
+        <div class="note-label">📝 Mes notes</div>
+        <textarea class="note-textarea" data-key="note-polygon" placeholder="Ajoute ta note ici… (sauvegarde automatique)"></textarea>
+        <div class="note-saved" id="saved-note-polygon">✅ Note sauvegardée</div>
+      </div>
     </div>
 
-    <!-- LOSANGE -->
     <div class="bloc-card">
       <div class="bloc-header">
         <span class="bloc-title">LOSANGE</span>
@@ -448,9 +538,13 @@
            clip-path:polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);"&gt;
 &lt;/figure&gt;</pre>
       <div class="copy-bar"><button class="btn-copy" onclick="copyCode('code-losange', this)">📋 Copier</button></div>
+      <div class="note-zone">
+        <div class="note-label">📝 Mes notes</div>
+        <textarea class="note-textarea" data-key="note-losange" placeholder="Ajoute ta note ici… (sauvegarde automatique)"></textarea>
+        <div class="note-saved" id="saved-note-losange">✅ Note sauvegardée</div>
+      </div>
     </div>
 
-    <!-- DESSOUS ARRONDI -->
     <div class="bloc-card">
       <div class="bloc-header">
         <span class="bloc-title">DESSOUS ARRONDI</span>
@@ -462,9 +556,13 @@
            border-radius:0 0 24px 24px;"&gt;
 &lt;/figure&gt;</pre>
       <div class="copy-bar"><button class="btn-copy" onclick="copyCode('code-dessous', this)">📋 Copier</button></div>
+      <div class="note-zone">
+        <div class="note-label">📝 Mes notes</div>
+        <textarea class="note-textarea" data-key="note-dessous" placeholder="Ajoute ta note ici… (sauvegarde automatique)"></textarea>
+        <div class="note-saved" id="saved-note-dessous">✅ Note sauvegardée</div>
+      </div>
     </div>
 
-    <!-- POLYGON 6 COTES -->
     <div class="bloc-card">
       <div class="bloc-header">
         <span class="bloc-title">POLYGON 6 CÔTÉS</span>
@@ -476,9 +574,13 @@
            clip-path:polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);"&gt;
 &lt;/figure&gt;</pre>
       <div class="copy-bar"><button class="btn-copy" onclick="copyCode('code-hex', this)">📋 Copier</button></div>
+      <div class="note-zone">
+        <div class="note-label">📝 Mes notes</div>
+        <textarea class="note-textarea" data-key="note-hex" placeholder="Ajoute ta note ici… (sauvegarde automatique)"></textarea>
+        <div class="note-saved" id="saved-note-hex">✅ Note sauvegardée</div>
+      </div>
     </div>
 
-    <!-- POLYGON ECRAN -->
     <div class="bloc-card">
       <div class="bloc-header">
         <span class="bloc-title">POLYGON ÉCRAN</span>
@@ -490,9 +592,13 @@
            clip-path:polygon(0% 5%, 5% 0%, 95% 0%, 100% 5%, 100% 95%, 95% 100%, 5% 100%, 0% 95%);"&gt;
 &lt;/figure&gt;</pre>
       <div class="copy-bar"><button class="btn-copy" onclick="copyCode('code-ecran', this)">📋 Copier</button></div>
+      <div class="note-zone">
+        <div class="note-label">📝 Mes notes</div>
+        <textarea class="note-textarea" data-key="note-ecran" placeholder="Ajoute ta note ici… (sauvegarde automatique)"></textarea>
+        <div class="note-saved" id="saved-note-ecran">✅ Note sauvegardée</div>
+      </div>
     </div>
 
-    <!-- GRISER IMAGE -->
     <div class="bloc-card">
       <div class="bloc-header">
         <span class="bloc-title">GRISER IMAGE</span>
@@ -503,9 +609,13 @@
     style="display:block; width:100%; max-width:320px; height:auto; margin:0 auto; filter:grayscale(100%);"&gt;
 &lt;/figure&gt;</pre>
       <div class="copy-bar"><button class="btn-copy" onclick="copyCode('code-grey', this)">📋 Copier</button></div>
+      <div class="note-zone">
+        <div class="note-label">📝 Mes notes</div>
+        <textarea class="note-textarea" data-key="note-grey" placeholder="Ajoute ta note ici… (sauvegarde automatique)"></textarea>
+        <div class="note-saved" id="saved-note-grey">✅ Note sauvegardée</div>
+      </div>
     </div>
 
-    <!-- ENROULEMENT IMG TXT -->
     <div class="bloc-card">
       <div class="bloc-header">
         <span class="bloc-title">ENROULEMENT IMAGE + TEXTE</span>
@@ -518,6 +628,11 @@
 &lt;p&gt;<span class="placeholder-highlight">{{TEXTE_ACCOMPAGNEMENT}}</span>&lt;/p&gt;
 &lt;div style="clear:both;"&gt;&lt;/div&gt;</pre>
       <div class="copy-bar"><button class="btn-copy" onclick="copyCode('code-wrap-img', this)">📋 Copier</button></div>
+      <div class="note-zone">
+        <div class="note-label">📝 Mes notes</div>
+        <textarea class="note-textarea" data-key="note-wrap-img" placeholder="Ajoute ta note ici… (sauvegarde automatique)"></textarea>
+        <div class="note-saved" id="saved-note-wrap-img">✅ Note sauvegardée</div>
+      </div>
     </div>
   </section>
 
@@ -541,6 +656,11 @@
   &lt;/div&gt;
 &lt;/div&gt;</pre>
       <div class="copy-bar"><button class="btn-copy" onclick="copyCode('code-wrap-vid', this)">📋 Copier</button></div>
+      <div class="note-zone">
+        <div class="note-label">📝 Mes notes</div>
+        <textarea class="note-textarea" data-key="note-wrap-vid" placeholder="Ajoute ta note ici… (sauvegarde automatique)"></textarea>
+        <div class="note-saved" id="saved-note-wrap-vid">✅ Note sauvegardée</div>
+      </div>
     </div>
   </section>
 
@@ -559,6 +679,11 @@
   &lt;div class="template-menu-item"&gt;<span class="placeholder-highlight">{{ITEM_3}}</span>&lt;/div&gt;
 &lt;/div&gt;</pre>
       <div class="copy-bar"><button class="btn-copy" onclick="copyCode('code-menu', this)">📋 Copier</button></div>
+      <div class="note-zone">
+        <div class="note-label">📝 Mes notes</div>
+        <textarea class="note-textarea" data-key="note-menu" placeholder="Ajoute ta note ici… (sauvegarde automatique)"></textarea>
+        <div class="note-saved" id="saved-note-menu">✅ Note sauvegardée</div>
+      </div>
     </div>
   </section>
 
@@ -579,6 +704,11 @@
 &lt;/details&gt;
 &lt;p&gt;&amp;nbsp;&lt;/p&gt;</pre>
       <div class="copy-bar"><button class="btn-copy" onclick="copyCode('code-faq', this)">📋 Copier</button></div>
+      <div class="note-zone">
+        <div class="note-label">📝 Mes notes</div>
+        <textarea class="note-textarea" data-key="note-faq" placeholder="Ajoute ta note ici… (sauvegarde automatique)"></textarea>
+        <div class="note-saved" id="saved-note-faq">✅ Note sauvegardée</div>
+      </div>
     </div>
 
     <div class="bloc-card">
@@ -620,6 +750,11 @@
 &lt;/ul&gt;
 &lt;p&gt;&amp;nbsp;&lt;/p&gt;</pre>
       <div class="copy-bar"><button class="btn-copy" onclick="copyCode('code-toggle', this)">📋 Copier</button></div>
+      <div class="note-zone">
+        <div class="note-label">📝 Mes notes</div>
+        <textarea class="note-textarea" data-key="note-toggle" placeholder="Ajoute ta note ici… (sauvegarde automatique)"></textarea>
+        <div class="note-saved" id="saved-note-toggle">✅ Note sauvegardée</div>
+      </div>
     </div>
   </section>
 
@@ -641,29 +776,30 @@
 &lt;/div&gt;
 &lt;p&gt;&amp;nbsp;&lt;/p&gt;</pre>
       <div class="copy-bar"><button class="btn-copy" onclick="copyCode('code-cta', this)">📋 Copier</button></div>
+      <div class="note-zone">
+        <div class="note-label">📝 Mes notes</div>
+        <textarea class="note-textarea" data-key="note-cta" placeholder="Ajoute ta note ici… (sauvegarde automatique)"></textarea>
+        <div class="note-saved" id="saved-note-cta">✅ Note sauvegardée</div>
+      </div>
     </div>
   </section>
 
 </main>
 
 <footer>
-  Templates HTML — Placeholders MBNXT &amp; Tiptap &nbsp;|&nbsp; Groupon France Éditorial &nbsp;|&nbsp; Généré le 17/05/2026
+  Templates HTML — Placeholders MBNXT &amp; Tiptap &nbsp;|&nbsp; Groupon France Éditorial &nbsp;|&nbsp; Mis à jour le 17/05/2026
 </footer>
 
 <script>
+// === COPY ===
 function copyCode(id, btn) {
   const el = document.getElementById(id);
-  // Extract text content without HTML tags
   const text = el.innerText || el.textContent;
   navigator.clipboard.writeText(text).then(() => {
     btn.textContent = '✅ Copié !';
     btn.classList.add('copied');
-    setTimeout(() => {
-      btn.textContent = '📋 Copier';
-      btn.classList.remove('copied');
-    }, 2000);
+    setTimeout(() => { btn.textContent = '📋 Copier'; btn.classList.remove('copied'); }, 2000);
   }).catch(() => {
-    // Fallback
     const range = document.createRange();
     range.selectNodeContents(el);
     window.getSelection().removeAllRanges();
@@ -672,19 +808,38 @@ function copyCode(id, btn) {
     window.getSelection().removeAllRanges();
     btn.textContent = '✅ Copié !';
     btn.classList.add('copied');
-    setTimeout(() => {
-      btn.textContent = '📋 Copier';
-      btn.classList.remove('copied');
-    }, 2000);
+    setTimeout(() => { btn.textContent = '📋 Copier'; btn.classList.remove('copied'); }, 2000);
   });
 }
-// Smooth scroll for nav
-document.querySelectorAll('nav a').forEach(a => {
-  a.addEventListener('click', e => {
+
+// === NOTES (localStorage) ===
+document.querySelectorAll('.note-textarea').forEach(function(ta) {
+  var key = ta.getAttribute('data-key');
+  var savedEl = document.getElementById('saved-' + key);
+  // Restore
+  var saved = localStorage.getItem(key);
+  if (saved) ta.value = saved;
+  // Auto-save on input
+  var timer;
+  ta.addEventListener('input', function() {
+    clearTimeout(timer);
+    timer = setTimeout(function() {
+      localStorage.setItem(key, ta.value);
+      if (savedEl) {
+        savedEl.classList.add('show');
+        setTimeout(function() { savedEl.classList.remove('show'); }, 1800);
+      }
+    }, 600);
+  });
+});
+
+// === NAV SMOOTH SCROLL ===
+document.querySelectorAll('nav a').forEach(function(a) {
+  a.addEventListener('click', function(e) {
     e.preventDefault();
-    document.querySelectorAll('nav a').forEach(x => x.classList.remove('active'));
+    document.querySelectorAll('nav a').forEach(function(x) { x.classList.remove('active'); });
     a.classList.add('active');
-    const target = document.querySelector(a.getAttribute('href'));
+    var target = document.querySelector(a.getAttribute('href'));
     if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
   });
 });
